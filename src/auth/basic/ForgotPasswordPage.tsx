@@ -1,77 +1,69 @@
-import { cn } from "@/lib/utils"
-import { GalleryVerticalEnd } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { LoginForm } from "@/components/login-form"
+import { LoginCarousel } from "@/components/login-carousel"
+
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
+import logo from "@/assets/logo/2morrow-complete-logo-high-quality.png"
+import bg from "@/assets/auth-images/auth-bg.png"
+import ForgotPassword from "@/assets/auth-images/reset-password.png"
 
-export default function ForgotPasswordPage({
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<"div">) {
+export default function LoginPage() {
   return (
-    <div className="bg-muted min-h-svh w-full flex items-center justify-center p-6 md:p-10">
-      <div className="max-w-lg">
-        <div className="flex flex-col gap-6">
-          <div className="flex items-center justify-center gap-2 font-medium">
-            <div className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-md">
-              <GalleryVerticalEnd className="size-5" />
-            </div>
-            <span className="text-lg">Acme Inc.</span>
-          </div>
-          
-          <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card>
-        <CardHeader className="text-center">
-          <CardTitle className="text-xl">Forgot password?</CardTitle>
-          <CardDescription>
-            Enter your email and we’ll send you a reset link
-          </CardDescription>
-        </CardHeader>
+    <div className="min-h-screen flex items-center justify-center p-4 md:p-8 rounded-2xl
+shadow-[0_20px_60px_rgba(0,0,0,0.08)]" style={{
+        backgroundImage: `url(${bg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}>
+      <div className="w-full max-w-6xl overflow-hidden rounded-2xl bg-white shadow-xl">
+        <div className="grid lg:grid-cols-2">
 
-        <CardContent>
-          <form>
-            <div className="grid gap-6">
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  required
-                />
-              </div>
+          {/* Left Side */}
+          <div className="flex flex-col justify-center p-8 md:p-12">
+            <img
+              src={logo}
+              alt="2Morrow"
+              className="w-[280px] mb-8"
+            />
 
-              <Button type="submit" className="w-full">
-                Send reset link
-              </Button>
+           <div className="w-full">
+  <h1 className="mb-8 text-4xl font-bold">
+    Reset Password
+  </h1>
+  <p className="pb-10">Forgotten your password? Just enter your email address below and we'll send you a link to reset it.</p>
+  <form>
+    <div className="space-y-5">
+      <Input
+        type="email"
+        placeholder="Insert your Email"
+        className="h-12"
+      />
 
-              <div className="text-center text-sm">
-                Remember your password?{" "}
-                <a href="/login" className="underline underline-offset-4">
-                  Back to login
-                </a>
-              </div>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+      <Button
+        className="h-12 w-full"
+        type="submit"
+      >
+        Submit
+      </Button>
 
-      <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary">
-        If you don’t receive an email, check your spam folder or{" "}
-        <a href="#">contact support</a>.
-      </div>
     </div>
-          
+  </form>
+          </div></div>
+
+          {/* Right Side */}
+          <div className="hidden lg:block border-l bg-white">
+             <div className="flex h-[650px] flex-col items-center justify-center px-12 text-center">
+              <img
+                src={ForgotPassword}
+                alt="Forgot Password Image "
+                className="mb-10 h-[300px] w-auto object-contain select-none"
+                draggable={false}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    
   )
 }
