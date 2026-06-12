@@ -52,8 +52,7 @@ export function LoginForm({
         </label>
 
         <Link
-        to="{/login}"
-          type="button"
+        to="#"
           className="text-primary text-sm underline"
         >
           Forgot password?

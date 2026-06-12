@@ -12,9 +12,9 @@ import ChartsPage from "@/pages/charts/recharts/ReChartsPage"
 import DataWidgetsPage from "@/pages/widgets/data/DataWidgetsPage"
 import StatisticsWidgetsPage from "@/pages/widgets/statistics/StatisticsWidgetsPage"
 
-import LoginPage from "@/auth/basic/LoginPage"
+import LoginPage from "@/modules/auth/LoginPage"
 import RegisterPage from "@/auth/basic/RegisterPage"
-import ForgotPasswordPage from "@/auth/basic/ForgotPasswordPage"
+import ForgotPasswordPage from "@/modules/auth/ForgotPasswordPage"
 
 import NotFound from "@/pages/NotFound"
 import ErrorPage from "@/pages/ErrorPage"
@@ -89,12 +89,12 @@ export const router = createBrowserRouter (
       element: <AuthLayout />,
       errorElement: <ErrorPage />,
       children: [
-        {path: "auth/basic/login", element: <LoginPage /> },
-        {path: "auth/basic/register", element: <RegisterPage /> },
-        {path: "auth/basic/forgot-password", element: <ForgotPasswordPage /> },
-        {path: "auth/basic/reset-password", element: <ResetPasswordForm /> },
-        {path: "auth/basic/verify-email", element: <VerifyEmailForm /> },
-        {path: "auth/basic/password-reset-success", element: <PasswordResetSuccess /> },
+        {path: "auth/login", element: <LoginPage /> },
+        {path: "auth/register", element: <RegisterPage /> },
+        {path: "auth/forgot-password", element: <ForgotPasswordPage /> },
+        {path: "auth/reset-password", element: <ResetPasswordForm /> },
+        {path: "auth/verify-email", element: <VerifyEmailForm /> },
+        {path: "auth/password-reset-success", element: <PasswordResetSuccess /> },
 
         {path: "auth/cover/login", element: <CoverLoginPage /> },
         {path: "auth/cover/register", element: <CoverRegisterPage /> },
