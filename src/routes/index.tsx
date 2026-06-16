@@ -82,6 +82,9 @@ import SelectExamplesPage from "@/pages/forms/select/SelectExamplesPage"
 import FormRepeater from "@/pages/forms/FormRepeater"
 import LandingPage from "@/pages/dashboard/analytics/LandingPage"
 
+import ListProperty from "@/modules/properties/PropertyListing"
+import AddProperty from "@/modules/properties/AddProperty"
+
 export const router = createBrowserRouter (
   [
     // 🔐 AUTH ROUTES
@@ -115,9 +118,9 @@ export const router = createBrowserRouter (
       element: <AppLayout />,
       errorElement: <ErrorPage />,
       children: [
-        {index: true, element: <AnalyticsDashboard /> },
+        {index: true, element: <CrmDashboard /> },
         {path: "dashboard/analytics", element: <AnalyticsDashboard /> },
-        {path: "dashboard/crm", element: <CrmDashboard /> },
+        {path: "dashboard", element: <CrmDashboard /> },
         {path: "dashboard/eCommerce", element: <EcommerceDashboard /> },
         {path: "dashboard/landing-page", element: <LandingPage /> },
         
@@ -125,6 +128,10 @@ export const router = createBrowserRouter (
         {path: "widgets/data", element: <DataWidgetsPage /> },
         {path: "widgets/statistics", element: <StatisticsWidgetsPage /> },
         {path: "docs", element: <Documentation /> },
+
+        // Properties
+        {path: "properties/list", element: <ListProperty /> },
+        {path: "properties/add-property", element: <AddProperty /> },
 
         // 🛍️ E-COMMERCE
         {path: "eCommerce/product-list", element: <ProductList /> },

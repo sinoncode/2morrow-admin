@@ -64,14 +64,14 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-       url: "dashboard/crm",
+       url: "dashboard",
       icon: Grid2X2,
       isActive: true,
 
     },
     {
       title: "Properties",
-      url: "#",
+      url: "properties/list",
       icon: Building2,
     },
      {

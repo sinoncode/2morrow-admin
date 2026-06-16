@@ -8,35 +8,26 @@ const RadioGroup = React.forwardRef<
 >(({ className, ...props }, ref) => {
   return <RadioGroupPrimitive.Root className={cn("grid gap-3", className)} {...props} ref={ref} />
 })
-RadioGroup.displayName = RadioGroupPrimitive.Root.displayName
 
 const RadioGroupItem = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>
->(({ className, children, ...props }, ref) => {
+>(({ className, ...props }, ref) => {
   return (
     <RadioGroupPrimitive.Item
       ref={ref}
       className={cn(
-        "flex items-center gap-4 w-full rounded-xl bg-white p-4 text-left transition-all hover:bg-slate-50/50 border-0 outline-none focus:outline-none data-[state=checked]:bg-blue-50/70 data-[state=checked]:border-blue-100",
+        "flex items-center justify-between w-full rounded-xl border border-transparent bg-white p-4 text-left transition-all hover:bg-slate-50 focus:outline-none data-[state=checked]:bg-blue-50/60 data-[state=checked]:border-blue-100",
         className
       )}
       {...props}
     >
       {/* Radio Visual Circle */}
-      <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-slate-300 text-current data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 transition-colors">
+      <div className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 text-current data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600">
         <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
           <div className="h-2 w-2 rounded-full bg-white" />
         </RadioGroupPrimitive.Indicator>
       </div>
-
-      {/* CHANGED HERE: Removed pointer-events-none so click events register instantly */}
-      <div className="flex flex-col gap-0.5 text-left w-full">
-        {children}
-      </div>
     </RadioGroupPrimitive.Item>
   )
 })
-RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName
-
-export { RadioGroup, RadioGroupItem }
