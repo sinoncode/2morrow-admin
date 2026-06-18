@@ -1,6 +1,7 @@
 import { create } from "zustand"
 import { AuthService } from "@/api/services/auth.service"
 import { toast } from "@/lib/toast" // adjust path to your toast utility
+import { useNavigate } from "react-router-dom"
 
 interface LoginData {
   email: string
@@ -14,6 +15,9 @@ interface AuthStore {
   login: (data: LoginData) => Promise<boolean>
   logout: () => Promise<void>
 }
+
+const navigate = useNavigate();
+
 
 export const useAuthStore = create<AuthStore>((set) => ({
   loading: false,
@@ -64,7 +68,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
       toast.success("Logged out successfully")
 
-      window.location.href = "/auth/login"
+      navigate("/auth/login")
     }
   },
 }))
