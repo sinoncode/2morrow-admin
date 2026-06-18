@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { useAuthStore } from "@/store/auth.store"
 
+import { useNavigate } from "react-router-dom"
 import {
   User,
   Settings,
@@ -23,8 +24,16 @@ import {
 } from "lucide-react"
 
 export function UserDropdown() {
+  const navigate = useNavigate()
+ const logout = useAuthStore((state) => state.logout)
 
-  const { logout } = useAuthStore()
+  const handleLogout = async () => {
+    await logout()
+
+    navigate("/auth/login", {
+      replace: true,
+    })
+  }
   return (
     <DropdownMenu>
       {/* Trigger */}
@@ -89,10 +98,10 @@ export function UserDropdown() {
 
         {/* Logout */}
         <div className="mt-3">
-         <Button
+       <Button
   variant="default"
   className="w-full h-8 justify-center gap-2"
-  onClick={logout}
+  onClick={handleLogout}
 >
   <LogOut className="size-4" />
   Logout
