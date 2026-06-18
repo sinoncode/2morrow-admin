@@ -11,6 +11,7 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { useAuthStore } from "@/store/auth.store"
 
 import {
   User,
@@ -22,6 +23,8 @@ import {
 } from "lucide-react"
 
 export function UserDropdown() {
+
+  const { logout } = useAuthStore()
   return (
     <DropdownMenu>
       {/* Trigger */}
@@ -86,12 +89,14 @@ export function UserDropdown() {
 
         {/* Logout */}
         <div className="mt-3">
-          <Button 
-           variant={"default"}
-           className="w-full h-8 justify-center gap-2">
-            <LogOut className="size-4" />
-            Logout
-          </Button>
+         <Button
+  variant="default"
+  className="w-full h-8 justify-center gap-2"
+  onClick={logout}
+>
+  <LogOut className="size-4" />
+  Logout
+</Button>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>

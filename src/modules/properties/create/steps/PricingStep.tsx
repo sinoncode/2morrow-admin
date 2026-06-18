@@ -125,12 +125,19 @@ export default function PricingStep() {
                 <Button
                   key={room}
                   variant={
-                    form.bedrooms === room
+                    `${form.bedrooms}` === room
                       ? "default"
                       : "outline"
                   }
                   onClick={() =>
-                    updateField("bedrooms", room)
+                    updateField(
+                      "bedrooms",
+                      room === "Studio"
+                        ? 0
+                        : room === "6+"
+                        ? 6
+                        : Number(room)
+                    )
                   }
                 >
                   {room}
@@ -147,12 +154,17 @@ export default function PricingStep() {
                 <Button
                   key={room}
                   variant={
-                    form.bathrooms === room
+                    `${form.bathrooms}` === room
                       ? "default"
                       : "outline"
                   }
                   onClick={() =>
-                    updateField("bathrooms", room)
+                    updateField(
+                      "bathrooms",
+                      room === "6+"
+                        ? 6
+                        : Number(room)
+                    )
                   }
                 >
                   {room}
@@ -306,11 +318,11 @@ export default function PricingStep() {
 
             <Input
               placeholder="2"
-              value={form.coveredParking || ""}
+              value={form.coveredParking ? "true" : ""}
               onChange={(e) =>
                 updateField(
                   "coveredParking",
-                  e.target.value
+                  e.target.value !== ""
                 )
               }
             />
@@ -321,11 +333,11 @@ export default function PricingStep() {
 
             <Input
               placeholder="1"
-              value={form.openParking || ""}
+              value={form.openParking ? "true" : ""}
               onChange={(e) =>
                 updateField(
                   "openParking",
-                  e.target.value
+                  e.target.value !== ""
                 )
               }
             />

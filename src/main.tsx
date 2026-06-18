@@ -2,11 +2,11 @@ import React from "react"
 import ReactDOM from "react-dom/client"
 import { RouterProvider } from "react-router-dom"
 import { ThemeProvider } from "next-themes"
-import { Toaster } from "sonner"
+import { Toaster } from "react-hot-toast"
 
 import UIThemeProvider from "@/providers/ui-theme-provider"
-
 import { router } from "@/routes"
+
 import "@/index.css"
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -17,11 +17,21 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       enableSystem
       disableTransitionOnChange
     >
-      
       <UIThemeProvider>
         <RouterProvider router={router} />
+
+        <Toaster
+          position="top-right"
+          reverseOrder={false}
+          gutter={8}
+          toastOptions={{
+            duration: 3000,
+            style: {
+              borderRadius: "10px",
+            },
+          }}
+        />
       </UIThemeProvider>
     </ThemeProvider>
-    <Toaster position="top-right" richColors closeButton />
   </React.StrictMode>
 )

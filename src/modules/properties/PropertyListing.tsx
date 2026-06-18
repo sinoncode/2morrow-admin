@@ -274,7 +274,7 @@ const iconGradients = [
              placeholder=" Search property, project, location or agent..."
               className="pl-9"
               value={search}
-              onChange={(e) => {
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 setSearch(e.target.value)
                 setPageState(1) 
               }}

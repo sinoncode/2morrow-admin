@@ -55,4 +55,4 @@ please upgrade to **PulseUI Pro** when available.
 
 ---
 
-© 2026 Codervent. All rights reserved.
+© 2026 Networsys. All rights reserved.

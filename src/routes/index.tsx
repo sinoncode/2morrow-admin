@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom"
+import { createBrowserRouter, Navigate, redirect } from "react-router-dom"
 
 import AppLayout from "@/layouts/AppLayout"
 import AuthLayout from "@/layouts/AuthLayout"
@@ -84,15 +84,18 @@ import LandingPage from "@/pages/dashboard/analytics/LandingPage"
 
 import ListProperty from "@/modules/properties/PropertyListing"
 import AddProperty from "@/modules/properties/AddProperty"
+// Requests
+import RequestLists from "@/modules/requests/RequestLists"
 
 export const router = createBrowserRouter (
   [
+    { path: "/", element: <Navigate to="/auth/login" replace /> },
     // 🔐 AUTH ROUTES
     {
       element: <AuthLayout />,
       errorElement: <ErrorPage />,
       children: [
-        {path: "auth/login", element: <LoginPage /> },
+        { path: "auth/login", element: <LoginPage /> },
         {path: "auth/register", element: <RegisterPage /> },
         {path: "auth/forgot-password", element: <ForgotPasswordPage /> },
         {path: "auth/reset-password", element: <ResetPasswordForm /> },
@@ -117,6 +120,12 @@ export const router = createBrowserRouter (
     {
       element: <AppLayout />,
       errorElement: <ErrorPage />,
+      loader: () => {
+        if (!localStorage.getItem("access_token")) {
+          return redirect("/auth/login")
+        }
+        return null
+      },
       children: [
         {index: true, element: <CrmDashboard /> },
         {path: "dashboard/analytics", element: <AnalyticsDashboard /> },
@@ -132,6 +141,8 @@ export const router = createBrowserRouter (
         // Properties
         {path: "properties/list", element: <ListProperty /> },
         {path: "properties/add-property", element: <AddProperty /> },
+        // Requests
+        {path: "requests/list", element: <RequestLists />},
 
         // 🛍️ E-COMMERCE
         {path: "eCommerce/product-list", element: <ProductList /> },

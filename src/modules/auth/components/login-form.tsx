@@ -1,36 +1,57 @@
+import React, { useState } from "react"
+import { Link, useNavigate } from "react-router-dom"
+import { Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useState } from "react"
-import { Eye, EyeOff } from "lucide-react"
 import Apple from "@/assets/auth-images/apple_logo.svg"
 import Google from "@/assets/auth-images/google_logo.webp"
-import { Link } from "react-router-dom"
+import { useAuthStore } from "@/store/auth.store"
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
+  const navigate = useNavigate()
+  const { login, loading, error } = useAuthStore()
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    const success = await login({
+      email,
+      password,
+    })
+
+    if (success) {
+      navigate("/dashboard")
+    }
+  }
   return (
    <div className="w-full">
   <h1 className="mb-8 text-4xl font-bold">
     Login
   </h1>
-
-  <form>
+<form onSubmit={handleSubmit}>
     <div className="space-y-5">
       <Input
-        type="email"
-        placeholder="Email id"
-        className="h-12"
-      />
+  type="email"
+  placeholder="Email id"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+  className="h-12"
+/>
 
       <div className="relative">
-        <Input
-          type={showPassword ? "text" : "password"}
-          placeholder="Enter your password"
-          className="h-12 pr-10"
-        />
+       <Input
+  type={showPassword ? "text" : "password"}
+  placeholder="Enter your password"
+  value={password}
+  onChange={(e) => setPassword(e.target.value)}
+  className="h-12 pr-10"
+/>
 
         <button
           type="button"
@@ -59,12 +80,20 @@ export function LoginForm({
         </Link>
       </div>
 
-      <Button
-        className="h-12 w-full"
-        type="submit"
-      >
-        Login
-      </Button>
+    <Button
+  className="h-12 w-full"
+  type="submit"
+  disabled={loading}
+>
+  {loading ? "Logging in..." : "Login"}
+</Button>
+{
+  error && (
+    <p className="text-sm text-red-500">
+      {error}
+    </p>
+  )
+}
 
       <div className="pt-2 text-center">
         <p className="mb-4 text-sm ">

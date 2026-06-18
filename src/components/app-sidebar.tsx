@@ -81,7 +81,7 @@ const data = {
     },
       {
       title: "Requests",
-      url: "docs",
+      url: "requests/list",
       icon: Handshake,
     },
       {
