@@ -72,7 +72,7 @@ export function UserDropdown() {
           Profile
         </DropdownMenuItem>
 
-        <DropdownMenuItem className="gap-2 h-9">
+        {/* <DropdownMenuItem className="gap-2 h-9">
           <Settings className="!size-5" />
           Settings
         </DropdownMenuItem>
@@ -92,7 +92,7 @@ export function UserDropdown() {
         <DropdownMenuItem className="gap-2 h-9">
           <DollarSign className="!size-5" />
           Earnings
-        </DropdownMenuItem>
+        </DropdownMenuItem> */}
 
         <DropdownMenuSeparator className="border-1 my-2" />
 
