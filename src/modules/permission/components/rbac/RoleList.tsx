@@ -81,7 +81,7 @@ export const RoleList = ({
                 ? "You need roles.create permission to add a new role."
                 : undefined
             }
-            className="bg-[#1f6ea9] hover:bg-black text-white gap-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-[#1f6ea9] hover:bg-black rounded-2xl text-white gap-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Plus className="h-4 w-4" />
 
@@ -129,7 +129,7 @@ export const RoleList = ({
             )}
           </div>
         ) : (
-          <ScrollArea className="h-[500px]">
+          <ScrollArea className="h-100 pt-5">
             <div className="px-4 pb-4 space-y-3">
               {filteredRoles.map((role) => {
                 const totalPermissions =

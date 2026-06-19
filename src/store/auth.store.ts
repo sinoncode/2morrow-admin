@@ -7,10 +7,18 @@ interface LoginData {
   password: string
 }
 
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  permissions: string[];
+}
+
+
 interface AuthStore {
   loading: boolean
   error: string | null
-
+ user: User | null;
   login: (data: LoginData) => Promise<boolean>
   logout: () => Promise<void>
 }
@@ -18,6 +26,7 @@ interface AuthStore {
 export const useAuthStore = create<AuthStore>((set) => ({
   loading: false,
   error: null,
+  user: null,
 
   login: async (data) => {
     set({
@@ -26,12 +35,16 @@ export const useAuthStore = create<AuthStore>((set) => ({
     })
 
     try {
-      const response = await AuthService.login(data)
+     const response = await AuthService.login(data);
 
-      localStorage.setItem(
-        "access_token",
-        response.data.data.token
-      )
+localStorage.setItem(
+  "access_token",
+  response.data.data.token
+);
+
+set({
+  user: response.data.data.user,
+});
 
       toast.success("Login successful")
 
@@ -43,6 +56,10 @@ export const useAuthStore = create<AuthStore>((set) => ({
       set({
         error: message,
       })
+
+      set({
+  user: null,
+});
 
       toast.error(message)
 
