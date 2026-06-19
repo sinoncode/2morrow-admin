@@ -86,6 +86,9 @@ import ListProperty from "@/modules/properties/PropertyListing"
 import AddProperty from "@/modules/properties/AddProperty"
 // Requests
 import RequestLists from "@/modules/requests/RequestLists"
+import Permissions from "@/modules/permission/Permission"
+
+import Leads from "@/modules/leads/LeadsLists"
 
 export const router = createBrowserRouter (
   [
@@ -143,6 +146,13 @@ export const router = createBrowserRouter (
         {path: "properties/add-property", element: <AddProperty /> },
         // Requests
         {path: "requests/list", element: <RequestLists />},
+
+        // Permission
+        {path: "permission", element: <Permissions />},
+
+        // Leads 
+
+        {path: "leads/list", element: <Leads />},
 
         // 🛍️ E-COMMERCE
         {path: "eCommerce/product-list", element: <ProductList /> },

@@ -69,6 +69,11 @@ const data = {
       isActive: true,
 
     },
+      {
+      title: "Permission",
+      url: "permission",
+      icon: Handshake,
+    },
     {
       title: "Properties",
       url: "properties/list",
@@ -86,7 +91,7 @@ const data = {
     },
       {
       title: "Leads",
-      url: "docs",
+      url: "leads/list",
       icon: Users,
     },
       {
@@ -515,7 +520,7 @@ export function AppSidebar({ onHoverChange, ...props }: AppSidebarProps) {
       <Sidebar collapsible="icon" {...props} className="h-screen z-50 bg-[linear-gradient(180deg,#1f6ea9_0%,#155789_40%,#0a2f4f_70%,#040404_100%)]">
         <SidebarHeader className="border-b h-16 ">
           <SidebarMenuButton size="lg" asChild className="px-2 py-3">
-              <a href="#" className="flex justify-center hover:bg-transparent">
+              <a href="/" className="flex justify-center hover:bg-transparent active:bg-transparent">
                 <div className="mx-0">
                   <img src={LogoIcon} alt="2morrow icon" />
                 </div>
