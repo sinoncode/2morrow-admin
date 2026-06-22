@@ -46,7 +46,7 @@ const data = {
   },
   teams: [
     {
-     name: "2 Morrow",
+      name: "2 Morrow",
       logo: GalleryVerticalEnd,
       plan: "React Admin",
     },
@@ -64,12 +64,12 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-       url: "dashboard",
+      url: "dashboard",
       icon: Grid2X2,
       isActive: true,
 
     },
-      {
+    {
       title: "Permission",
       url: "permission",
       icon: Handshake,
@@ -79,63 +79,63 @@ const data = {
       url: "properties/list",
       icon: Building2,
     },
-     {
+    {
       title: "New Projects",
       url: "docs",
       icon: Layers,
     },
-      {
+    {
       title: "Requests",
       url: "requests/list",
       icon: Handshake,
     },
-      {
+    {
       title: "Leads",
       url: "leads/list",
       icon: Users,
     },
-      {
+    {
       title: "Contact",
       url: "docs",
       icon: Phone,
     },
-      {
+    {
       title: "Emails",
       url: "docs",
       icon: Mail,
     },
-      {
+    {
       title: "Agenda",
-      url: "docs",
+      url: "agenda",
       icon: NotebookPen,
     },
-      {
+    {
       title: "Activites",
       url: "docs",
       icon: LucidePuzzle,
     },
-      {
+    {
       title: "Reports",
       url: "docs",
       icon: ChartNoAxesCombined,
     },
 
-      {
+    {
       title: "Agents",
       url: "docs",
       icon: UserRound,
     },
-      {
+    {
       title: "Agency",
       url: "docs",
       icon: CirclePile,
     },
-      {
+    {
       title: "Billing",
       url: "docs",
       icon: ScrollText,
     },
-      {
+    {
       title: "Settings",
       url: "docs",
       icon: Settings,
@@ -181,7 +181,7 @@ const data = {
     //       title: "Invoice",
     //       url: "eCommerce/invoice",
     //     },
-        
+
     //   ],
     // },
     // {
@@ -502,7 +502,7 @@ const data = {
     //   ],
     // },
   ],
- 
+
 }
 
 // This is the sidebar component used in the app layout.
@@ -520,22 +520,22 @@ export function AppSidebar({ onHoverChange, ...props }: AppSidebarProps) {
       <Sidebar collapsible="icon" {...props} className="h-screen z-50 bg-[linear-gradient(180deg,#1f6ea9_0%,#155789_40%,#0a2f4f_70%,#040404_100%)]">
         <SidebarHeader className="border-b h-16 ">
           <SidebarMenuButton size="lg" asChild className="px-2 py-3">
-              <a href="/" className="flex justify-center hover:bg-transparent active:bg-transparent">
-                <div className="mx-0">
-                  <img src={LogoIcon} alt="2morrow icon" />
-                </div>
-                <div className="leading-tight -ms-3">
-                 <img src={LogoText} alt="2morrow icon" />
-                </div>
-              </a>
-            </SidebarMenuButton>
+            <a href="/" className="flex justify-center hover:bg-transparent active:bg-transparent">
+              <div className="mx-0">
+                <img src={LogoIcon} alt="2morrow icon" />
+              </div>
+              <div className="leading-tight -ms-3">
+                <img src={LogoText} alt="2morrow icon" />
+              </div>
+            </a>
+          </SidebarMenuButton>
         </SidebarHeader>
 
         <SidebarContent className="overflow-hidden">
           <ScrollArea className="h-full">
             <div className="flex min-h-full flex-col">
-             <NavMain items={data.navMain} />
-             {/* <NavProjects projects={data.projects} /> */}
+              <NavMain items={data.navMain} />
+              {/* <NavProjects projects={data.projects} /> */}
             </div>
           </ScrollArea>
         </SidebarContent>
