@@ -86,11 +86,14 @@ import ListProperty from "@/modules/properties/PropertyListing"
 import AddProperty from "@/modules/properties/AddProperty"
 // Requests
 import RequestLists from "@/modules/requests/RequestLists"
+import EditRequests from "@/modules/requests/EditRequests"
+
 import Permissions from "@/modules/permission/Permission"
 
 import Leads from "@/modules/leads/LeadsLists"
 
 import Agenda from "@/modules/agenda/pages/Agenda"
+
 
 export const router = createBrowserRouter(
   [
@@ -148,6 +151,7 @@ export const router = createBrowserRouter(
         { path: "properties/add-property", element: <AddProperty /> },
         // Requests
         { path: "requests/list", element: <RequestLists /> },
+        { path: "requests/edit-requests", element: <EditRequests /> },
 
         // Permission
         { path: "permission", element: <Permissions /> },
