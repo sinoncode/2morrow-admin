@@ -130,39 +130,39 @@ const statusVariant = (status: string) => {
 }
 
 export default function PropertyListing() {
-const iconGradients = [
-  "bg-gradient-to-tr from-[#ee0979] to-[#ff6a00]", // pink-orange
-  "bg-gradient-to-tr from-[#00c6fb] to-[#005bea]", // blue
-  "bg-gradient-to-tr from-[#17ad37] to-[#98ec2d]", // green
-  "bg-gradient-to-tr from-[#7928ca] to-[#ff0080]", // purple-pink
-]
+  const iconGradients = [
+    "bg-gradient-to-tr from-[#ee0979] to-[#ff6a00]", // pink-orange
+    "bg-gradient-to-tr from-[#00c6fb] to-[#005bea]", // blue
+    "bg-gradient-to-tr from-[#17ad37] to-[#98ec2d]", // green
+    "bg-gradient-to-tr from-[#7928ca] to-[#ff0080]", // purple-pink
+  ]
 
 
-   const [search, setSearch] = useState("")
-   const [pageState, setPageState] = useState(1)
-   const [selected, setSelected] = useState<number[]>([])
-   const [requestsData, setRequestsData] = useState<Request[]>(requests)
+  const [search, setSearch] = useState("")
+  const [pageState, setPageState] = useState(1)
+  const [selected, setSelected] = useState<number[]>([])
+  const [requestsData, setRequestsData] = useState<Request[]>(requests)
 
-   const PAGE_SIZE = 5
+  const PAGE_SIZE = 5
 
-    // 🔍 Search filter
-const filteredRequests = useMemo(() => {
-  return requestsData.filter((request) =>
-    `${request.contact}
+  // 🔍 Search filter
+  const filteredRequests = useMemo(() => {
+    return requestsData.filter((request) =>
+      `${request.contact}
      ${request.city}
      ${request.agent}
      ${request.transactionCategory}`
-      .toLowerCase()
-      .includes(search.toLowerCase())
-  )
-}, [search, requestsData])
+        .toLowerCase()
+        .includes(search.toLowerCase())
+    )
+  }, [search, requestsData])
 
   // Calculation for safe pagination without useEffect
   const totalPages = Math.max(1, Math.ceil(filteredRequests.length / PAGE_SIZE))
   const currentPage = Math.min(pageState, totalPages)
 
   const paginatedRequests = filteredRequests.slice(
-    (currentPage - 1) * PAGE_SIZE, 
+    (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE
   )
 
@@ -170,68 +170,68 @@ const filteredRequests = useMemo(() => {
   const toggleAll = (checked: boolean) => {
     setSelected(checked ? paginatedRequests.map(p => p.id) : [])
   }
-  
+
   const toggleOne = (id: number) => {
     setSelected(prev =>
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
     )
   }
 
-  
-    
+
+
   return (
     <div className="space-y-6">
-<div>
-    <h1 className="text-3xl font-bold">Requests</h1>
-    <p className="text-lg">Manage and monitor all requests listings.</p>
-</div>
-      
+      <div>
+        <h1 className="text-3xl font-bold">Requests</h1>
+        <p className="text-lg">Manage and monitor all requests listings.</p>
+      </div>
+
 
       {/* PRODUCT LIST */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between border-b py-4 flex-wrap gap-3">
           <div className="flex gap-3 flex-wrap">
-          {/* <Input type="date" className="w-[160px]" /> */}
+            {/* <Input type="date" className="w-[160px]" /> */}
 
-              <Select>
-                <SelectTrigger className="w-[160px]">
-                  <SelectValue placeholder="Transaction" />
-                </SelectTrigger>
-                <SelectContent>
-                 <SelectItem value="buy">Buy</SelectItem>
-<SelectItem value="sell">Sell</SelectItem>
-<SelectItem value="rent">Rent</SelectItem>
-                </SelectContent>
-              </Select>
+            <Select>
+              <SelectTrigger className="w-[160px]">
+                <SelectValue placeholder="Transaction" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="buy">Buy</SelectItem>
+                <SelectItem value="sell">Sell</SelectItem>
+                <SelectItem value="rent">Rent</SelectItem>
+              </SelectContent>
+            </Select>
 
-              <Select>
-                <SelectTrigger className="w-[160px]">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                 <SelectItem value="pending">Pending</SelectItem>
-<SelectItem value="progress">In Progress</SelectItem>
-<SelectItem value="completed">Completed</SelectItem>
-<SelectItem value="cancelled">Cancelled</SelectItem>
-                </SelectContent>
-              </Select>
-            
-          {/* Search */}
-          <div className="relative mb-0 max-w-lg w-[280px] rounded-2xl">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-             placeholder=" Search contact, city or agent..."
-              className="pl-9"
-              value={search}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setSearch(e.target.value)
-                setPageState(1) 
-              }}
-            />
-          </div>
+            <Select>
+              <SelectTrigger className="w-[160px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="progress">In Progress</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Search */}
+            <div className="relative mb-0 max-w-lg w-[280px] rounded-2xl">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder=" Search contact, city or agent..."
+                className="pl-9"
+                value={search}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setSearch(e.target.value)
+                  setPageState(1)
+                }}
+              />
+            </div>
           </div>
           <div className="">
-             
+
             <Link to="#">
               <Button className="rounded-3xl text-base px-5 py-5" size="sm">
                 <Plus className="mr-1 h-5 w-5" />
@@ -242,101 +242,103 @@ const filteredRequests = useMemo(() => {
         </CardHeader>
 
         <CardContent className="space-y-4 p-6">
-         
+
 
           {/* TABLE */}
           <div className="relative w-full overflow-x-auto">
             <Table className="min-w-[900px]">
-          <TableHeader>
-    <TableRow>
-        <TableHead>Contact</TableHead>
-        <TableHead>Transaction Category</TableHead>
-        <TableHead>City</TableHead>
-        <TableHead>Budget</TableHead>
-        <TableHead>Agent</TableHead>
-        <TableHead>Status</TableHead>
-        <TableHead className="text-right">
-            Action
-        </TableHead>
-    </TableRow>
-</TableHeader>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Contact</TableHead>
+                  <TableHead>Transaction Category</TableHead>
+                  <TableHead>City</TableHead>
+                  <TableHead>Budget</TableHead>
+                  <TableHead>Agent</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">
+                    Action
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
 
-            <TableBody>
-  {paginatedRequests.map((request) => (
-    <TableRow key={request.id}>
-      <TableCell className="font-medium">
-        {request.contact}
-      </TableCell>
+              <TableBody>
+                {paginatedRequests.map((request) => (
+                  <TableRow key={request.id}>
+                    <TableCell className="font-medium">
+                      {request.contact}
+                    </TableCell>
 
-      <TableCell>
-        {request.transactionCategory}
-      </TableCell>
+                    <TableCell>
+                      {request.transactionCategory}
+                    </TableCell>
 
-      <TableCell>
-        {request.city}
-      </TableCell>
+                    <TableCell>
+                      {request.city}
+                    </TableCell>
 
-      <TableCell>
-        {request.budget}
-      </TableCell>
+                    <TableCell>
+                      {request.budget}
+                    </TableCell>
 
-      <TableCell>
-        {request.agent}
-      </TableCell>
+                    <TableCell>
+                      {request.agent}
+                    </TableCell>
 
-      <TableCell>
-        <Badge
-          variant="outline"
-          className={statusVariant(request.status)}
-        >
-          {request.status}
-        </Badge>
-      </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={statusVariant(request.status)}
+                      >
+                        {request.status}
+                      </Badge>
+                    </TableCell>
 
-      <TableCell className="text-right">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              className="rounded-full"
-            >
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="rounded-full"
+                          >
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
 
-          <DropdownMenuContent align="end">
+                        <DropdownMenuContent align="end">
 
-            <DropdownMenuItem>
-              <UserIcon className="mr-2 h-4 w-4" />
-              View Request
-            </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <UserIcon className="mr-2 h-4 w-4" />
+                            View Request
+                          </DropdownMenuItem>
 
-            <DropdownMenuItem>
-              <SettingsIcon className="mr-2 h-4 w-4" />
-              Edit Request
-            </DropdownMenuItem>
+                          <Link to="/requests/edit-requests" className="flex items-center"> <DropdownMenuItem>
 
-            <DropdownMenuSeparator />
+                            <SettingsIcon className="mr-2 h-4 w-4" />
+                            Edit Request
 
-            <DropdownMenuItem
-              className="text-red-600"
-              onClick={() =>
-                setRequestsData((prev) =>
-                  prev.filter((r) => r.id !== request.id)
-                )
-              }
-            >
-              <LogOutIcon className="mr-2 h-4 w-4" />
-              Delete Request
-            </DropdownMenuItem>
+                          </DropdownMenuItem></Link>
 
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </TableCell>
-    </TableRow>
-  ))}
-</TableBody>
+                          <DropdownMenuSeparator />
+
+                          <DropdownMenuItem
+                            className="text-red-600"
+                            onClick={() =>
+                              setRequestsData((prev) =>
+                                prev.filter((r) => r.id !== request.id)
+                              )
+                            }
+                          >
+                            <LogOutIcon className="mr-2 h-4 w-4" />
+                            Delete Request
+                          </DropdownMenuItem>
+
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
             </Table>
           </div>
           {/* Pagination controls */}
@@ -344,7 +346,7 @@ const filteredRequests = useMemo(() => {
             <div className="text-sm text-muted-foreground">
               {filteredRequests.length === 0
                 ? "Showing 0 of 0"
-                : `Showing ${ (currentPage - 1) * PAGE_SIZE + 1 } - ${ Math.min(currentPage * PAGE_SIZE, filteredRequests.length) } of ${ filteredRequests.length }`}
+                : `Showing ${(currentPage - 1) * PAGE_SIZE + 1} - ${Math.min(currentPage * PAGE_SIZE, filteredRequests.length)} of ${filteredRequests.length}`}
             </div>
 
             <div className="flex items-center gap-2">
