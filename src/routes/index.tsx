@@ -90,7 +90,9 @@ import Permissions from "@/modules/permission/Permission"
 
 import Leads from "@/modules/leads/LeadsLists"
 
-export const router = createBrowserRouter (
+import Agenda from "@/modules/agenda/pages/Agenda"
+
+export const router = createBrowserRouter(
   [
     { path: "/", element: <Navigate to="/auth/login" replace /> },
     // 🔐 AUTH ROUTES
@@ -99,22 +101,22 @@ export const router = createBrowserRouter (
       errorElement: <ErrorPage />,
       children: [
         { path: "auth/login", element: <LoginPage /> },
-        {path: "auth/register", element: <RegisterPage /> },
-        {path: "auth/forgot-password", element: <ForgotPasswordPage /> },
-        {path: "auth/reset-password", element: <ResetPasswordForm /> },
-        {path: "auth/verify-email", element: <VerifyEmailForm /> },
-        {path: "auth/password-reset-success", element: <PasswordResetSuccess /> },
+        { path: "auth/register", element: <RegisterPage /> },
+        { path: "auth/forgot-password", element: <ForgotPasswordPage /> },
+        { path: "auth/reset-password", element: <ResetPasswordForm /> },
+        { path: "auth/verify-email", element: <VerifyEmailForm /> },
+        { path: "auth/password-reset-success", element: <PasswordResetSuccess /> },
 
-        {path: "auth/cover/login", element: <CoverLoginPage /> },
-        {path: "auth/cover/register", element: <CoverRegisterPage /> },
-        {path: "auth/cover/forgot-password", element: <CoverForgotPasswordPage /> },
-        {path: "auth/cover/new-password", element: <CoverResetPasswordPage /> },
-        {path: "auth/cover/password-reset-success", element: <CoverPasswordResetSuccessPage /> },
-        {path: "auth/cover/verify-email", element: <CoverVerifyEmailPage /> },
+        { path: "auth/cover/login", element: <CoverLoginPage /> },
+        { path: "auth/cover/register", element: <CoverRegisterPage /> },
+        { path: "auth/cover/forgot-password", element: <CoverForgotPasswordPage /> },
+        { path: "auth/cover/new-password", element: <CoverResetPasswordPage /> },
+        { path: "auth/cover/password-reset-success", element: <CoverPasswordResetSuccessPage /> },
+        { path: "auth/cover/verify-email", element: <CoverVerifyEmailPage /> },
 
-        {path: "error/error-404", element: <Error404 /> },
-        {path: "error/error-500", element: <Error500 /> },
-        {path: "error/coming-soon", element: <ComingSoon /> },
+        { path: "error/error-404", element: <Error404 /> },
+        { path: "error/error-500", element: <Error500 /> },
+        { path: "error/coming-soon", element: <ComingSoon /> },
 
       ],
     },
@@ -130,96 +132,99 @@ export const router = createBrowserRouter (
         return null
       },
       children: [
-        {index: true, element: <CrmDashboard /> },
-        {path: "dashboard/analytics", element: <AnalyticsDashboard /> },
-        {path: "dashboard", element: <CrmDashboard /> },
-        {path: "dashboard/eCommerce", element: <EcommerceDashboard /> },
-        {path: "dashboard/landing-page", element: <LandingPage /> },
-        
-        {path: "dashboard/charts", element: <ChartsPage /> },
-        {path: "widgets/data", element: <DataWidgetsPage /> },
-        {path: "widgets/statistics", element: <StatisticsWidgetsPage /> },
-        {path: "docs", element: <Documentation /> },
+        { index: true, element: <CrmDashboard /> },
+        { path: "dashboard/analytics", element: <AnalyticsDashboard /> },
+        { path: "dashboard", element: <CrmDashboard /> },
+        { path: "dashboard/eCommerce", element: <EcommerceDashboard /> },
+        { path: "dashboard/landing-page", element: <LandingPage /> },
+
+        { path: "dashboard/charts", element: <ChartsPage /> },
+        { path: "widgets/data", element: <DataWidgetsPage /> },
+        { path: "widgets/statistics", element: <StatisticsWidgetsPage /> },
+        { path: "docs", element: <Documentation /> },
 
         // Properties
-        {path: "properties/list", element: <ListProperty /> },
-        {path: "properties/add-property", element: <AddProperty /> },
+        { path: "properties/list", element: <ListProperty /> },
+        { path: "properties/add-property", element: <AddProperty /> },
         // Requests
-        {path: "requests/list", element: <RequestLists />},
+        { path: "requests/list", element: <RequestLists /> },
 
         // Permission
-        {path: "permission", element: <Permissions />},
+        { path: "permission", element: <Permissions /> },
 
         // Leads 
 
-        {path: "leads/list", element: <Leads />},
+        { path: "leads/list", element: <Leads /> },
+
+        // Agenda
+        { path: "agenda", element: <Agenda /> },
 
         // 🛍️ E-COMMERCE
-        {path: "eCommerce/product-list", element: <ProductList /> },
-        {path: "eCommerce/product-grid", element: <ProductGrid /> },
-        {path: "eCommerce/add-product", element: <AddProduct /> },
-        {path: "eCommerce/categories", element: <CategoryList /> },
-        {path: "eCommerce/order-list", element: <OrderList /> },
-        {path: "eCommerce/order-details", element: <OrderDetails /> },
-        {path: "eCommerce/customer-list", element: <CustomerList /> },
-        {path: "eCommerce/customer-details", element: <CustomerDetails /> },
-        {path: "eCommerce/invoice", element: <InvoicePage /> },
+        { path: "eCommerce/product-list", element: <ProductList /> },
+        { path: "eCommerce/product-grid", element: <ProductGrid /> },
+        { path: "eCommerce/add-product", element: <AddProduct /> },
+        { path: "eCommerce/categories", element: <CategoryList /> },
+        { path: "eCommerce/order-list", element: <OrderList /> },
+        { path: "eCommerce/order-details", element: <OrderDetails /> },
+        { path: "eCommerce/customer-list", element: <CustomerList /> },
+        { path: "eCommerce/customer-details", element: <CustomerDetails /> },
+        { path: "eCommerce/invoice", element: <InvoicePage /> },
 
         // application routes
-        {path: "app/chatbox", element: <ChatBox /> },
-        {path: "app/invoice-card", element: <InvoiceCard/> },
-        {path: "app/calendar", element: <CalendarPage /> },
-        {path: "app/file-manager", element: <FileManagerPage /> },
+        { path: "app/chatbox", element: <ChatBox /> },
+        { path: "app/invoice-card", element: <InvoiceCard /> },
+        { path: "app/calendar", element: <CalendarPage /> },
+        { path: "app/file-manager", element: <FileManagerPage /> },
 
         // component 
-        {path: "components/alerts", element: <AlertsPage /> },
-        {path: "components/accordion", element: <AccordionPage/>},
-        {path: "components/sooner", element: <SoonerPage/>},
-        {path: "components/badges", element: <BadgesPage/>},
-        {path: "components/buttons", element: <ButtonsPage/>},
-        {path: "components/cards", element: <CardsPage/>},
-        {path: "components/list-groups", element: <ListGroupPage/>},
-        {path: "components/carousels", element: <CarouselPage/>},
-        {path: "components/media-object", element: <AvatarShowcase/>},
-        {path: "components/navbars", element: <NavbarsPage/>},
-        {path: "components/progress", element: <ProgressPage/>},
-        {path: "components/spinners", element: <SpinnerExamples/>},
+        { path: "components/alerts", element: <AlertsPage /> },
+        { path: "components/accordion", element: <AccordionPage /> },
+        { path: "components/sooner", element: <SoonerPage /> },
+        { path: "components/badges", element: <BadgesPage /> },
+        { path: "components/buttons", element: <ButtonsPage /> },
+        { path: "components/cards", element: <CardsPage /> },
+        { path: "components/list-groups", element: <ListGroupPage /> },
+        { path: "components/carousels", element: <CarouselPage /> },
+        { path: "components/media-object", element: <AvatarShowcase /> },
+        { path: "components/navbars", element: <NavbarsPage /> },
+        { path: "components/progress", element: <ProgressPage /> },
+        { path: "components/spinners", element: <SpinnerExamples /> },
 
-         // boxicons
-        {path: "icons/boxicons", element: <Boxicons/>},
-        {path: "icons/bootstrap", element: <IconBootstrap/>},
-        {path: "icons/lucide", element: <LucideIconsPage/>},
-        {path: "pricing/pricing-tables", element: <PricingPage/>},
-        {path: "faq", element: <FAQPage/>},
+        // boxicons
+        { path: "icons/boxicons", element: <Boxicons /> },
+        { path: "icons/bootstrap", element: <IconBootstrap /> },
+        { path: "icons/lucide", element: <LucideIconsPage /> },
+        { path: "pricing/pricing-tables", element: <PricingPage /> },
+        { path: "faq", element: <FAQPage /> },
 
         // charts
-        {path: "charts/recharts", element: <ReChartsPage/>},
-        {path: "charts/apex-charts", element: <ApexChartsPage/>},
+        { path: "charts/recharts", element: <ReChartsPage /> },
+        { path: "charts/apex-charts", element: <ApexChartsPage /> },
 
         // account
-        {path: "account/profile", element: <UserProfile/>},
-        {path: "account/edit-profile", element: <EditProfile/>},
-        {path: "account/password-setting", element: <PasswordSettings/>},
-        {path: "account/notifications", element: <NotificationSettings/>},
+        { path: "account/profile", element: <UserProfile /> },
+        { path: "account/edit-profile", element: <EditProfile /> },
+        { path: "account/password-setting", element: <PasswordSettings /> },
+        { path: "account/notifications", element: <NotificationSettings /> },
 
         // Tables
-        {path: "tables/basic-tables", element: <BasicTables/>},
-        {path: "tables/advanced-tables", element: <AdvanceTablesPage/>},
-        {path: "tables/data-tables", element: <DataTablePage/>},
+        { path: "tables/basic-tables", element: <BasicTables /> },
+        { path: "tables/advanced-tables", element: <AdvanceTablesPage /> },
+        { path: "tables/data-tables", element: <DataTablePage /> },
 
         // Forms
-        {path: "forms/basic-inputs", element: <BasicInput/>},
-        {path: "forms/input-groups", element: <FormInputGroup/>},
-        {path: "forms/radio-checkboxes", element: <ChecksAndRadios/>},
-        {path: "forms/form-layouts", element: <FormLayouts/>},
-        {path: "forms/form-wizard", element: <WizardPage/>},
-        {path: "forms/text-editor", element: <FormTextEditor/>},
-        {path: "forms/file-upload", element: <FileUpload01/>},
-        {path: "forms/date-pickers", element: <DatePickerPage/>},
-        {path: "forms/select", element: <SelectExamplesPage/>},
-        {path: "forms/form-repeat", element: <FormRepeater/>},
-        
-        
+        { path: "forms/basic-inputs", element: <BasicInput /> },
+        { path: "forms/input-groups", element: <FormInputGroup /> },
+        { path: "forms/radio-checkboxes", element: <ChecksAndRadios /> },
+        { path: "forms/form-layouts", element: <FormLayouts /> },
+        { path: "forms/form-wizard", element: <WizardPage /> },
+        { path: "forms/text-editor", element: <FormTextEditor /> },
+        { path: "forms/file-upload", element: <FileUpload01 /> },
+        { path: "forms/date-pickers", element: <DatePickerPage /> },
+        { path: "forms/select", element: <SelectExamplesPage /> },
+        { path: "forms/form-repeat", element: <FormRepeater /> },
+
+
         // ✅ 404 HANDLER
         { path: "*", element: <NotFound /> },
       ],
