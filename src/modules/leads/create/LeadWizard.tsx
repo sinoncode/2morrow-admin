@@ -2,46 +2,32 @@ import { useState } from "react"
 
 import GeneralStep from "./steps/GeneralStep"
 import CharacteristicsStep from "./steps/CharacteristicsStep"
-import PricingStep from "./steps/PricingStep"
-import DescriptionStep from "./steps/DescriptionStep"
-import MediaStep from "./steps/MediaStep"
-import PublicationStep from "./steps/PublicationStep"
-import MatchingStep from "./steps/MatchingStep"
-import ProposedStep from "./steps/ProposedStep"
 
-import PropertyWizardHeader from "./PropertyWizardHeader"
-import PropertyWizardNavigation from "./PropertyWizardNavigation"
+import LeadWizardHeader from "./LeadWizardHeader"
+import LeadWizardNavigation from "./LeadWizardNavigation"
 
 // Updated to match the exact text from the screenshot
 const steps = [
   "General",
-  "Criteria",
-  "Matching",
   "Activities",
-  "Documents",
-  "History",
 ]
 
-export default function PropertyWizard() {
+export default function LeadWizard() {
   const [currentStep, setCurrentStep] = useState(0)
 
   const renderStep = () => {
     switch (currentStep) {
       case 0: return <GeneralStep />
       case 1: return <CharacteristicsStep />
-      case 2: return <PricingStep />
-      case 3: return <DescriptionStep />
-      case 4: return <MediaStep />
-      case 5: return <PublicationStep />
       default: return <GeneralStep />
     }
   }
 
   return (
     <div className="space-y-6">
-      <PropertyWizardHeader />
+      <LeadWizardHeader />
 
-      <PropertyWizardNavigation
+      <LeadWizardNavigation
         steps={steps}
         currentStep={currentStep}
         onStepChange={setCurrentStep}

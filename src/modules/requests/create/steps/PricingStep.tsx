@@ -19,7 +19,7 @@ import {
   Building2,
 } from "lucide-react"
 
-import { usePropertyCreationStore } from "../store/propertyCreationStore"
+import { useRequestCreationStore } from "../store/requestCreationStore"
 
 const bedroomOptions = [
   "Studio",
@@ -41,17 +41,17 @@ const bathroomOptions = [
 ]
 
 export default function PricingStep() {
-  const { form, updateField } = usePropertyCreationStore()
+  const { form, updateField } = useRequestCreationStore()
 
   return (
     <div className="space-y-6">
-      {/* Property Specifications */}
+      {/* Request Specifications */}
 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Home className="h-5 w-5 text-primary" />
-            Property Specifications
+            Request Specifications
           </CardTitle>
         </CardHeader>
 
@@ -81,13 +81,13 @@ export default function PricingStep() {
           </div>
 
           <div className="space-y-2">
-            <Label>Property Age</Label>
+            <Label>Request Age</Label>
 
             <Input
               placeholder="2 Years"
-              value={form.propertyAge || ""}
+              value={form.requestAge || ""}
               onChange={(e) =>
-                updateField("propertyAge", e.target.value)
+                updateField("requestAge", e.target.value)
               }
             />
           </div>
@@ -372,7 +372,7 @@ export default function PricingStep() {
 
         <CardContent className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
           <div className="space-y-2">
-            <Label>Property Price</Label>
+            <Label>Request Price</Label>
 
             <Input
               placeholder="AED 8,500,000"

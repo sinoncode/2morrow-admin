@@ -14,10 +14,10 @@ import {
   Star,
 } from "lucide-react"
 
-import { usePropertyCreationStore } from "../store/propertyCreationStore"
+import { useRequestCreationStore } from "../store/requestCreationStore"
 
 export default function MediaStep() {
-  const { form, updateField } = usePropertyCreationStore()
+  const { form, updateField } = useRequestCreationStore()
 
   const [galleryImages, setGalleryImages] = useState<string[]>(
     form.images || []
@@ -159,7 +159,7 @@ export default function MediaStep() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <ImageIcon className="h-5 w-5 text-primary" />
-            Property Gallery
+            Request Gallery
           </CardTitle>
         </CardHeader>
 
@@ -180,7 +180,7 @@ export default function MediaStep() {
           >
             <Upload className="mx-auto mb-2 h-7 w-7" />
 
-            <p>Upload Property Images</p>
+            <p>Upload Request Images</p>
 
             <p className="text-sm text-muted-foreground">
               Drag & Drop Supported
@@ -305,7 +305,7 @@ export default function MediaStep() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5 text-primary" />
-            Property Documents
+            Request Documents
           </CardTitle>
         </CardHeader>
 
@@ -370,7 +370,7 @@ export default function MediaStep() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Video className="h-5 w-5 text-primary" />
-            Property Video
+            Request Video
           </CardTitle>
         </CardHeader>
 

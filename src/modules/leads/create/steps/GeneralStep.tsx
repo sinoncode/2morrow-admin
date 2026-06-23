@@ -16,7 +16,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
 import { Textarea } from "@/components/ui/textarea"
 
-import { useRequestCreationStore } from "../store/requestCreationStore"
+import { useLeadCreationStore } from "../store/leadCreationStore"
 import { Button } from "@/components/ui/button"
 
 const statusMetadata = {
@@ -27,7 +27,7 @@ const statusMetadata = {
 
 export default function GeneralStep() {
   const { form, updateField } =
-    useRequestCreationStore()
+    useLeadCreationStore()
 
   return (
     <div className="space-y-6">
@@ -65,9 +65,9 @@ export default function GeneralStep() {
               </label>
 
               <Select
-                value={form.requestType}
+                value={form.leadType}
                 onValueChange={(value) =>
-                  updateField("requestType", value)
+                  updateField("leadType", value)
                 }
               >
                 <SelectTrigger>
@@ -137,26 +137,16 @@ export default function GeneralStep() {
             {/* Source */}
             <div>
               <label className="mb-2 block text-sm">
-                Source
+                Property Source
               </label>
+              <Input placeholder="2morrow.com" />
 
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select source" />
-                </SelectTrigger>
-
-                <SelectContent>
-                  <SelectItem value="homegate">
-                    Homegate.ch
-                  </SelectItem>
-                </SelectContent>
-              </Select>
             </div>
 
             {/* Proprietary Source */}
             <div>
               <label className="mb-2 block text-sm">
-                Proprietary source
+                Marketing source
               </label>
 
               <Input />
@@ -176,12 +166,12 @@ export default function GeneralStep() {
               }
               className="flex gap-3"
             >
-              <label className="flex items-center gap-2 rounded-lg border px-6 py-3 cursor-pointer">
+              <label className="flex items-center gap-1 rounded-lg border px-2 py-1 cursor-pointer">
                 <RadioGroupItem value="sale" />
                 Sale
               </label>
 
-              <label className="flex items-center gap-2 rounded-lg border px-6 py-3 cursor-pointer">
+              <label className="flex items-center gap-1 rounded-lg border px-2 py-1 cursor-pointer">
                 <RadioGroupItem value="rent" />
                 Rent
               </label>
@@ -240,79 +230,8 @@ export default function GeneralStep() {
       {/* BUDGET */}
       <Card className="border-0 shadow-sm rounded-2xl">
         <CardContent className="p-6">
-          <h3 className="mb-5 text-sm font-semibold text-blue-600">
-            Budget
-          </h3>
 
-          <div className="grid gap-4 md:grid-cols-3">
-            <div>
-              <label className="mb-2 block text-sm">
-                Price
-              </label>
-
-              <Input placeholder="1.791.000" />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm">
-                Currency
-              </label>
-
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="CHF" />
-                </SelectTrigger>
-
-                <SelectContent>
-                  <SelectItem value="chf">
-                    CHF
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm">
-                Commission (%)
-              </label>
-
-              <Input placeholder="Agent" />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm">
-                Commission
-              </label>
-
-              <Input />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm">
-                Contract Number
-              </label>
-
-              <Input placeholder="+41 8076774587" />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm">
-                Date of Signature
-              </label>
-
-              <Input type="date" />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm">
-                Expiration Date
-              </label>
-
-              <Input type="date" />
-            </div>
-          </div>
-
-          <div className="mt-5">
+          <div className="mt-0">
             <label className="mb-2 block text-sm">
               Private Notes
             </label>
@@ -324,7 +243,7 @@ export default function GeneralStep() {
           </div>
 
           <div className="mt-6 flex gap-3">
-            <Button className="rounded-lg py-5 px-8">Save</Button>
+            <Button className="rounded-lg py-5 px-8 border border-blue-600">Save</Button>
 
             <button className="rounded-lg border border-red-500 px-8 py-2 text-red-500">
               Cancel

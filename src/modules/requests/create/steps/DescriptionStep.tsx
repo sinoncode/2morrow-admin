@@ -11,7 +11,7 @@ import {
   ShieldCheck,
 } from "lucide-react"
 
-import { usePropertyCreationStore } from "../store/propertyCreationStore"
+import { useRequestCreationStore } from "../store/requestCreationStore"
 
 const indoorAmenities = [
   "Air Conditioning",
@@ -71,7 +71,7 @@ function AmenitySection({
   icon: React.ReactNode
   amenities: string[]
 }) {
-  const { form, updateField } = usePropertyCreationStore()
+  const { form, updateField } = useRequestCreationStore()
 
   const toggleAmenity = (amenity: string) => {
     const exists = form.amenities.includes(amenity)
@@ -136,28 +136,28 @@ function AmenitySection({
 
 export default function DescriptionStep() {
   const { form, updateField } =
-    usePropertyCreationStore()
+    useRequestCreationStore()
 
   return (
     <div className="space-y-6">
-      {/* Property Description */}
+      {/* Request Description */}
 
       <Card>
         <CardHeader>
           <CardTitle>
-            Property Description
+            Request Description
           </CardTitle>
         </CardHeader>
 
         <CardContent>
           <div className="space-y-2">
             <Label>
-              Detailed Property Description
+              Detailed Request Description
             </Label>
 
             <Textarea
               rows={8}
-              placeholder="Describe the property, location, lifestyle benefits, views, nearby attractions and investment potential..."
+              placeholder="Describe the request, location, lifestyle benefits, views, nearby attractions and investment potential..."
               value={form.description}
               onChange={(e) =>
                 updateField(
@@ -175,7 +175,7 @@ export default function DescriptionStep() {
       <Card>
         <CardHeader>
           <CardTitle>
-            Property Highlights
+            Request Highlights
           </CardTitle>
         </CardHeader>
 

@@ -91,6 +91,7 @@ import EditRequests from "@/modules/requests/EditRequests"
 import Permissions from "@/modules/permission/Permission"
 
 import Leads from "@/modules/leads/LeadsLists"
+import EditLeads from "@/modules/leads/EditLeads"
 
 import Agenda from "@/modules/agenda/pages/Agenda"
 
@@ -159,6 +160,7 @@ export const router = createBrowserRouter(
         // Leads 
 
         { path: "leads/list", element: <Leads /> },
+        { path: "leads/edit-leads", element: <EditLeads /> },
 
         // Agenda
         { path: "agenda", element: <Agenda /> },

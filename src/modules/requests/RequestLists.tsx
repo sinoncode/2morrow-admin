@@ -129,7 +129,7 @@ const statusVariant = (status: string) => {
   }
 }
 
-export default function PropertyListing() {
+export default function RequestListing() {
   const iconGradients = [
     "bg-gradient-to-tr from-[#ee0979] to-[#ff6a00]", // pink-orange
     "bg-gradient-to-tr from-[#00c6fb] to-[#005bea]", // blue
@@ -230,7 +230,7 @@ export default function PropertyListing() {
               />
             </div>
           </div>
-          <div className="">
+          {/* <div className="">
 
             <Link to="#">
               <Button className="rounded-3xl text-base px-5 py-5" size="sm">
@@ -238,7 +238,7 @@ export default function PropertyListing() {
                 Add Request
               </Button>
             </Link>
-          </div>
+          </div> */}
         </CardHeader>
 
         <CardContent className="space-y-4 p-6">

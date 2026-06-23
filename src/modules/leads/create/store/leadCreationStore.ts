@@ -1,8 +1,8 @@
 import { create } from "zustand"
 
-export interface PropertyFormData {
+export interface LeadFormData {
   title: string
-  propertyType: string
+  leadType: string
   listingType: string
 
   description: string
@@ -51,7 +51,7 @@ locationDescription: ""
 
 builtUpArea: ""
 plotArea: ""
-propertyAge: ""
+leadAge: ""
 
 floorNumber: ""
 elevators: ""
@@ -91,20 +91,20 @@ metaDescription: string
 seoKeywords: string
 }
 
-interface PropertyStore {
-  form: PropertyFormData
+interface LeadStore {
+  form: LeadFormData
 
   updateField: (
-    key: keyof PropertyFormData,
+    key: keyof LeadFormData,
     value: any
   ) => void
 
   reset: () => void
 }
 
-const initialState: PropertyFormData = {
+const initialState: LeadFormData = {
   title: "",
-  propertyType: "",
+  leadType: "",
   listingType: "",
 
   description: "",
@@ -153,7 +153,7 @@ locationDescription: "",
 
 builtUpArea: "",
 plotArea: "",
-propertyAge: "",
+leadAge: "",
 
 floorNumber: "",
 elevators: "",
@@ -192,8 +192,8 @@ metaDescription: "",
 seoKeywords: "",
 }
 
-export const usePropertyCreationStore =
-  create<PropertyStore>((set) => ({
+export const useLeadCreationStore =
+  create<LeadStore>((set) => ({
     form: initialState,
 
     updateField: (key, value) =>

@@ -9,10 +9,10 @@ import { Button } from "@/components/ui/button"
 
 import { MapPin, Building2, Globe, Landmark } from "lucide-react"
 
-import { useRequestCreationStore } from "../store/requestCreationStore"
+import { useLeadCreationStore } from "../store/leadCreationStore"
 
 export default function CharacteristicsStep() {
-  const { form, updateField } = useRequestCreationStore()
+  const { form, updateField } = useLeadCreationStore()
 
   return (
     <div className="space-y-6">

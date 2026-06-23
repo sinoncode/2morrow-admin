@@ -43,7 +43,7 @@ const matchingBuyers = [
   },
 ]
 
-const similarProperties = [
+const similarRequests = [
   {
     id: 1,
     title: "Luxury Marina Penthouse",
@@ -70,7 +70,7 @@ export default function MatchingStep() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            AI Property Match Analysis
+            AI Request Match Analysis
           </CardTitle>
         </CardHeader>
 
@@ -124,7 +124,7 @@ export default function MatchingStep() {
       <Card>
         <CardHeader>
           <CardTitle>
-            Property Compatibility
+            Request Compatibility
           </CardTitle>
         </CardHeader>
 
@@ -158,7 +158,7 @@ export default function MatchingStep() {
 
           <div>
             <div className="mb-2 flex justify-between">
-              <span>Property Type Demand</span>
+              <span>Request Type Demand</span>
               <span>90%</span>
             </div>
 
@@ -227,20 +227,20 @@ export default function MatchingStep() {
         </CardContent>
       </Card>
 
-      {/* Similar Properties */}
+      {/* Similar Requests */}
 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Building2 className="h-5 w-5 text-primary" />
-            Similar Properties
+            Similar Requests
           </CardTitle>
         </CardHeader>
 
         <CardContent className="space-y-4">
-          {similarProperties.map((property) => (
+          {similarRequests.map((request) => (
             <div
-              key={property.id}
+              key={request.id}
               className="
                 flex
                 items-center
@@ -252,7 +252,7 @@ export default function MatchingStep() {
             >
               <div>
                 <h4 className="font-medium">
-                  {property.title}
+                  {request.title}
                 </h4>
 
                 <p className="text-sm text-muted-foreground">
@@ -261,7 +261,7 @@ export default function MatchingStep() {
               </div>
 
               <Badge>
-                {property.price}
+                {request.price}
               </Badge>
             </div>
           ))}
@@ -325,7 +325,7 @@ export default function MatchingStep() {
         <CardContent className="space-y-4">
           {[
             "Increase listing visibility to improve lead generation.",
-            "Properties with a virtual tour receive approximately 30% more inquiries.",
+            "Requests with a virtual tour receive approximately 30% more inquiries.",
             "Current pricing is aligned with market trends.",
             "Strong demand detected in this area during the last 60 days.",
           ].map((item, index) => (
