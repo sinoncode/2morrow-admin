@@ -18,6 +18,7 @@ import {
   ScrollText,
   Settings,
   Layers,
+  Book,
 } from "lucide-react"
 
 
@@ -103,6 +104,11 @@ const data = {
       title: "Emails",
       url: "docs",
       icon: Mail,
+    },
+    {
+      title: "Dossiers",
+      url: "dossiers/list",
+      icon: Book,
     },
     {
       title: "Agenda",

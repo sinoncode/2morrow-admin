@@ -95,6 +95,10 @@ import EditLeads from "@/modules/leads/EditLeads"
 
 import Agenda from "@/modules/agenda/pages/Agenda"
 
+// Dossiers
+import DossiersList from "@/modules/dossiers/pages/DossierList"
+import DossierDetails from "@/modules/dossiers/pages/DossierDetails"
+
 
 export const router = createBrowserRouter(
   [
@@ -164,6 +168,10 @@ export const router = createBrowserRouter(
 
         // Agenda
         { path: "agenda", element: <Agenda /> },
+
+        // Dossiers
+        { path: "dossiers/list", element: <DossiersList /> },
+        { path: "dossiers/details", element: <DossierDetails /> },
 
         // 🛍️ E-COMMERCE
         { path: "eCommerce/product-list", element: <ProductList /> },

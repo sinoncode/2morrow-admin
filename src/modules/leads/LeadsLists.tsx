@@ -230,7 +230,7 @@ export default function LeadsListing() {
               />
             </div>
           </div>
-          <div className="">
+          {/* <div className="">
 
             <Link to="#">
               <Button className="rounded-3xl text-base px-5 py-5" size="sm">
@@ -238,7 +238,7 @@ export default function LeadsListing() {
                 Add Lead
               </Button>
             </Link>
-          </div>
+          </div> */}
         </CardHeader>
 
         <CardContent className="space-y-4 p-6">
