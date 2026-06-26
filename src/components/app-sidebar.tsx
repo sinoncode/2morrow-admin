@@ -102,7 +102,7 @@ const data = {
     },
     {
       title: "Emails",
-      url: "docs",
+      url: "emails/list",
       icon: Mail,
     },
     {

@@ -68,18 +68,18 @@ export default function AppLayout() {
       <SidebarInset>
         {/* HEADER */}
         <header
-                className={cn(
-                    "px-6 sticky top-0 z-40 flex h-16 w-full shrink-0 items-center gap-2 transition-all duration-200 border-b",
-                    scrolled
-                    ? "bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-md"
-                    : "bg-transparent"
-                )}
-              >
-              <div className="flex items-center gap-1">
-                <SidebarTrigger
-                  className="-ml-1 rounded-full h-10 w-10 [&_svg]:!size-5 hover:bg-muted/60 transition-colors"
-                />
-                {/* <div className="header-quick-link hidden md:flex items-center gap-1">
+          className={cn(
+            "px-6 sticky top-0 z-40 flex h-16 w-full shrink-0 items-center gap-2 transition-all duration-200 border-b",
+            scrolled
+              ? "bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-md"
+              : "bg-transparent"
+          )}
+        >
+          <div className="flex items-center gap-1">
+            <SidebarTrigger
+              className="-ml-1 rounded-full h-10 w-10 [&_svg]:!size-5 hover:bg-muted/60 transition-colors"
+            />
+            {/* <div className="header-quick-link hidden md:flex items-center gap-1">
                    <Button variant="ghost" className="font-medium text-sm h-8 px-3 py-0 rounded-lg">
                     Pricing
                   </Button>
@@ -93,24 +93,24 @@ export default function AppLayout() {
                       Support
                     </Button>
                 </div> */}
-              </div>
+          </div>
 
-                <div className="ml-auto">
-                    <div className="flex items-center gap-1">
-                        <GlobalSearch />
-                        <ThemeToggle />
-                        {/* <LanguageDropdown />
+          <div className="ml-auto">
+            <div className="flex items-center gap-1">
+              <GlobalSearch />
+              <ThemeToggle />
+              {/* <LanguageDropdown />
                         <AppLauncherDropdown /> */}
-                        <div className="relative hidden md:inline-flex">
-                            <NotificationDropdown />
-                            <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white">
-                                5
-                            </span>
-                        </div>
-                         <UserDropdown />
-                    </div>
-                </div>
-              </header>
+              <div className="relative hidden md:inline-flex">
+                <NotificationDropdown />
+                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white">
+                  5
+                </span>
+              </div>
+              <UserDropdown />
+            </div>
+          </div>
+        </header>
 
         {/* PAGE CONTENT */}
         <main className="flex-1 p-6">

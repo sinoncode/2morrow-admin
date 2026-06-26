@@ -99,6 +99,10 @@ import Agenda from "@/modules/agenda/pages/Agenda"
 import DossiersList from "@/modules/dossiers/pages/DossierList"
 import DossierDetails from "@/modules/dossiers/pages/DossierDetails"
 
+// Email
+import EmailListing from "@/modules/emails/pages/EmailListing"
+import EmailCompose from "@/modules/emails/pages/Emailcompose"
+
 
 export const router = createBrowserRouter(
   [
@@ -172,6 +176,10 @@ export const router = createBrowserRouter(
         // Dossiers
         { path: "dossiers/list", element: <DossiersList /> },
         { path: "dossiers/details", element: <DossierDetails /> },
+
+        // Emails
+        { path: "emails/list", element: <EmailListing /> },
+        { path: "emails/compose", element: <EmailCompose /> },
 
         // 🛍️ E-COMMERCE
         { path: "eCommerce/product-list", element: <ProductList /> },
