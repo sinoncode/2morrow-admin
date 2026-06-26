@@ -2,402 +2,225 @@
 
 import { useMemo, useState } from "react"
 import { Link } from "react-router-dom"
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-    CardDescription
-} from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { MoreVertical, Search, Eye, Pencil, Trash2, Plus, Mail, Reply, Forward, AlertCircle } from "lucide-react"
 
-import {
-    MoreVertical,
-    Plus,
-    ShoppingBag,
-    Wallet,
-    Users,
-    Box,
-    ArrowUpRight,
-    ArrowDownRight,
-    LogOutIcon,
-    SettingsIcon,
-    UserIcon,
-    Search,
-} from "lucide-react"
-
-// Define a proper interface for the product
-interface Lead {
-    id: number
-    contact: string
-    transactionCategory: string
-    city: string
-    budget: string
-    agent: string
-    status: "Pending" | "In Progress" | "Completed" | "Cancelled"
+interface Email {
+  id: string; subject: string; from: string; fromEmail: string
+  to: string; toEmail: string
+  category: "Inquiry" | "Follow-up" | "Offer" | "Support" | "Newsletter"
+  folder: "Inbox" | "Sent" | "Drafts" | "Spam"
+  date: string; time: string; hasAttachment: boolean
+  status: "Unread" | "Read" | "Replied" | "Forwarded" | "Starred"
 }
 
-const leads: Lead[] = [
-    {
-        id: 1,
-        contact: "Rahul Sharma",
-        transactionCategory: "Buy",
-        city: "Noida",
-        budget: "₹85 Lakh",
-        agent: "Aarav Sharma",
-        status: "Pending",
-    },
-    {
-        id: 2,
-        contact: "Priya Verma",
-        transactionCategory: "Rent",
-        city: "Delhi",
-        budget: "₹35,000 / Month",
-        agent: "Neha Kapoor",
-        status: "Completed",
-    },
-    {
-        id: 3,
-        contact: "Amit Singh",
-        transactionCategory: "Sell",
-        city: "Gurugram",
-        budget: "₹1.4 Cr",
-        agent: "Rohit Mehra",
-        status: "In Progress",
-    },
-    {
-        id: 4,
-        contact: "Sneha Gupta",
-        transactionCategory: "Buy",
-        city: "Greater Noida",
-        budget: "₹65 Lakh",
-        agent: "Vikram Singh",
-        status: "Cancelled",
-    },
-    {
-        id: 5,
-        contact: "Mohit Jain",
-        transactionCategory: "Rent",
-        city: "Noida Extension",
-        budget: "₹25,000 / Month",
-        agent: "Aditya Jain",
-        status: "Pending",
-    },
+const emails: Email[] = [
+  { id: "EM-001", subject: "Property Inquiry – 3BHK in Noida Sector 50", from: "Rahul Sharma", fromEmail: "rahul.s@gmail.com", to: "Agent Aarav", toEmail: "aarav@2morrow.com", category: "Inquiry", folder: "Inbox", date: "24 Jun 2026", time: "10:32 AM", hasAttachment: false, status: "Unread" },
+  { id: "EM-002", subject: "Re: Site Visit Confirmation for Gurugram Villa", from: "Priya Verma", fromEmail: "priya.v@outlook.com", to: "Agent Neha", toEmail: "neha@2morrow.com", category: "Follow-up", folder: "Inbox", date: "23 Jun 2026", time: "3:15 PM", hasAttachment: true, status: "Replied" },
+  { id: "EM-003", subject: "Offer Letter – Commercial Space Faridabad", from: "Agent Rohit", fromEmail: "rohit@2morrow.com", to: "Amit Singh", toEmail: "amit.singh@corp.in", category: "Offer", folder: "Sent", date: "22 Jun 2026", time: "9:00 AM", hasAttachment: true, status: "Read" },
+  { id: "EM-004", subject: "Support: Document Verification Delay", from: "Sneha Gupta", fromEmail: "sneha.g@yahoo.com", to: "Support Team", toEmail: "support@2morrow.com", category: "Support", folder: "Inbox", date: "21 Jun 2026", time: "11:45 AM", hasAttachment: false, status: "Unread" },
+  { id: "EM-005", subject: "June Newsletter – New Listings & Market Updates", from: "Marketing", fromEmail: "marketing@2morrow.com", to: "All Clients", toEmail: "clients@2morrow.com", category: "Newsletter", folder: "Sent", date: "20 Jun 2026", time: "8:00 AM", hasAttachment: false, status: "Read" },
+  { id: "EM-006", subject: "Fwd: Lease Agreement for Plot in Greater Noida", from: "Agent Vikram", fromEmail: "vikram@2morrow.com", to: "Mohit Jain", toEmail: "mohit.j@gmail.com", category: "Follow-up", folder: "Sent", date: "18 Jun 2026", time: "4:20 PM", hasAttachment: true, status: "Forwarded" },
+  { id: "EM-007", subject: "Draft: Welcome Email – New Client Onboarding", from: "Agent Aarav", fromEmail: "aarav@2morrow.com", to: "Kavita Patel", toEmail: "kavita.p@gmail.com", category: "Inquiry", folder: "Drafts", date: "16 Jun 2026", time: "2:00 PM", hasAttachment: false, status: "Unread" },
 ]
 
-
-const statusVariant = (status: string) => {
-    switch (status) {
-        case "Completed":
-            return "w-[100px] flex justify-center py-3 rounded-lg bg-green-100 text-green-700 border-green-300"
-
-        case "Pending":
-            return "w-[100px] flex justify-center py-3 rounded-lg bg-yellow-100 text-yellow-700 border-yellow-300"
-
-        case "In Progress":
-            return "w-[100px] flex justify-center py-3 rounded-lg bg-blue-100 text-blue-700 border-blue-300"
-
-        case "Cancelled":
-            return "w-[100px] flex justify-center py-3 rounded-lg bg-red-100 text-red-700 border-red-300"
-
-        default:
-            return ""
-    }
+const statusCls: Record<string, string> = {
+  Unread: "bg-blue-50 text-blue-700 border-blue-200 font-semibold dark:bg-blue-900/30 dark:text-blue-300",
+  Read: "bg-gray-50 text-gray-500 border-gray-200 dark:bg-gray-800/30 dark:text-gray-400",
+  Replied: "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300",
+  Forwarded: "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300",
+  Starred: "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300",
+}
+const catCls: Record<string, string> = {
+  Inquiry: "bg-sky-50 text-sky-700 border-sky-200",
+  "Follow-up": "bg-violet-50 text-violet-700 border-violet-200",
+  Offer: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  Support: "bg-rose-50 text-rose-600 border-rose-200",
+  Newsletter: "bg-orange-50 text-orange-600 border-orange-200",
+}
+const statusIcon: Record<string, React.ReactNode> = {
+  Replied: <Reply className="h-3 w-3" />,
+  Forwarded: <Forward className="h-3 w-3" />,
+  Unread: <AlertCircle className="h-3 w-3" />,
+}
+const folderCls: Record<string, string> = {
+  Inbox: "bg-indigo-50 text-indigo-700 border-indigo-200",
+  Sent: "bg-teal-50 text-teal-700 border-teal-200",
+  Drafts: "bg-gray-100 text-gray-600 border-gray-200",
+  Spam: "bg-red-50 text-red-600 border-red-200",
 }
 
-export default function LeadsListing() {
-    const iconGradients = [
-        "bg-gradient-to-tr from-[#ee0979] to-[#ff6a00]", // pink-orange
-        "bg-gradient-to-tr from-[#00c6fb] to-[#005bea]", // blue
-        "bg-gradient-to-tr from-[#17ad37] to-[#98ec2d]", // green
-        "bg-gradient-to-tr from-[#7928ca] to-[#ff0080]", // purple-pink
-    ]
+const PAGE_SIZE = 7
 
+export default function EmailListing() {
+  const [search, setSearch] = useState("")
+  const [catFilter, setCatFilter] = useState("all")
+  const [folderFilter, setFolderFilter] = useState("all")
+  const [statusFilter, setStatusFilter] = useState("all")
+  const [page, setPage] = useState(1)
+  const [data, setData] = useState<Email[]>(emails)
 
-    const [search, setSearch] = useState("")
-    const [pageState, setPageState] = useState(1)
-    const [selected, setSelected] = useState<number[]>([])
-    const [leadsData, setLeadsData] = useState<Lead[]>(leads)
+  const filtered = useMemo(() => data.filter(e => {
+    const q = `${e.subject} ${e.from} ${e.to} ${e.fromEmail}`.toLowerCase()
+    return q.includes(search.toLowerCase())
+      && (catFilter === "all" || e.category === catFilter)
+      && (folderFilter === "all" || e.folder === folderFilter)
+      && (statusFilter === "all" || e.status === statusFilter)
+  }), [search, catFilter, folderFilter, statusFilter, data])
 
-    const PAGE_SIZE = 5
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const curPage = Math.min(page, totalPages)
+  const paginated = filtered.slice((curPage - 1) * PAGE_SIZE, curPage * PAGE_SIZE)
 
-    // 🔍 Search filter
-    const filteredLeads = useMemo(() => {
-        return leadsData.filter((lead) =>
-            `${lead.contact}
-     ${lead.city}
-     ${lead.agent}
-     ${lead.transactionCategory}`
-                .toLowerCase()
-                .includes(search.toLowerCase())
-        )
-    }, [search, leadsData])
+  return (
+    <div className="space-y-5">
+      <style>{`@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}.row-in{animation:fadeUp .25s ease both}`}</style>
 
-    // Calculation for safe pagination without useEffect
-    const totalPages = Math.max(1, Math.ceil(filteredLeads.length / PAGE_SIZE))
-    const currentPage = Math.min(pageState, totalPages)
-
-    const paginatedLeads = filteredLeads.slice(
-        (currentPage - 1) * PAGE_SIZE,
-        currentPage * PAGE_SIZE
-    )
-
-    // ☑️ Checkbox logic
-    const toggleAll = (checked: boolean) => {
-        setSelected(checked ? paginatedLeads.map(p => p.id) : [])
-    }
-
-    const toggleOne = (id: number) => {
-        setSelected(prev =>
-            prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-        )
-    }
-
-
-
-    return (
-        <div className="space-y-6">
-            <div>
-                <h1 className="text-3xl font-bold">Leads</h1>
-                <p className="text-lg">Manage and monitor all lead listings.</p>
-            </div>
-
-
-            {/* PRODUCT LIST */}
-            <Card>
-                <CardHeader className="flex flex-row items-center justify-between border-b py-4 flex-wrap gap-3">
-                    <div className="flex gap-3 flex-wrap">
-                        {/* <Input type="date" className="w-[160px]" /> */}
-
-                        <Select>
-                            <SelectTrigger className="w-[160px]">
-                                <SelectValue placeholder="Transaction" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="buy">Buy</SelectItem>
-                                <SelectItem value="sell">Sell</SelectItem>
-                                <SelectItem value="rent">Rent</SelectItem>
-                            </SelectContent>
-                        </Select>
-
-                        <Select>
-                            <SelectTrigger className="w-[160px]">
-                                <SelectValue placeholder="Status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="pending">Pending</SelectItem>
-                                <SelectItem value="progress">In Progress</SelectItem>
-                                <SelectItem value="completed">Completed</SelectItem>
-                                <SelectItem value="cancelled">Cancelled</SelectItem>
-                            </SelectContent>
-                        </Select>
-
-                        {/* Search */}
-                        <div className="relative mb-0 max-w-lg w-[280px] rounded-2xl">
-                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                            <Input
-                                placeholder=" Search contact, city or agent..."
-                                className="pl-9"
-                                value={search}
-                                onChange={(e) => {
-                                    setSearch(e.target.value)
-                                    setPageState(1)
-                                }}
-                            />
-                        </div>
-                    </div>
-                    <div className="">
-
-                        <Link to="emails/compose">
-                            <Button className="rounded-3xl text-base px-5 py-5" size="sm">
-                                <Plus className="mr-1 h-5 w-5" />
-                                Compose Email
-                            </Button>
-                        </Link>
-                    </div>
-                </CardHeader>
-
-                <CardContent className="space-y-4 p-6">
-
-
-                    {/* TABLE */}
-                    <div className="relative w-full overflow-x-auto">
-                        <Table className="min-w-[900px]">
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Contact</TableHead>
-                                    <TableHead>Transaction Category</TableHead>
-                                    <TableHead>City</TableHead>
-                                    <TableHead>Budget</TableHead>
-                                    <TableHead>Agent</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">
-                                        Action
-                                    </TableHead>
-                                </TableRow>
-                            </TableHeader>
-
-                            <TableBody>
-                                {paginatedLeads.map((lead) => (
-                                    <TableRow key={lead.id}>
-                                        <TableCell className="font-medium">
-                                            {lead.contact}
-                                        </TableCell>
-
-                                        <TableCell>
-                                            {lead.transactionCategory}
-                                        </TableCell>
-
-                                        <TableCell>
-                                            {lead.city}
-                                        </TableCell>
-
-                                        <TableCell>
-                                            {lead.budget}
-                                        </TableCell>
-
-                                        <TableCell>
-                                            {lead.agent}
-                                        </TableCell>
-
-                                        <TableCell>
-                                            <Badge
-                                                variant="outline"
-                                                className={statusVariant(lead.status)}
-                                            >
-                                                {lead.status}
-                                            </Badge>
-                                        </TableCell>
-
-                                        <TableCell className="text-right">
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button
-                                                        variant="outline"
-                                                        size="icon"
-                                                        className="rounded-full"
-                                                    >
-                                                        <MoreVertical className="h-4 w-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-
-                                                <DropdownMenuContent align="end">
-
-                                                    <DropdownMenuItem>
-                                                        <UserIcon className="mr-2 h-4 w-4" />
-                                                        View Lead
-                                                    </DropdownMenuItem>
-
-                                                    <Link to="/leads/edit-leads">
-                                                        <DropdownMenuItem>
-                                                            <SettingsIcon className="mr-2 h-4 w-4" />
-                                                            Edit Lead
-                                                        </DropdownMenuItem>
-                                                    </Link>
-                                                    <DropdownMenuSeparator />
-
-                                                    <DropdownMenuItem
-                                                        className="text-red-600"
-                                                        onClick={() =>
-                                                            setLeadsData((prev) =>
-                                                                prev.filter((r) => r.id !== lead.id)
-                                                            )
-                                                        }
-                                                    >
-                                                        <LogOutIcon className="mr-2 h-4 w-4" />
-                                                        Delete Lead
-                                                    </DropdownMenuItem>
-
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </div>
-                    {/* Pagination controls */}
-                    <div className="flex items-center justify-between px-2 py-2">
-                        <div className="text-sm text-muted-foreground">
-                            {filteredLeads.length === 0
-                                ? "Showing 0 of 0"
-                                : `Showing ${(currentPage - 1) * PAGE_SIZE + 1} - ${Math.min(currentPage * PAGE_SIZE, filteredLeads.length)} of ${filteredLeads.length}`}
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                            <Button
-                                onClick={() => setPageState((p) => Math.max(1, p - 1))}
-                                disabled={currentPage === 1}
-                            >
-                                Prev
-                            </Button>
-
-                            <span className="text-sm">Page {currentPage} of {totalPages}</span>
-
-                            <Button
-                                onClick={() => setPageState((p) => Math.min(totalPages, p + 1))}
-                                disabled={currentPage === totalPages}
-                            >
-                                Next
-                            </Button>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Emails</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">All client and team communications in one place.</p>
         </div>
-    )
-}
+        <Link to="emails/compose">
+          <Button size="sm" className="gap-1.5 rounded-lg px-4 h-9"><Plus className="h-4 w-4" />Compose</Button>
+        </Link>
+      </div>
 
-/* KPI CARD */
-function StatCard({
-    title,
-    value,
-    icon,
-    gradient,
-}: {
-    title: string
-    value: string
-    icon: React.ReactNode
-    gradient: string
-}) {
-    return (
-        <Card>
-            <CardContent className="flex justify-between items-center p-6">
-                <div>
-                    <p className="text-md text-muted-foreground">{title}</p>
-                    <h3 className="text-2xl font-medium">{value}</h3>
+      <Card className="shadow-sm">
+        <CardHeader className="flex flex-row flex-wrap items-center gap-3 border-b py-3 px-4">
+          <Select value={folderFilter} onValueChange={v => { setFolderFilter(v); setPage(1) }}>
+            <SelectTrigger className="w-[120px] h-9 text-sm"><SelectValue placeholder="Folder" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Folders</SelectItem>
+              <SelectItem value="Inbox">Inbox</SelectItem>
+              <SelectItem value="Sent">Sent</SelectItem>
+              <SelectItem value="Drafts">Drafts</SelectItem>
+              <SelectItem value="Spam">Spam</SelectItem>
+            </SelectContent>
+          </Select>
 
-                </div>
+          <Select value={catFilter} onValueChange={v => { setCatFilter(v); setPage(1) }}>
+            <SelectTrigger className="w-[135px] h-9 text-sm"><SelectValue placeholder="Category" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              <SelectItem value="Inquiry">Inquiry</SelectItem>
+              <SelectItem value="Follow-up">Follow-up</SelectItem>
+              <SelectItem value="Offer">Offer</SelectItem>
+              <SelectItem value="Support">Support</SelectItem>
+              <SelectItem value="Newsletter">Newsletter</SelectItem>
+            </SelectContent>
+          </Select>
 
-                {/* ✅ Gradient Icon */}
-                <div className={` text-3xl text-white ${gradient}`}>
-                    {icon}
-                </div>
-            </CardContent>
-        </Card>
-    )
+          <Select value={statusFilter} onValueChange={v => { setStatusFilter(v); setPage(1) }}>
+            <SelectTrigger className="w-[130px] h-9 text-sm"><SelectValue placeholder="Status" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Statuses</SelectItem>
+              <SelectItem value="Unread">Unread</SelectItem>
+              <SelectItem value="Read">Read</SelectItem>
+              <SelectItem value="Replied">Replied</SelectItem>
+              <SelectItem value="Forwarded">Forwarded</SelectItem>
+              <SelectItem value="Starred">Starred</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <div className="relative w-[240px]">
+            <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+            <Input placeholder="Search subject, sender…" className="pl-8 h-9 text-sm"
+              value={search} onChange={e => { setSearch(e.target.value); setPage(1) }} />
+          </div>
+          <div className="ml-auto text-xs text-muted-foreground">{filtered.length} email{filtered.length !== 1 ? "s" : ""}</div>
+        </CardHeader>
+
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table className="min-w-[1080px]">
+              <TableHeader>
+                <TableRow className="bg-muted/40 hover:bg-muted/40">
+                  {["Email ID", "Subject", "From", "To", "Category", "Folder", "Date & Time", "Attachment", "Status", "Action"].map((h, i) => (
+                    <TableHead key={h} className={`text-xs font-semibold uppercase tracking-wide ${i === 0 ? "pl-4" : ""} ${i === 9 ? "text-right pr-4" : ""}`}>{h}</TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {paginated.length === 0 ? (
+                  <TableRow><TableCell colSpan={10} className="py-16 text-center text-muted-foreground text-sm">No emails match your filters.</TableCell></TableRow>
+                ) : paginated.map((e, i) => (
+                  <TableRow key={e.id} className={`row-in border-b border-border/50 hover:bg-muted/30 transition-colors ${e.status === "Unread" ? "font-medium" : ""}`} style={{ animationDelay: `${i * 35}ms` }}>
+                    <TableCell className="pl-4 font-mono text-xs text-muted-foreground">{e.id}</TableCell>
+                    <TableCell className="max-w-[220px]">
+                      <div className="flex items-center gap-1.5">
+                        <Mail className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                        <span className={`text-sm truncate ${e.status === "Unread" ? "font-semibold" : ""}`}>{e.subject}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">{e.from}</div>
+                      <div className="text-xs text-muted-foreground">{e.fromEmail}</div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">{e.to}</div>
+                      <div className="text-xs text-muted-foreground">{e.toEmail}</div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={`text-xs px-2 py-0.5 font-medium ${catCls[e.category]}`}>{e.category}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={`text-xs px-2 py-0.5 font-medium ${folderCls[e.folder]}`}>{e.folder}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-xs">{e.date}</div>
+                      <div className="text-xs text-muted-foreground">{e.time}</div>
+                    </TableCell>
+                    <TableCell>
+                      {e.hasAttachment
+                        ? <span className="text-xs text-primary font-medium">📎 Yes</span>
+                        : <span className="text-xs text-muted-foreground">—</span>}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={`inline-flex items-center gap-1 text-xs px-2.5 py-1 font-medium ${statusCls[e.status]}`}>
+                        {statusIcon[e.status]}{e.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right pr-4">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 rounded-md"><MoreVertical className="h-4 w-4" /></Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-40">
+                          <DropdownMenuItem className="text-sm gap-2 cursor-pointer"><Eye className="h-3.5 w-3.5" />View Email</DropdownMenuItem>
+                          <DropdownMenuItem className="text-sm gap-2 cursor-pointer"><Reply className="h-3.5 w-3.5" />Reply</DropdownMenuItem>
+                          <DropdownMenuItem className="text-sm gap-2 cursor-pointer"><Forward className="h-3.5 w-3.5" />Forward</DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem className="text-sm gap-2 text-red-600 cursor-pointer focus:text-red-600"
+                            onClick={() => setData(prev => prev.filter(x => x.id !== e.id))}>
+                            <Trash2 className="h-3.5 w-3.5" />Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+          <div className="flex items-center justify-between px-4 py-3 border-t border-border/50">
+            <p className="text-xs text-muted-foreground">
+              {filtered.length === 0 ? "No results" : `Showing ${(curPage - 1) * PAGE_SIZE + 1}–${Math.min(curPage * PAGE_SIZE, filtered.length)} of ${filtered.length}`}
+            </p>
+            <div className="flex items-center gap-1.5">
+              <Button variant="outline" size="sm" className="h-8 px-3 text-xs" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={curPage === 1}>Previous</Button>
+              <span className="text-xs text-muted-foreground px-1">{curPage} / {totalPages}</span>
+              <Button variant="outline" size="sm" className="h-8 px-3 text-xs" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={curPage === totalPages}>Next</Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
 }
