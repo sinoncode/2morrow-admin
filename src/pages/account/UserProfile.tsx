@@ -6,6 +6,8 @@ import { Phone, MessageCircle, User, HelpCircle, Code2, Flag, Clock,
          FileText, Users, Rocket, ShieldCheck, AlertTriangle,
          Send, Home, CheckCircle2, Briefcase, BarChart3,
         Facebook, Twitter, Instagram, Linkedin, Youtube, Music, Pin, PenTool, Cloud, Shield } from "lucide-react"
+        
+import EditProfile from "@/pages/account/EditProfile"
 
 export default function UserProfile() {
     return (
@@ -136,7 +138,7 @@ export default function UserProfile() {
                         </CardContent>
                     </Card>
 
-                    <Card>
+                    <Card className="hidden">
                         <CardContent className="p-6">
 
                             <h5 className="mb-4 text-lg font-semibold">Teams</h5>
@@ -190,7 +192,7 @@ export default function UserProfile() {
                         </CardContent>
                     </Card>
 
-                    <Card>
+                    <Card className="hidden">
                         <CardContent className="p-6">
 
                             <h5 className="mb-4 text-lg font-semibold">Overview</h5>
@@ -223,7 +225,7 @@ export default function UserProfile() {
                         </CardContent>
                     </Card>
 
-                    <Card>
+                    <Card className="hidden">
                         <CardContent className="p-6">
                             <h5 className="mb-4 text-lg font-semibold">Skills</h5>
                              <div className="flex flex-wrap gap-2">
@@ -264,7 +266,10 @@ export default function UserProfile() {
                 </div>
 
                 <div className="col-span-12 xl:col-span-8 space-y-6">
-                    <Card>
+                    
+                    <EditProfile />
+
+                    <Card className="hidden">
                         <CardContent className="p-6">
 
                             <h5 className="mb-6 text-lg font-semibold">Activity Timeline</h5>
@@ -345,7 +350,7 @@ export default function UserProfile() {
                         </CardContent>
                     </Card>
 
-                    <div className="grid grid-cols-12 gap-6">
+                    <div className="grid grid-cols-12 gap-6 hidden">
 
                         <div className="col-span-12 xl:col-span-6">
                             <Card>

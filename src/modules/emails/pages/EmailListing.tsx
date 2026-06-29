@@ -87,7 +87,7 @@ export default function EmailListing() {
           <h1 className="text-2xl font-semibold tracking-tight">Emails</h1>
           <p className="text-sm text-muted-foreground mt-0.5">All client and team communications in one place.</p>
         </div>
-        <Link to="emails/compose">
+        <Link to="/emails/compose">
           <Button size="sm" className="gap-1.5 rounded-lg px-4 h-9"><Plus className="h-4 w-4" />Compose</Button>
         </Link>
       </div>

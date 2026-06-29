@@ -472,7 +472,7 @@ function StatCard({
         </div>
 
         {/* ✅ Gradient Icon */}
-        <div className={` text-3xl text-white ${gradient}`}>
+        <div className={` text-3xl  ${gradient}`}>
           {icon}
         </div>
       </CardContent>
