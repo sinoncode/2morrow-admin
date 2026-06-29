@@ -4,6 +4,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+
+import { MapPin } from "lucide-react"
 import {
   LineChart,
   Line,
@@ -23,14 +25,16 @@ const visitorsData = [
 export default function WebsiteVisitorsCard() {
   return (
     <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-md font-semibold text-muted-foreground">
-          Website Visitors
+      <CardHeader className="pb-2 flex">
+
+        <MapPin />
+        <CardTitle className="w-fit text-md font-semibold text-muted-foreground">
+          Active Requests
         </CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <div>
+        <div className="flex gap-5 items-center">
           <h2 className="text-3xl font-bold mb-2">43K</h2>
           <p className="text-md text-emerald-600">
             +5.6% from last week
