@@ -20,10 +20,10 @@ export default function EditProfile() {
         <Tabs defaultValue="profile" className="w-full">
 
           {/* Tabs Header */}
-          <TabsList className="grid grid-cols-3 mb-8">
+          <TabsList className="grid grid-cols-2 mb-8">
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="security">Security</TabsTrigger>
-            <TabsTrigger value="social">Social</TabsTrigger>
+            {/* <TabsTrigger value="social">Social</TabsTrigger> */}
           </TabsList>
 
           {/* ================= PROFILE TAB ================= */}
@@ -47,20 +47,17 @@ export default function EditProfile() {
             <div className="space-y-4">
               <div>
                 <Label>Name</Label>
-                <Input placeholder="Username or email" />
+                <Input placeholder="Enter your username" />
               </div>
 
               <div>
-                <Label>Location</Label>
-                <Input placeholder="City, Country" />
+                <Label>Email</Label>
+                <Input placeholder="Enter your email" />
               </div>
 
               <div>
-                <Label>Bio</Label>
-                <Textarea
-                  placeholder="Write something about yourself..."
-                  className="min-h-[120px]"
-                />
+                <Label>Phone</Label>
+                <Input placeholder="Enter your phone number" />
               </div>
             </div>
 
@@ -107,7 +104,7 @@ export default function EditProfile() {
           </TabsContent>
 
           {/* ================= SOCIAL TAB ================= */}
-          <TabsContent value="social" className="space-y-6">
+          {/* <TabsContent value="social" className="space-y-6">
 
             <div className="flex items-center justify-between border rounded-xl p-4">
               <span className="font-medium">Facebook</span>
@@ -133,7 +130,7 @@ export default function EditProfile() {
               Save Social Settings
             </Button>
 
-          </TabsContent>
+          </TabsContent> */}
 
         </Tabs>
       </Card>
