@@ -61,7 +61,7 @@ const scheduledViewings = [
 
 const dealTimeline = [
   {
-    title: "Property Created",
+    title: "Request Created",
     completed: true,
   },
   {
@@ -288,7 +288,7 @@ export default function ProposedStep() {
           <div className="grid gap-4 md:grid-cols-3">
             <div className="rounded-xl border p-5">
               <p className="text-sm text-muted-foreground">
-                Property Value
+                Request Value
               </p>
 
               <h3 className="mt-2 text-2xl font-bold">

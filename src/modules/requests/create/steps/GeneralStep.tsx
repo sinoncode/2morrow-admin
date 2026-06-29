@@ -16,7 +16,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
 import { Textarea } from "@/components/ui/textarea"
 
-import { usePropertyCreationStore } from "../store/propertyCreationStore"
+import { useRequestCreationStore } from "../store/requestCreationStore"
+import { Button } from "@/components/ui/button"
 
 const statusMetadata = {
   draft: { title: "Draft", desc: "Visible only to you" },
@@ -26,7 +27,7 @@ const statusMetadata = {
 
 export default function GeneralStep() {
   const { form, updateField } =
-    usePropertyCreationStore()
+    useRequestCreationStore()
 
   return (
     <div className="space-y-6">
@@ -64,9 +65,9 @@ export default function GeneralStep() {
               </label>
 
               <Select
-                value={form.propertyType}
+                value={form.requestType}
                 onValueChange={(value) =>
-                  updateField("propertyType", value)
+                  updateField("requestType", value)
                 }
               >
                 <SelectTrigger>
@@ -323,11 +324,9 @@ export default function GeneralStep() {
           </div>
 
           <div className="mt-6 flex gap-3">
-            <button className="rounded-lg bg-primary px-8 py-2">
-              Save
-            </button>
+            <Button className="rounded-lg py-5 px-8">Save</Button>
 
-            <button className="rounded-lg border px-8 py-2 text-red-500">
+            <button className="rounded-lg border border-red-500 px-8 py-2 text-red-500">
               Cancel
             </button>
           </div>

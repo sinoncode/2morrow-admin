@@ -91,8 +91,17 @@ import EditRequests from "@/modules/requests/EditRequests"
 import Permissions from "@/modules/permission/Permission"
 
 import Leads from "@/modules/leads/LeadsLists"
+import EditLeads from "@/modules/leads/EditLeads"
 
 import Agenda from "@/modules/agenda/pages/Agenda"
+
+// Dossiers
+import DossiersList from "@/modules/dossiers/pages/DossierList"
+import DossierDetails from "@/modules/dossiers/pages/DossierDetails"
+
+// Email
+import EmailListing from "@/modules/emails/pages/EmailListing"
+import EmailCompose from "@/modules/emails/pages/Emailcompose"
 
 
 export const router = createBrowserRouter(
@@ -159,9 +168,18 @@ export const router = createBrowserRouter(
         // Leads 
 
         { path: "leads/list", element: <Leads /> },
+        { path: "leads/edit-leads", element: <EditLeads /> },
 
         // Agenda
         { path: "agenda", element: <Agenda /> },
+
+        // Dossiers
+        { path: "dossiers/list", element: <DossiersList /> },
+        { path: "dossiers/details", element: <DossierDetails /> },
+
+        // Emails
+        { path: "emails/list", element: <EmailListing /> },
+        { path: "emails/compose", element: <EmailCompose /> },
 
         // 🛍️ E-COMMERCE
         { path: "eCommerce/product-list", element: <ProductList /> },

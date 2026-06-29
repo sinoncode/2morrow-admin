@@ -32,7 +32,7 @@ const getStepIcon = (index: number) => {
   return <Icon className="h-4 w-4 shrink-0" />
 }
 
-export default function PropertyWizardNavigation({
+export default function RequestWizardNavigation({
   steps,
   currentStep,
   onStepChange,
@@ -59,22 +59,24 @@ export default function PropertyWizardNavigation({
               onClick={() => onStepChange(index)}
               className={cn(
                 `
-                group
-                relative
-                flex
-                items-center
-                gap-2
-                rounded-full
-                px-5
-                
-                py-2.5  
-                font-medium
-                transition-all
-                duration-500
-                ease-out
-                text-base
-                whitespace-nowrap
-                `,
+    group
+    relative
+    flex
+    items-center
+    gap-2
+    rounded-full
+    px-5
+    py-2.5
+    font-medium
+    transition-all
+    duration-500
+    ease-out
+    text-base
+    whitespace-nowrap
+    `,
+                index !== 0 &&
+                index !== steps.length - 1 &&
+                "mx-2", // Apply horizontal margin only to middle buttons
                 isActive
                   ? "bg-white text-slate-900 shadow-sm scale-[1.02]"
                   : "text-white/80 hover:bg-white/10 hover:text-white"
@@ -83,11 +85,14 @@ export default function PropertyWizardNavigation({
               <span
                 className={cn(
                   "transition-colors duration-300",
-                  isActive ? "text-slate-900" : "text-white/80 group-hover:text-white"
+                  isActive
+                    ? "text-slate-900"
+                    : "text-white/80 group-hover:text-white"
                 )}
               >
                 {getStepIcon(index)}
               </span>
+
               <span>{step}</span>
             </button>
           )

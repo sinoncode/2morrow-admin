@@ -14,10 +14,10 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-import { usePropertyCreationStore } from "../store/propertyCreationStore"
+import { useRequestCreationStore } from "../store/requestCreationStore"
 
 export default function PublicationStep() {
-  const { form, updateField } = usePropertyCreationStore()
+  const { form, updateField } = useRequestCreationStore()
 
   return (
     <div className="space-y-6">
@@ -32,7 +32,7 @@ export default function PublicationStep() {
 
         <CardContent className="grid gap-6 md:grid-cols-2">
           <div className="space-y-2">
-            <Label>Property Status</Label>
+            <Label>Request Status</Label>
 
             <Select
               value={form.publicationStatus}
@@ -91,7 +91,7 @@ export default function PublicationStep() {
         </CardContent>
       </Card>
 
-      {/* Featured Property */}
+      {/* Featured Request */}
 
       <Card>
         <CardHeader>
@@ -104,7 +104,7 @@ export default function PublicationStep() {
         <CardContent className="flex items-center justify-between">
           <div>
             <p className="font-medium">
-              Highlight this property
+              Highlight this request
             </p>
 
             <p className="text-sm text-muted-foreground">
@@ -341,7 +341,7 @@ export default function PublicationStep() {
                   e.target.value
                 )
               }
-              placeholder="villa, dubai, luxury property, beachfront"
+              placeholder="villa, dubai, luxury request, beachfront"
             />
           </div>
         </CardContent>

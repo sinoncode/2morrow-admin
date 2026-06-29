@@ -10,7 +10,7 @@ interface ValidationRules {
   [key: string]: ValidationRule
 }
 
-export function usePropertyValidation() {
+export function useRequestValidation() {
   const rules: ValidationRules = {
     name: { required: true, minLength: 3, maxLength: 100 },
     type: { required: true },

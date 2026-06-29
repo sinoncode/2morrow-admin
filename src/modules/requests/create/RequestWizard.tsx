@@ -1,0 +1,56 @@
+import { useState } from "react"
+
+import GeneralStep from "./steps/GeneralStep"
+import CharacteristicsStep from "./steps/CharacteristicsStep"
+import PricingStep from "./steps/PricingStep"
+import DescriptionStep from "./steps/DescriptionStep"
+import MediaStep from "./steps/MediaStep"
+import PublicationStep from "./steps/PublicationStep"
+import MatchingStep from "./steps/MatchingStep"
+import ProposedStep from "./steps/ProposedStep"
+
+import RequestWizardHeader from "./RequestWizardHeader"
+import RequestWizardNavigation from "./RequestWizardNavigation"
+
+// Updated to match the exact text from the screenshot
+const steps = [
+  "General",
+  "Criteria",
+  "Matching",
+  "Activities",
+  "Documents",
+  "History",
+]
+
+export default function RequestWizard() {
+  const [currentStep, setCurrentStep] = useState(0)
+
+  const renderStep = () => {
+    switch (currentStep) {
+      case 0: return <GeneralStep />
+      case 1: return <CharacteristicsStep />
+      case 2: return <PricingStep />
+      case 3: return <DescriptionStep />
+      case 4: return <MediaStep />
+      case 5: return <PublicationStep />
+      default: return <GeneralStep />
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <RequestWizardHeader />
+
+      <RequestWizardNavigation
+        steps={steps}
+        currentStep={currentStep}
+        onStepChange={setCurrentStep}
+      />
+
+      {/* Wrapping the step content in a card/container for better separation */}
+      <div className="rounded-xl border bg-card p-6 shadow-sm">
+        {renderStep()}
+      </div>
+    </div>
+  )
+}

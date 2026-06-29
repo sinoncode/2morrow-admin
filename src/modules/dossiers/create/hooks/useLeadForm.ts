@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-interface PropertyFormData {
+interface LeadFormData {
   name?: string
   type?: string
   listingType?: string
@@ -36,8 +36,8 @@ interface PropertyFormData {
   additionalNotes?: string
 }
 
-export function usePropertyForm(initialData?: PropertyFormData) {
-  const [formData, setFormData] = useState<PropertyFormData>(
+export function useLeadForm(initialData?: LeadFormData) {
+  const [formData, setFormData] = useState<LeadFormData>(
     initialData || {}
   )
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -45,8 +45,8 @@ export function usePropertyForm(initialData?: PropertyFormData) {
   const validate = (): Record<string, string> => {
     const newErrors: Record<string, string> = {}
 
-    if (!formData.name) newErrors.name = "Property name is required"
-    if (!formData.type) newErrors.type = "Property type is required"
+    if (!formData.name) newErrors.name = "Lead name is required"
+    if (!formData.type) newErrors.type = "Lead type is required"
     if (!formData.listingType)
       newErrors.listingType = "Listing type is required"
     if (!formData.address) newErrors.address = "Address is required"
