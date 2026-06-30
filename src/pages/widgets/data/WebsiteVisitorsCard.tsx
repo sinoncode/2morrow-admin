@@ -27,9 +27,9 @@ export default function WebsiteVisitorsCard() {
     <Card>
       <CardHeader className="pb-2 flex">
 
-        <MapPin />
-        <CardTitle className="w-fit text-md font-semibold text-muted-foreground">
-          Active Requests
+
+        <CardTitle className="w-fit text-md font-semibold text-muted-foreground flex">
+          <MapPin /> Active Requests
         </CardTitle>
       </CardHeader>
 

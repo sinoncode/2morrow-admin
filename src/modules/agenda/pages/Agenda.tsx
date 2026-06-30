@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
     Search,
@@ -13,144 +13,28 @@ import EventDialog from "../components/EventDialog";
 import CategoryProgress from "../components/CategoryProgress";
 import UpcomingMeeting from "../components/UpcomingMeeting";
 
-export interface AgendaEvent {
-    id: string;
-    title: string;
-    description?: string;
-    start: Date;
-    end: Date;
-    color: string;
-    members?: string[];
-    location?: string;
-    category?: string;
-}
+import { useAgendaStore } from "@/store/agendaStore";
 
-const initialEvents: AgendaEvent[] = [
-    {
-        id: crypto.randomUUID(),
-        title: "Booking Taxi App",
-        description: "Review dashboard UI with team",
-        start: new Date(2026, 0, 12, 6, 0),
-        end: new Date(2026, 0, 12, 7, 30),
-        color: "#A5C8F8",
-        category: "Design",
-        location: "Meeting Room A",
-        members: [
-            "Antonio",
-            "Sophia",
-            "Lucas",
-        ],
-    },
-    {
-        id: crypto.randomUUID(),
-        title: "Design Onboarding",
-        description: "New designer introduction",
-        start: new Date(2026, 0, 12, 6, 0),
-        end: new Date(2026, 0, 12, 7, 10),
-        color: "#A8E6B3",
-        category: "Training",
-        location: "Studio",
-        members: [
-            "Emma",
-            "Daniel",
-        ],
-    },
-    {
-        id: crypto.randomUUID(),
-        title: "Development Meeting",
-        description: "Sprint Planning",
-        start: new Date(2026, 0, 12, 8, 0),
-        end: new Date(2026, 0, 12, 9, 0),
-        color: "#BCA6F6",
-        category: "Development",
-        location: "Zoom",
-        members: [
-            "Oliver",
-            "James",
-            "Sophia",
-        ],
-    },
-    {
-        id: crypto.randomUUID(),
-        title: "Design Session",
-        description: "Landing page redesign",
-        start: new Date(2026, 0, 12, 8, 0),
-        end: new Date(2026, 0, 12, 10, 0),
-        color: "#F7D37B",
-        category: "Design",
-        location: "Creative Room",
-        members: [
-            "Ava",
-            "Noah",
-        ],
-    },
-    {
-        id: crypto.randomUUID(),
-        title: "Design Review",
-        description: "Component review",
-        start: new Date(2026, 0, 12, 10, 0),
-        end: new Date(2026, 0, 12, 10, 45),
-        color: "#A9CCF7",
-        category: "Meeting",
-        location: "Office",
-        members: [
-            "Emily",
-            "Liam",
-        ],
-    },
-    {
-        id: crypto.randomUUID(),
-        title: "New Project",
-        description: "Kickoff Meeting",
-        start: new Date(2026, 0, 12, 11, 0),
-        end: new Date(2026, 0, 12, 12, 30),
-        color: "#9FC4EF",
-        category: "Business",
-        location: "Conference Hall",
-        members: [
-            "Antonio",
-            "Sophia",
-            "Lucas",
-            "Emma",
-        ],
-    },
-    {
-        id: crypto.randomUUID(),
-        title: "Client Presentation",
-        description: "Quarterly Review",
-        start: new Date(2026, 0, 13, 9, 30),
-        end: new Date(2026, 0, 13, 10, 30),
-        color: "#F8B6D5",
-        category: "Meeting",
-        location: "Client Office",
-        members: [
-            "Daniel",
-            "Lucas",
-        ],
-    },
-    {
-        id: crypto.randomUUID(),
-        title: "Product Strategy",
-        description: "Roadmap Planning",
-        start: new Date(2026, 0, 15, 13, 0),
-        end: new Date(2026, 0, 15, 15, 0),
-        color: "#8CE4D4",
-        category: "Business",
-        location: "Board Room",
-        members: [
-            "Oliver",
-            "James",
-            "Emily",
-        ],
-    },
-];
+import type { AgendaEvent, AgendaPayload } from "@/types/agenda.types";
+
 
 const Agenda = () => {
-    const [events, setEvents] =
-        useState<AgendaEvent[]>(initialEvents);
+    const {
+        events,
+        fetchEvents,
+        createEvent,
+        updateEvent,
+        deleteEvent,
+        selectedEvent,
+        setSelectedEvent
+    } = useAgendaStore();
+
+    useEffect(() => {
+        fetchEvents();
+    }, [fetchEvents]);
 
     const [selectedDate, setSelectedDate] =
-        useState(new Date(2026, 0, 12));
+        useState(new Date(2026, 0, 12)); // Consider using current date or keep as is
 
     const [activeView, setActiveView] =
         useState("Month");
@@ -160,9 +44,6 @@ const Agenda = () => {
 
     const [dialogOpen, setDialogOpen] =
         useState(false);
-
-    const [selectedEvent, setSelectedEvent] =
-        useState<AgendaEvent | null>(null);
 
     const filteredEvents = useMemo(() => {
         if (!search.trim()) return events;
@@ -191,36 +72,20 @@ const Agenda = () => {
         setSelectedEvent(null);
     };
 
-    const saveEvent = (
-        event: AgendaEvent
+    const saveEvent = async (
+        payload: AgendaPayload
     ) => {
-        const exists = events.find(
-            (e) => e.id === event.id
-        );
-
-        if (exists) {
-            setEvents((prev) =>
-                prev.map((e) =>
-                    e.id === event.id ? event : e
-                )
-            );
+        if (selectedEvent) {
+            await updateEvent(selectedEvent.id, payload);
         } else {
-            setEvents((prev) => [
-                ...prev,
-                {
-                    ...event,
-                    id: crypto.randomUUID(),
-                },
-            ]);
+            await createEvent(payload);
         }
-
         closeDialog();
     };
 
-    const deleteEvent = (id: string) => {
-        setEvents((prev) =>
-            prev.filter((e) => e.id !== id)
-        );
+    const removeEvent = async (id: string) => {
+        await deleteEvent(id);
+        closeDialog();
     };
 
     return (
@@ -521,7 +386,7 @@ const Agenda = () => {
                 selectedDate={selectedDate}
                 onClose={closeDialog}
                 onSave={saveEvent}
-                onDelete={deleteEvent}
+                onDelete={removeEvent}
             />
         </>
     );

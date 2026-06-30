@@ -5,7 +5,7 @@ import {
     ChevronRight,
 } from "lucide-react";
 
-import type { AgendaEvent } from "../pages/Agenda";
+import type { AgendaEvent } from "@/types/agenda.types";
 
 interface MiniCalendarProps {
     selectedDate: Date;

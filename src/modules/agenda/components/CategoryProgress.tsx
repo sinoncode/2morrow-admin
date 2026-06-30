@@ -7,7 +7,7 @@ import {
     Palette,
 } from "lucide-react";
 
-import type { AgendaEvent } from "../pages/Agenda";
+import type { AgendaEvent } from "@/types/agenda.types";
 
 interface CategoryProgressProps {
     events: AgendaEvent[];

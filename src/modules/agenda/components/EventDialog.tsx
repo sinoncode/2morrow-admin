@@ -11,14 +11,19 @@ import {
     Save,
 } from "lucide-react";
 
-import type { AgendaEvent } from "../pages/Agenda";
+import type { AgendaPayload } from "@/types/agenda.types";
+import type { AgendaEvent } from "@/types/agenda.types";
+
+import { useAgendaStore } from "@/store/agendaStore";
+
+import type { AgendaUser } from "@/types/agenda.types";
 
 interface EventDialogProps {
     open: boolean;
     event: AgendaEvent | null;
     selectedDate: Date;
     onClose: () => void;
-    onSave: (event: AgendaEvent) => void;
+    onSave: (payload: AgendaPayload) => void;
     onDelete: (id: string) => void;
 }
 
@@ -45,7 +50,16 @@ const EventDialog = ({
     const [location, setLocation] = useState("");
     const [category, setCategory] = useState("");
 
-    const [members, setMembers] = useState("");
+    const [memberSearch, setMemberSearch] = useState("");
+
+    const [selectedMembers, setSelectedMembers] =
+        useState<AgendaUser[]>([]);
+
+    const {
+        users,
+        searchUsers,
+        clearUsers,
+    } = useAgendaStore();
 
     const [color, setColor] = useState(defaultColors[0]);
 
@@ -66,7 +80,7 @@ const EventDialog = ({
         setDescription("");
         setLocation("");
         setCategory("");
-        setMembers("");
+        setSelectedMembers([]);
 
         setColor(defaultColors[0]);
 
@@ -76,6 +90,25 @@ const EventDialog = ({
         setStartTime("09:00");
         setEndTime("10:00");
     };
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+
+            if (memberSearch.trim().length >= 2) {
+
+                searchUsers(memberSearch);
+
+            } else {
+
+                clearUsers();
+
+            }
+
+        }, 350);
+
+        return () => clearTimeout(timeout);
+
+    }, [memberSearch]);
 
     useEffect(() => {
         if (!open) return;
@@ -91,8 +124,8 @@ const EventDialog = ({
         setLocation(event.location || "");
         setCategory(event.category || "");
 
-        setMembers(
-            event.members ? event.members.join(", ") : ""
+        setSelectedMembers(
+            event.members || []
         );
 
         setColor(event.color);
@@ -122,27 +155,16 @@ const EventDialog = ({
             return;
         }
 
-        const start = new Date(
-            `${startDate}T${startTime}`
-        );
-
-        const end = new Date(
-            `${endDate}T${endTime}`
-        );
-
-        const payload: AgendaEvent = {
-            id: event?.id || "",
+        const payload: any = {
             title,
             description,
-            start,
-            end,
-            color,
+            start_date: startDate,
+            end_date: endDate,
+            start_time: startTime,
+            end_time: endTime,
             location,
             category,
-            members: members
-                .split(",")
-                .map((m) => m.trim())
-                .filter(Boolean),
+            members: selectedMembers.map((m) => m.id), // Need a proper user selector for IDs, for now empty array
         };
 
         onSave(payload);
@@ -392,7 +414,7 @@ const EventDialog = ({
 
                             {/* Members */}
 
-                            <div>
+                            <div className="relative">
 
                                 <label className="mb-2 flex items-center gap-2 text-sm font-semibold">
 
@@ -403,12 +425,96 @@ const EventDialog = ({
                                 </label>
 
                                 <input
-                                    type="text"
-                                    value={members}
-                                    onChange={(e) => setMembers(e.target.value)}
-                                    placeholder="John, Alex, Emma"
-                                    className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 px-4 py-3 dark:bg-[#1A1A1A] dark:text-white dark:focus:ring-sky-900"
+                                    value={memberSearch}
+                                    onChange={(e) => setMemberSearch(e.target.value)}
+                                    placeholder="Search by name or email..."
+                                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 dark:border-slate-800 dark:bg-[#1A1A1A]"
                                 />
+
+                                {users.length > 0 && (
+
+                                    <div className="absolute left-0 right-0 z-50 mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-[#202020]">
+
+                                        {users.map((user) => (
+
+                                            <button
+                                                key={user.id}
+                                                type="button"
+                                                onClick={() => {
+
+                                                    if (
+                                                        selectedMembers.some(
+                                                            (m) => m.id === user.id
+                                                        )
+                                                    )
+                                                        return;
+
+                                                    setSelectedMembers([
+                                                        ...selectedMembers,
+                                                        user,
+                                                    ]);
+
+                                                    setMemberSearch("");
+
+                                                    clearUsers();
+                                                }}
+                                                className="flex w-full flex-col items-start px-4 py-3 transition hover:bg-sky-50 dark:hover:bg-slate-800"
+                                            >
+
+                                                <span className="font-medium">
+
+                                                    {user.name}
+
+                                                </span>
+
+                                                <span className="text-xs text-slate-500">
+
+                                                    {user.email}
+
+                                                </span>
+
+                                            </button>
+
+                                        ))}
+
+                                    </div>
+
+                                )}
+
+                                {selectedMembers.length > 0 && (
+
+                                    <div className="mt-4 flex flex-wrap gap-2">
+
+                                        {selectedMembers.map((member) => (
+
+                                            <div
+                                                key={member.id}
+                                                className="flex items-center gap-2 rounded-full bg-sky-100 px-3 py-1 text-sm"
+                                            >
+
+                                                {member.name}
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        setSelectedMembers(
+                                                            selectedMembers.filter(
+                                                                (m) =>
+                                                                    m.id !== member.id
+                                                            )
+                                                        )
+                                                    }
+                                                >
+                                                    <X size={14} />
+                                                </button>
+
+                                            </div>
+
+                                        ))}
+
+                                    </div>
+
+                                )}
 
                             </div>
 

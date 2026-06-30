@@ -7,7 +7,7 @@ import {
     ArrowRight,
 } from "lucide-react";
 
-import type { AgendaEvent } from "../pages/Agenda";
+import type { AgendaEvent } from "@/types/agenda.types";
 
 interface UpcomingMeetingProps {
     events: AgendaEvent[];
@@ -197,10 +197,10 @@ const UpcomingMeeting = ({
                                                 .map((member, i) => (
 
                                                     <div
-                                                        key={i}
+                                                        key={member.id}
                                                         className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-white dark:border-[#141414] bg-gradient-to-r from-sky-500 to-indigo-600 text-xs font-bold text-white shadow"
                                                     >
-                                                        {member
+                                                        {member.name
                                                             .charAt(0)
                                                             .toUpperCase()}
                                                     </div>

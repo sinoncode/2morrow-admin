@@ -6,7 +6,7 @@ import {
     Users,
     MapPin,
 } from "lucide-react";
-import { AgendaEvent } from "../pages/Agenda";
+import { AgendaEvent } from "@/types/agenda.types";
 
 interface CalendarSidebarProps {
     selectedDate: Date;
@@ -407,10 +407,10 @@ const CalendarSidebar = ({
                                             {event.members.map((member) => (
 
                                                 <div
-                                                    key={member}
+                                                    key={member.id}
                                                     className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-gradient-to-br from-cyan-500 via-sky-500 to-indigo-600 text-sm font-semibold text-white shadow-lg backdrop-blur-xl"
                                                 >
-                                                    {member}
+                                                    {member.name.charAt(0).toUpperCase()}
                                                 </div>
 
                                             ))}

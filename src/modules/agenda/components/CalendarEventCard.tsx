@@ -6,7 +6,7 @@ import {
     Users,
 } from "lucide-react";
 
-import type { AgendaEvent } from "../pages/Agenda";
+import type { AgendaEvent } from "@/types/agenda.types";
 
 interface CalendarEventCardProps {
     event: AgendaEvent;
@@ -115,10 +115,10 @@ const CalendarEventCard = ({
                     <div className="flex -space-x-2">
                         {event.members.slice(0, 3).map((member, index) => (
                             <div
-                                key={index}
+                                key={member.id}
                                 className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white dark:border-[#141414] bg-gradient-to-br from-sky-500 to-indigo-600 text-[10px] font-bold text-white shadow"
                             >
-                                {member.charAt(0).toUpperCase()}
+                                {member.name.charAt(0).toUpperCase()}
                             </div>
                         ))}
 

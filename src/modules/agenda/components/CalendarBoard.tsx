@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { motion } from "framer-motion";
 import clsx from "clsx";
 import { Plus } from "lucide-react";
-import type { AgendaEvent } from "../pages/Agenda";
+import type { AgendaEvent } from "@/types/agenda.types";
 
 interface CalendarBoardProps {
     events: AgendaEvent[];
@@ -253,10 +253,10 @@ const CalendarBoard = ({
 
                                                     {event.members.slice(0, 4).map((member) => (
                                                         <div
-                                                            key={member}
+                                                            key={member.id}
                                                             className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white dark:border-[#141414] bg-gradient-to-r from-sky-500 to-indigo-600 text-[10px] font-bold text-white"
                                                         >
-                                                            {member}
+                                                            {member.name.charAt(0).toUpperCase()}
                                                         </div>
                                                     ))}
 
