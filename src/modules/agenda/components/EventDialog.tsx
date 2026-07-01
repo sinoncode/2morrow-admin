@@ -155,7 +155,7 @@ const EventDialog = ({
             return;
         }
 
-        const payload: any = {
+        const payload: AgendaPayload = {
             title,
             description,
             start_date: startDate,
@@ -164,8 +164,11 @@ const EventDialog = ({
             end_time: endTime,
             location,
             category,
-            members: selectedMembers.map((m) => m.id), // Need a proper user selector for IDs, for now empty array
+            members: selectedMembers.map((m) => m.id),
         };
+
+        console.log("Payload Object:", payload);
+        console.log("Payload JSON:", JSON.stringify(payload, null, 2));
 
         onSave(payload);
     };

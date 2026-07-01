@@ -37,7 +37,14 @@ const mapApiEventToUI = (apiEvent: AgendaApiEvent): AgendaEvent => {
     color: getCategoryColor(apiEvent.category),
     category: apiEvent.category,
     location: apiEvent.location,
-    members: apiEvent.members ? apiEvent.members.map((id) => ({ id, name: `User ${id}`, email: '' })) : [],
+
+    members: apiEvent.members
+      ? apiEvent.members.map((member) => ({
+        id: member.id,
+        name: member.name,
+        email: member.email,
+      }))
+      : [],
   };
 };
 

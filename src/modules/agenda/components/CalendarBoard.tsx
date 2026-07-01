@@ -254,7 +254,8 @@ const CalendarBoard = ({
                                                     {event.members.slice(0, 4).map((member) => (
                                                         <div
                                                             key={member.id}
-                                                            className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white dark:border-[#141414] bg-gradient-to-r from-sky-500 to-indigo-600 text-[10px] font-bold text-white"
+                                                            title={`${member.name}\n${member.email}`}
+                                                            className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white dark:border-[#141414] bg-gradient-to-r from-sky-500 to-indigo-600 text-[10px] font-bold text-white cursor-pointer"
                                                         >
                                                             {member.name.charAt(0).toUpperCase()}
                                                         </div>

@@ -29,33 +29,26 @@ export interface AgendaUser {
 // ==========================================
 // Backend Event Model
 // ==========================================
+export interface AgendaApiMember {
+  id: number;
+  name: string;
+  email: string;
+  avatar?: string | null;
+}
+
 
 export interface AgendaApiEvent {
-  id: number
+  id: number;
+  title: string;
+  description: string;
+  start_date: string;
+  end_date: string;
+  start_time: string;
+  end_time: string;
+  category: string;
+  location: string;
 
-  title: string
-
-  description: string
-
-  start_date: string
-
-  end_date: string
-
-  start_time: string
-
-  end_time: string
-
-  category: string
-
-  location: string
-
-  members: number[]
-
-  user_id: number
-
-  created_at: string
-
-  updated_at: string
+  members: AgendaApiMember[];
 }
 
 // ==========================================
