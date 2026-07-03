@@ -103,9 +103,9 @@ export default function CrmDashboard() {
       </div>
 
       {/* Table */}
-      <Suspense fallback={<CardSkeleton height={400} />}>
+      {/* <Suspense fallback={<CardSkeleton height={400} />}>
         <TrafficTable />
-      </Suspense>
+      </Suspense> */}
 
     </div>
   )
