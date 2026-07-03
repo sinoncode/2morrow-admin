@@ -6,8 +6,15 @@ const RadioGroup = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
 >(({ className, ...props }, ref) => {
-  return <RadioGroupPrimitive.Root className={cn("grid gap-3", className)} {...props} ref={ref} />
+  return (
+    <RadioGroupPrimitive.Root
+      ref={ref}
+      className={cn("grid gap-3", className)}
+      {...props}
+    />
+  )
 })
+
 RadioGroup.displayName = RadioGroupPrimitive.Root.displayName
 
 const RadioGroupItem = React.forwardRef<
@@ -18,25 +25,119 @@ const RadioGroupItem = React.forwardRef<
     <RadioGroupPrimitive.Item
       ref={ref}
       className={cn(
-        "flex items-center gap-4 w-full rounded-xl bg-white p-4 text-left transition-all hover:bg-slate-50/50 border-0 outline-none focus:outline-none data-[state=checked]:bg-blue-50/70 data-[state=checked]:border-blue-100",
+        `
+        group
+        flex
+        w-full
+        items-center
+        gap-4
+        rounded-xl
+        border
+        border-slate-300
+        bg-white
+        p-4
+        text-left
+        text-slate-900
+        shadow-sm
+        outline-none
+        transition-all
+        duration-300
+        ease-out
+
+        hover:-translate-y-[1px]
+        hover:border-[#2780C3]/60
+        hover:bg-[#F4FAFF]
+        hover:shadow-md
+
+        focus-visible:border-[#2780C3]
+        focus-visible:ring-4
+        focus-visible:ring-[#2780C3]/20
+
+        data-[state=checked]:border-[#2780C3]
+        data-[state=checked]:bg-[#EAF5FD]
+        data-[state=checked]:shadow-[0_8px_20px_rgba(39,128,195,0.16)]
+
+        disabled:cursor-not-allowed
+        disabled:opacity-50
+
+        dark:border-slate-600
+        dark:bg-[#1B2638]
+        dark:text-slate-100
+        dark:shadow-black/20
+
+        dark:hover:border-[#70B8ED]/70
+        dark:hover:bg-[#223149]
+        dark:hover:shadow-black/30
+
+        dark:focus-visible:border-[#70B8ED]
+        dark:focus-visible:ring-[#2780C3]/30
+
+        dark:data-[state=checked]:border-[#2780C3]
+        dark:data-[state=checked]:bg-[#2780C3]/20
+        dark:data-[state=checked]:shadow-[0_8px_24px_rgba(39,128,195,0.25)]
+        `,
         className
       )}
       {...props}
     >
-      {/* Radio Visual Circle */}
-      <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-slate-300 text-current data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 transition-colors">
-        <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
-          <div className="h-2 w-2 rounded-full bg-white" />
-        </RadioGroupPrimitive.Indicator>
-      </div>
+      <span
+        className={cn(
+          `
+          flex
+          h-5
+          w-5
+          shrink-0
+          items-center
+          justify-center
+          rounded-full
+          border-2
+          border-slate-500
+          bg-white
+          shadow-sm
+          transition-all
+          duration-300
 
-      {/* CHANGED HERE: Removed pointer-events-none so click events register instantly */}
-      <div className="flex flex-col gap-0.5 text-left w-full">
+          group-hover:border-[#2780C3]
+          group-data-[state=checked]:scale-105
+          group-data-[state=checked]:border-[#2780C3]
+          group-data-[state=checked]:bg-[#2780C3]
+
+          dark:border-slate-400
+          dark:bg-[#111827]
+          dark:group-hover:border-[#70B8ED]
+          dark:group-data-[state=checked]:border-[#2780C3]
+          dark:group-data-[state=checked]:bg-[#2780C3]
+          `
+        )}
+      >
+        <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
+          <span className="h-2 w-2 rounded-full bg-white shadow-sm" />
+        </RadioGroupPrimitive.Indicator>
+      </span>
+
+      <span
+        className="
+          flex
+          w-full
+          flex-col
+          gap-1
+          text-left
+          text-primary
+          transition-colors
+          duration-300
+
+          group-data-[state=checked]:text-[#155789]
+
+          dark:text-white
+          dark:group-data-[state=checked]:text-[#A9D8FA]
+        "
+      >
         {children}
-      </div>
+      </span>
     </RadioGroupPrimitive.Item>
   )
 })
+
 RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName
 
 export { RadioGroup, RadioGroupItem }

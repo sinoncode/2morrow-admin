@@ -65,19 +65,19 @@ export default function GeneralStep() {
                 </SelectTrigger>
 
                 <SelectContent>
-                  <SelectItem value="apartment">
+                  <SelectItem value="Apartment">
                     Apartment
                   </SelectItem>
 
-                  <SelectItem value="villa">
+                  <SelectItem value="Villa">
                     Villa
                   </SelectItem>
 
-                  <SelectItem value="penthouse">
+                  <SelectItem value="Penthouse">
                     Penthouse
                   </SelectItem>
 
-                  <SelectItem value="office">
+                  <SelectItem value="Office">
                     Office
                   </SelectItem>
                 </SelectContent>
@@ -146,10 +146,10 @@ export default function GeneralStep() {
           >
             {["draft", "active", "sold"].map((status) => {
               const meta = statusMetadata[status as keyof typeof statusMetadata]
-              
+
               return (
                 <RadioGroupItem key={status} value={status}>
-                  <span className="text-sm font-semibold text-slate-800">
+                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-100">
                     {meta.title}
                   </span>
                   <span className="text-xs text-slate-400 font-normal">

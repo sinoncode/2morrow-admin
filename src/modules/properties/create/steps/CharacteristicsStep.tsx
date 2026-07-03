@@ -41,7 +41,7 @@ export default function CharacteristicsStep() {
             {/* Country / State */}
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label>Country</Label>
+                <Label>Country <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
 
                 <Input
                   placeholder="United Arab Emirates"
@@ -173,7 +173,7 @@ export default function CharacteristicsStep() {
 
         <CardContent className="grid gap-4 md:grid-cols-3">
           <div className="space-y-2">
-            <Label>Community</Label>
+            <Label>Community <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
 
             <Input
               placeholder="Palm Jumeirah"
@@ -185,7 +185,7 @@ export default function CharacteristicsStep() {
           </div>
 
           <div className="space-y-2">
-            <Label>Sub Community</Label>
+            <Label>Sub Community <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
 
             <Input
               placeholder="Shoreline Apartments"
@@ -200,7 +200,7 @@ export default function CharacteristicsStep() {
           </div>
 
           <div className="space-y-2">
-            <Label>Building Name</Label>
+            <Label>Building Name <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
 
             <Input
               placeholder="Marina Gate Tower"
@@ -228,25 +228,25 @@ export default function CharacteristicsStep() {
         <CardContent className="space-y-6">
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <div className="space-y-2">
-              <Label>School Distance</Label>
+              <Label>School Distance <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
 
               <Input placeholder="2 km" />
             </div>
 
             <div className="space-y-2">
-              <Label>Hospital Distance</Label>
+              <Label>Hospital Distance <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
 
               <Input placeholder="1.5 km" />
             </div>
 
             <div className="space-y-2">
-              <Label>Mall Distance</Label>
+              <Label>Mall Distance <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
 
               <Input placeholder="500 m" />
             </div>
 
             <div className="space-y-2">
-              <Label>Metro Distance</Label>
+              <Label>Metro Distance <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
 
               <Input placeholder="800 m" />
             </div>
@@ -255,7 +255,7 @@ export default function CharacteristicsStep() {
           <Separator />
 
           <div className="space-y-2">
-            <Label>Nearby Places Description</Label>
+            <Label>Nearby Places Description <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
 
             <Textarea
               rows={4}
@@ -276,25 +276,25 @@ export default function CharacteristicsStep() {
 
         <CardContent className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
-            <Label>Nearest Airport</Label>
+            <Label>Nearest Airport <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
 
             <Input placeholder="Dubai International Airport" />
           </div>
 
           <div className="space-y-2">
-            <Label>Travel Time</Label>
+            <Label>Travel Time <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
 
             <Input placeholder="15 Minutes" />
           </div>
 
           <div className="space-y-2">
-            <Label>Nearest Public Transport</Label>
+            <Label>Nearest Public Transport <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
 
             <Input placeholder="Dubai Marina Metro Station" />
           </div>
 
           <div className="space-y-2">
-            <Label>Accessibility Score</Label>
+            <Label>Accessibility Score <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
 
             <Input placeholder="Excellent" />
           </div>

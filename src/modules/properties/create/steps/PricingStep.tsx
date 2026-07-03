@@ -69,7 +69,7 @@ export default function PricingStep() {
           </div>
 
           <div className="space-y-2">
-            <Label>Plot Area (Sq Ft)</Label>
+            <Label>Plot Area (Sq Ft) <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
 
             <Input
               placeholder="6000"
@@ -81,7 +81,7 @@ export default function PricingStep() {
           </div>
 
           <div className="space-y-2">
-            <Label>Property Age</Label>
+            <Label>Property Age <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
 
             <Input
               placeholder="2 Years"
@@ -223,7 +223,7 @@ export default function PricingStep() {
           </div>
 
           <div className="space-y-2">
-            <Label>Elevators</Label>
+            <Label>Elevators <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
 
             <Input
               placeholder="4"
@@ -260,11 +260,11 @@ export default function PricingStep() {
               </SelectTrigger>
 
               <SelectContent>
-                <SelectItem value="furnished">
+                <SelectItem value="fully_furnished">
                   Fully Furnished
                 </SelectItem>
 
-                <SelectItem value="semi">
+                <SelectItem value="semi_furnished">
                   Semi Furnished
                 </SelectItem>
 
@@ -276,7 +276,7 @@ export default function PricingStep() {
           </div>
 
           <div className="space-y-2">
-            <Label>Ownership Type</Label>
+            <Label>Ownership Type <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
 
             <Select
               value={form.ownershipType}
@@ -344,7 +344,7 @@ export default function PricingStep() {
           </div>
 
           <div className="space-y-2">
-            <Label>Visitor Parking</Label>
+            <Label>Visitor Parking <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
 
             <Input
               placeholder="Available"
@@ -384,7 +384,7 @@ export default function PricingStep() {
           </div>
 
           <div className="space-y-2">
-            <Label>Price Per Sq Ft</Label>
+            <Label>Price Per Sq Ft <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
 
             <Input
               placeholder="AED 1,888"
@@ -414,7 +414,7 @@ export default function PricingStep() {
           </div>
 
           <div className="space-y-2">
-            <Label>Security Deposit</Label>
+            <Label>Security Deposit <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
 
             <Input
               placeholder="5%"
@@ -422,6 +422,36 @@ export default function PricingStep() {
               onChange={(e) =>
                 updateField(
                   "securityDeposit",
+                  e.target.value
+                )
+              }
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Tax Percentage</Label>
+
+            <Input
+              placeholder="5%"
+              value={form.taxPercentage || ""}
+              onChange={(e) =>
+                updateField(
+                  "taxPercentage",
+                  e.target.value
+                )
+              }
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Discount</Label>
+
+            <Input
+              placeholder="10%"
+              value={form.discount || ""}
+              onChange={(e) =>
+                updateField(
+                  "discount",
                   e.target.value
                 )
               }
@@ -441,7 +471,7 @@ export default function PricingStep() {
 
         <CardContent className="grid gap-5 md:grid-cols-3">
           <div className="space-y-2">
-            <Label>Estimated ROI</Label>
+            <Label>Estimated ROI <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
 
             <Input
               placeholder="8.5%"
@@ -453,7 +483,7 @@ export default function PricingStep() {
           </div>
 
           <div className="space-y-2">
-            <Label>Rental Yield</Label>
+            <Label>Rental Yield <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
 
             <Input
               placeholder="7%"
@@ -468,7 +498,7 @@ export default function PricingStep() {
           </div>
 
           <div className="space-y-2">
-            <Label>Market Value</Label>
+            <Label>Market Value <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
 
             <Input
               placeholder="AED 8.8M"

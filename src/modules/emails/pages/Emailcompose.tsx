@@ -201,7 +201,63 @@ export default function EmailCompose() {
               <p className="text-xs text-muted-foreground">{selectedContacts.length} recipient(s) selected</p>
             </CardContent>
           </Card>
+          {/* Email Settings */}
+          <Card>
+            <CardHeader className="pb-3"><CardTitle className="text-sm font-semibold">Email Settings</CardTitle></CardHeader>
+            <CardContent>
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <Input {...register("cc")} placeholder="CC" />
+                  <Input {...register("bcc")} placeholder="BCC" />
+                  <Input {...register("replyTo")} placeholder="Reply-To" />
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground mb-2">Priority</p>
+                    <div className="flex gap-4">
+                      {["Normal", "High", "Low"].map((p) => (
+                        <label key={p} className="flex items-center gap-1.5 cursor-pointer">
+                          <input type="radio" {...register("priority")} value={p} className="accent-primary" />
+                          <span className="text-sm text-foreground">{p}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
 
+                <div className="space-y-3">
+                  {[
+                    { id: "requestReadReceipt", label: "Request Read Receipt" },
+                    { id: "trackOpens", label: "Track Opens" },
+                    { id: "trackClicks", label: "Track Clicks" },
+                    { id: "saveAsTemplate", label: "Save as Template" },
+                    { id: "scheduleEmail", label: "Schedule Email" },
+                  ].map((s) => (
+                    <label key={s.id} className="flex items-center gap-2.5 cursor-pointer">
+                      <div className="relative flex items-center justify-center w-4 h-4 rounded border border-input bg-background">
+                        <input type="checkbox" {...register(s.id as keyof EmailFormValues)} className="absolute opacity-0 w-full h-full cursor-pointer" />
+                        <Check className={`h-3 w-3 text-primary transition-opacity ${watch(s.id as keyof EmailFormValues) ? "opacity-100" : "opacity-0"}`} />
+                      </div>
+                      <span className="text-sm text-foreground">{s.label}</span>
+                    </label>
+                  ))}
+
+                  <AnimatePresence>
+                    {isScheduled && (
+                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="grid grid-cols-2 gap-3 overflow-hidden pt-1">
+                        <div className="relative">
+                          <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                          <Input type="date" {...register("scheduleDate")} className="pl-8 text-sm" />
+                        </div>
+                        <div className="relative">
+                          <Clock className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                          <Input type="time" {...register("scheduleTime")} className="pl-8 text-sm" />
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
           {/* Template & Subject */}
           <div className="grid sm:grid-cols-2 gap-5">
             <Card>
@@ -300,63 +356,7 @@ export default function EmailCompose() {
             </CardContent>
           </Card>
 
-          {/* Email Settings */}
-          <Card>
-            <CardHeader className="pb-3"><CardTitle className="text-sm font-semibold">Email Settings</CardTitle></CardHeader>
-            <CardContent>
-              <div className="grid sm:grid-cols-2 gap-6">
-                <div className="space-y-3">
-                  <Input {...register("cc")} placeholder="CC" />
-                  <Input {...register("bcc")} placeholder="BCC" />
-                  <Input {...register("replyTo")} placeholder="Reply-To" />
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground mb-2">Priority</p>
-                    <div className="flex gap-4">
-                      {["Normal", "High", "Low"].map((p) => (
-                        <label key={p} className="flex items-center gap-1.5 cursor-pointer">
-                          <input type="radio" {...register("priority")} value={p} className="accent-primary" />
-                          <span className="text-sm text-foreground">{p}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                </div>
 
-                <div className="space-y-3">
-                  {[
-                    { id: "requestReadReceipt", label: "Request Read Receipt" },
-                    { id: "trackOpens", label: "Track Opens" },
-                    { id: "trackClicks", label: "Track Clicks" },
-                    { id: "saveAsTemplate", label: "Save as Template" },
-                    { id: "scheduleEmail", label: "Schedule Email" },
-                  ].map((s) => (
-                    <label key={s.id} className="flex items-center gap-2.5 cursor-pointer">
-                      <div className="relative flex items-center justify-center w-4 h-4 rounded border border-input bg-background">
-                        <input type="checkbox" {...register(s.id as keyof EmailFormValues)} className="absolute opacity-0 w-full h-full cursor-pointer" />
-                        <Check className={`h-3 w-3 text-primary transition-opacity ${watch(s.id as keyof EmailFormValues) ? "opacity-100" : "opacity-0"}`} />
-                      </div>
-                      <span className="text-sm text-foreground">{s.label}</span>
-                    </label>
-                  ))}
-
-                  <AnimatePresence>
-                    {isScheduled && (
-                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="grid grid-cols-2 gap-3 overflow-hidden pt-1">
-                        <div className="relative">
-                          <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                          <Input type="date" {...register("scheduleDate")} className="pl-8 text-sm" />
-                        </div>
-                        <div className="relative">
-                          <Clock className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                          <Input type="time" {...register("scheduleTime")} className="pl-8 text-sm" />
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
 
         {/* ── RIGHT SIDEBAR ── */}

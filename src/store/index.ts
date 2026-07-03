@@ -1,3 +1,3 @@
 export * from "./auth.store";
-export * from "./property.store";
+export * from "./propertyStore";
 export * from "./dashboard.store";

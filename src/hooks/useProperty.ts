@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { usePropertyStore } from "@/store/property.store";
+import { usePropertyStore } from "@/store/propertyStore";
 import type { Property } from "@/types/property";
 
 export function useProperty() {

@@ -64,6 +64,8 @@ pricePerSqft: ""
 
 maintenanceFee: ""
 securityDeposit: ""
+taxPercentage: ""
+discount: ""
 
 roi: ""
 rentalYield: ""
@@ -166,6 +168,8 @@ pricePerSqft: "",
 
 maintenanceFee: "",
 securityDeposit: "",
+taxPercentage: "",
+discount: "",
 
 roi: "",
 rentalYield: "",
