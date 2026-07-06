@@ -1,553 +1,389 @@
+import { useEffect, useMemo } from "react"
+import { motion } from "framer-motion"
+import {
+    Building2,
+    Camera,
+    CheckCircle2,
+    Mail,
+    MapPin,
+    Phone,
+    ShieldCheck,
+    UserRound,
+    UsersRound,
+} from "lucide-react"
+
 import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Switch } from "@/components/ui/switch"
-import { Phone, MessageCircle, User, HelpCircle, Code2, Flag, Clock,
-         FileText, Users, Rocket, ShieldCheck, AlertTriangle,
-         Send, Home, CheckCircle2, Briefcase, BarChart3,
-        Facebook, Twitter, Instagram, Linkedin, Youtube, Music, Pin, PenTool, Cloud, Shield } from "lucide-react"
-        
+import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
+
 import EditProfile from "@/pages/account/EditProfile"
+import { useAuthStore } from "@/store/auth.store"
+
+const getInitials = (name?: string) => {
+    if (!name) return "U"
+
+    return name
+        .split(" ")
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((item) => item[0])
+        .join("")
+        .toUpperCase()
+}
+
+const getRoleLabel = (permissions?: string[]) => {
+    if (!permissions?.length) return "Team Member"
+
+    const normalizedPermissions = permissions.map((item) => item.toLowerCase())
+
+    if (normalizedPermissions.some((item) => item.includes("admin"))) {
+        return "Administrator"
+    }
+
+    if (normalizedPermissions.some((item) => item.includes("agency"))) {
+        return "Agency Manager"
+    }
+
+    if (normalizedPermissions.some((item) => item.includes("agent"))) {
+        return "Real Estate Agent"
+    }
+
+    return "Team Member"
+}
 
 export default function UserProfile() {
+    const { user, loading } = useAuthStore()
+
+    const role = useMemo(
+        () => getRoleLabel(user?.permissions),
+        [user?.permissions]
+    )
+
+    useEffect(() => {
+        // Call your profile fetch function here if you have one:
+        // fetchProfile()
+    }, [])
+
+    if (loading && !user) {
+        return (
+            <div className="space-y-6 p-4 md:p-6">
+                <Skeleton className="h-[280px] w-full rounded-[28px]" />
+                <div className="grid gap-6 xl:grid-cols-3">
+                    <Skeleton className="h-[360px] rounded-[28px]" />
+                    <Skeleton className="h-[360px] rounded-[28px] xl:col-span-2" />
+                </div>
+            </div>
+        )
+    }
+
+    const userName = user?.name || "User"
+    const userEmail = user?.email || "No email available"
+    const userPhone = (user as any)?.phone || "Not added yet"
+    const userAvatar = (user as any)?.avatar
+
     return (
-        <div className="user-profile-page">
+        <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, ease: "easeOut" }}
+            className="min-h-full space-y-6 p-4 md:p-6"
+        >
+            {/* Profile Header */}
+            <Card className="overflow-hidden rounded-[28px] border border-slate-200/80 bg-white shadow-sm dark:border-white/10 dark:bg-[#15191F]">
+                <div className="relative h-36 overflow-hidden bg-gradient-to-br from-[#2780C3] via-[#1D6EA9] to-[#0D3555] sm:h-44">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_85%_20%,rgba(255,255,255,0.22),transparent_28%),radial-gradient(circle_at_15%_80%,rgba(255,255,255,0.12),transparent_30%)]" />
 
-            <div className="grid grid-cols-12 gap-6">
-                <div className="col-span-12 xl:col-span-12">
-                    <Card className="overflow-hidden">
+                    <div className="absolute right-5 top-5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md">
+                        2morrow Real Estate
+                    </div>
+                </div>
 
-                        {/* Gradient Cover */}
-                        <div className="h-[150px] bg-gradient-to-r from-purple-700 to-blue-500" />
+                <CardContent className="relative px-5 pb-6 pt-0 sm:px-8">
+                    <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+                            <div className="-mt-14 relative h-28 w-28 shrink-0 rounded-[28px] border-4 border-white bg-slate-100 shadow-xl dark:border-[#15191F] dark:bg-slate-800">
+                                {userAvatar ? (
+                                    <img
+                                        src={userAvatar}
+                                        alt={userName}
+                                        className="h-full w-full rounded-[22px] object-cover"
+                                    />
+                                ) : (
+                                    <div className="flex h-full w-full items-center justify-center rounded-[22px] bg-gradient-to-br from-[#2780C3] to-[#164C75] text-2xl font-bold text-white">
+                                        {getInitials(userName)}
+                                    </div>
+                                )}
 
-                        <CardContent className="flex flex-col sm:flex-row sm:items-center gap-6 p-6">
+                                <div className="absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full border-4 border-white bg-emerald-500 text-white dark:border-[#15191F]">
+                                    <CheckCircle2 className="h-4 w-4" />
+                                </div>
+                            </div>
 
-                            {/* Profile Image */}
-                            <div className="relative -mt-16 flex flex-shrink-0 mt-0">
-                                <img
-                                    src="https://randomuser.me/api/portraits/men/34.jpg"
-                                    alt="John Doe"
-                                    className="w-28 h-28 rounded-full border-4 border-background shadow-lg"
+                            <div className="pb-1">
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+                                        {userName}
+                                    </h1>
+
+                                    <Badge className="rounded-full border-0 bg-[#2780C3]/10 px-3 py-1 text-xs font-semibold text-[#2780C3] hover:bg-[#2780C3]/15 dark:bg-[#2780C3]/20 dark:text-[#79BDF0]">
+                                        {role}
+                                    </Badge>
+                                </div>
+
+                                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                                    Manage your account, contact information and platform access.
+                                </p>
+                            </div>
+                        </div>
+
+                        <Button
+                            onClick={() =>
+                                document
+                                    .getElementById("edit-profile-section")
+                                    ?.scrollIntoView({ behavior: "smooth", block: "start" })
+                            }
+                            className="h-11 rounded-xl bg-[#2780C3] px-5 font-semibold text-white shadow-lg shadow-[#2780C3]/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#1D6EA9] hover:shadow-xl hover:shadow-[#2780C3]/25"
+                        >
+                            <Camera className="h-4 w-4" />
+                            Edit Profile
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <div className="grid gap-6 xl:grid-cols-3">
+                {/* Left Column */}
+                <div className="space-y-6">
+                    {/* Account Details */}
+                    <Card className="rounded-[24px] border border-slate-200/80 bg-white shadow-sm dark:border-white/10 dark:bg-[#15191F]">
+                        <CardContent className="p-6">
+                            <div className="mb-6 flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2780C3]/10 text-[#2780C3] dark:bg-[#2780C3]/20 dark:text-[#79BDF0]">
+                                    <UserRound className="h-5 w-5" />
+                                </div>
+
+                                <div>
+                                    <h2 className="font-semibold text-slate-900 dark:text-white">
+                                        Account details
+                                    </h2>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                        Your profile information
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-5">
+                                <ProfileInfoRow
+                                    icon={<UserRound className="h-4 w-4" />}
+                                    label="Full name"
+                                    value={userName}
+                                />
+
+                                <ProfileInfoRow
+                                    icon={<Mail className="h-4 w-4" />}
+                                    label="Email address"
+                                    value={userEmail}
+                                />
+
+                                <ProfileInfoRow
+                                    icon={<Phone className="h-4 w-4" />}
+                                    label="Phone number"
+                                    value={userPhone}
+                                />
+
+                                <ProfileInfoRow
+                                    icon={<Building2 className="h-4 w-4" />}
+                                    label="Account role"
+                                    value={role}
                                 />
                             </div>
+                        </CardContent>
+                    </Card>
 
-                            {/* Profile Info */}
-                            <div>
-                                <h4 className="text-xl font-semibold">John Doe</h4>
-                                <p className="text-muted-foreground text-sm font-medium">
-                                    UX Designer • Vatican City • Joined April 2021
+                    {/* Platform Access */}
+                    <Card className="rounded-[24px] border border-slate-200/80 bg-white shadow-sm dark:border-white/10 dark:bg-[#15191F]">
+                        <CardContent className="p-6">
+                            <div className="mb-5 flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400">
+                                    <ShieldCheck className="h-5 w-5" />
+                                </div>
+
+                                <div>
+                                    <h2 className="font-semibold text-slate-900 dark:text-white">
+                                        Account status
+                                    </h2>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                        Platform access overview
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4 dark:border-emerald-500/15 dark:bg-emerald-500/10">
+                                <div className="flex items-start gap-3">
+                                    <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+
+                                    <div>
+                                        <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
+                                            Account active
+                                        </p>
+                                        <p className="mt-1 text-xs leading-5 text-emerald-700/80 dark:text-emerald-300/70">
+                                            You have access to the real-estate management dashboard.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Right Column */}
+                <div className="space-y-6 xl:col-span-2">
+                    {/* Real Estate Workspace */}
+                    {/* <Card className="rounded-[24px] border border-slate-200/80 bg-white shadow-sm dark:border-white/10 dark:bg-[#15191F]">
+                        <CardContent className="p-6">
+                            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10 text-violet-600 dark:bg-violet-500/15 dark:text-violet-400">
+                                        <Building2 className="h-5 w-5" />
+                                    </div>
+
+                                    <div>
+                                        <h2 className="font-semibold text-slate-900 dark:text-white">
+                                            Real estate workspace
+                                        </h2>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                                            Your account’s working environment
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <Badge
+                                    variant="outline"
+                                    className="w-fit rounded-full border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300"
+                                >
+                                    Active workspace
+                                </Badge>
+                            </div>
+
+                            <div className="grid gap-4 sm:grid-cols-3">
+                                <WorkspaceCard
+                                    icon={<Building2 className="h-5 w-5" />}
+                                    title="Properties"
+                                    description="Manage listings and property details."
+                                />
+
+                                <WorkspaceCard
+                                    icon={<UsersRound className="h-5 w-5" />}
+                                    title="Clients"
+                                    description="Manage buyers, sellers and leads."
+                                />
+
+                                <WorkspaceCard
+                                    icon={<MapPin className="h-5 w-5" />}
+                                    title="Locations"
+                                    description="Track property locations and areas."
+                                />
+                            </div>
+                        </CardContent>
+                    </Card> */}
+
+                    {/* Permissions */}
+                    {/* <Card className="rounded-[24px] border border-slate-200/80 bg-white shadow-sm dark:border-white/10 dark:bg-[#15191F]">
+                        <CardContent className="p-6">
+                            <div className="mb-6 flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400">
+                                    <ShieldCheck className="h-5 w-5" />
+                                </div>
+
+                                <div>
+                                    <h2 className="font-semibold text-slate-900 dark:text-white">
+                                        Access permissions
+                                    </h2>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                        Permissions assigned to this account
+                                    </p>
+                                </div>
+                            </div>
+
+                            {user?.permissions?.length ? (
+                                <div className="flex flex-wrap gap-2">
+                                    {user.permissions.map((permission) => (
+                                        <Badge
+                                            key={permission}
+                                            className="rounded-lg border border-[#2780C3]/15 bg-[#2780C3]/8 px-3 py-1.5 text-xs font-medium text-[#2780C3] hover:bg-[#2780C3]/12 dark:border-[#2780C3]/25 dark:bg-[#2780C3]/15 dark:text-[#8BC9F4]"
+                                        >
+                                            {permission.replaceAll("_", " ")}
+                                        </Badge>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-500 dark:bg-white/5 dark:text-slate-400">
+                                    No specific permissions are available for this account.
                                 </p>
-
-                                <div className="flex flex-wrap gap-2 mt-3">
-                                    <Badge className="bg-primary text-primary-foreground">
-                                        13.5k Tasks
-                                    </Badge>
-                                    <Badge variant="secondary">
-                                        146 Projects
-                                    </Badge>
-                                    <Badge className="bg-green-600 hover:bg-green-700 text-white">
-                                        897 Connections
-                                    </Badge>
-                                </div>
-                            </div>
-
-                            {/* Action Buttons */}
-                            <div className="sm:ml-auto flex gap-3">
-                                <Button>
-                                    <Phone className="w-4 h-4 mr-2" />
-                                    Get In Touch
-                                </Button>
-                                <Button variant="outline">
-                                    <MessageCircle className="w-4 h-4 mr-2" />
-                                    Message
-                                </Button>
-                            </div>
-
+                            )}
                         </CardContent>
-                    </Card>
-                </div>
-
-                <div className="col-span-12 xl:col-span-4 space-y-6">
-                    <Card>
-                        <CardContent className="p-6">
-
-                            <h5 className="mb-4 text-lg font-semibold">About</h5>
-
-                            <div className="space-y-4 text-sm">
-
-                                <div className="flex items-center gap-3">
-                                    <User className="w-4 h-4 text-muted-foreground" />
-                                    <span><span className="font-medium">Full Name:</span> Emily Carter</span>
-                                </div>
-
-                                <div className="flex items-center gap-3">
-                                    <HelpCircle className="w-4 h-4 text-muted-foreground" />
-                                    <span><span className="font-medium">Status:</span> Active</span>
-                                </div>
-
-                                <div className="flex items-center gap-3">
-                                    <Code2 className="w-4 h-4 text-muted-foreground" />
-                                    <span><span className="font-medium">Role:</span> Frontend Developer</span>
-                                </div>
-
-                                <div className="flex items-center gap-3">
-                                    <Flag className="w-4 h-4 text-muted-foreground" />
-                                    <span><span className="font-medium">Location:</span> Austin, Texas</span>
-                                </div>
-
-                                <div className="flex items-center gap-3">
-                                    <MessageCircle className="w-4 h-4 text-muted-foreground" />
-                                    <span><span className="font-medium">Languages:</span> English, Spanish</span>
-                                </div>
-
-                            </div>
-
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardContent className="p-6">
-
-                            <h5 className="mb-4 text-lg font-semibold">Contacts</h5>
-
-                            <div className="space-y-4 text-sm">
-
-                                <div className="flex items-center gap-3">
-                                    <Phone className="w-4 h-4 text-muted-foreground" />
-                                    <span>
-                                        <span className="font-medium">Phone:</span> (415) 987-6543
-                                    </span>
-                                </div>
-
-                                <div className="flex items-center gap-3">
-                                    <Clock className="w-4 h-4 text-muted-foreground" />
-                                    <span>
-                                        <span className="font-medium">Skype:</span> emily.carter
-                                    </span>
-                                </div>
-
-                                <div className="flex items-center gap-3">
-                                    <Send className="w-4 h-4 text-muted-foreground" />
-                                    <span>
-                                        <span className="font-medium">Email:</span> emily.carter@techhub.com
-                                    </span>
-                                </div>
-
-                            </div>
-
-                        </CardContent>
-                    </Card>
-
-                    <Card className="hidden">
-                        <CardContent className="p-6">
-
-                            <h5 className="mb-4 text-lg font-semibold">Teams</h5>
-
-                            <div className="space-y-5 text-sm">
-
-                                {/* Backend Team */}
-                                <div className="flex items-center gap-4">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-full
-                                      bg-red-100 text-red-500 dark:bg-red-500/20 dark:text-red-400">
-                                        <Code2 className="w-5 h-5" />
-                                    </div>
-
-                                    <div className="flex flex-col">
-                                        <span className="font-medium">Backend Developers</span>
-                                        <span className="text-muted-foreground text-xs">
-                                            126 members
-                                        </span>
-                                    </div>
-
-                                    <Badge
-                                        variant="secondary"
-                                        className="ml-auto rounded-full bg-red-100 text-red-500 dark:bg-red-500/20 dark:text-red-400"
-                                    >
-                                        Backend
-                                    </Badge>
-                                </div>
-
-                                {/* React Team */}
-                                <div className="flex items-center gap-4">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-500 dark:bg-blue-500/20 dark:text-blue-400">
-                                        <Home className="w-5 h-5" />
-                                    </div>
-
-                                    <div className="flex flex-col">
-                                        <span className="font-medium">React Developers</span>
-                                        <span className="text-muted-foreground text-xs">
-                                            98 members
-                                        </span>
-                                    </div>
-
-                                    <Badge
-                                        className="ml-auto rounded-full bg-blue-100 text-blue-500 dark:bg-blue-500/20 dark:text-blue-400"
-                                    >
-                                        Frontend
-                                    </Badge>
-                                </div>
-
-                            </div>
-
-                        </CardContent>
-                    </Card>
-
-                    <Card className="hidden">
-                        <CardContent className="p-6">
-
-                            <h5 className="mb-4 text-lg font-semibold">Overview</h5>
-
-                            <div className="space-y-4 text-sm">
-
-                                <div className="flex items-center gap-3">
-                                    <CheckCircle2 className="w-4 h-4" />
-                                    <span>
-                                        <span className="font-medium">Tasks Completed:</span> 18,240
-                                    </span>
-                                </div>
-
-                                <div className="flex items-center gap-3">
-                                    <Briefcase className="w-4 h-4" />
-                                    <span>
-                                        <span className="font-medium">Active Projects:</span> 12
-                                    </span>
-                                </div>
-
-                                <div className="flex items-center gap-3">
-                                    <BarChart3 className="w-4 h-4" />
-                                    <span>
-                                        <span className="font-medium">Performance Score:</span> 92%
-                                    </span>
-                                </div>
-
-                            </div>
-
-                        </CardContent>
-                    </Card>
-
-                    <Card className="hidden">
-                        <CardContent className="p-6">
-                            <h5 className="mb-4 text-lg font-semibold">Skills</h5>
-                             <div className="flex flex-wrap gap-2">
-                                <Badge variant="secondary" className="px-3 py-1.5 rounded-full">
-                                    JavaScript
-                                </Badge>
-                                <Badge variant="secondary" className="px-3 py-1.5 rounded-full">
-                                    React
-                                </Badge>
-                                <Badge variant="secondary" className="px-3 py-1.5 rounded-full">
-                                    Node.js
-                                </Badge>
-                                <Badge variant="secondary" className="px-3 py-1.5 rounded-full">
-                                    CSS
-                                </Badge>
-                                <Badge variant="secondary" className="px-3 py-1.5 rounded-full">
-                                    UI/UX Design
-                                </Badge>
-                                <Badge variant="secondary" className="px-3 py-1.5 rounded-full">
-                                    Project Management
-                                </Badge>
-                                <Badge variant="secondary" className="px-3 py-1.5 rounded-full">
-                                    Agile Methodologies
-                                </Badge>
-                                <Badge variant="secondary" className="px-3 py-1.5 rounded-full">
-                                    Git
-                                </Badge>
-                                <Badge variant="secondary" className="px-3 py-1.5 rounded-full">
-                                    Docker
-                                </Badge>
-                                <Badge variant="secondary" className="px-3 py-1.5 rounded-full">
-                                    Kubernetes
-                                </Badge>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                </div>
-
-                <div className="col-span-12 xl:col-span-8 space-y-6">
-                    
-                    <EditProfile />
-
-                    <Card className="hidden">
-                        <CardContent className="p-6">
-
-                            <h5 className="mb-6 text-lg font-semibold">Activity Timeline</h5>
-
-                            <div className="relative space-y-8 pl-10">
-
-                                {/* Monthly Report */}
-                                <div className="relative">
-                                    <span className="absolute -left-[40px] flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white">
-                                        <FileText className="w-4 h-4" />
-                                    </span>
-                                    <h6 className="font-semibold">Monthly Report Uploaded</h6>
-                                    <p className="text-sm text-muted-foreground">
-                                        The finance team submitted the September report
-                                    </p>
-                                    <Badge variant="secondary" className="mt-2 rounded-md">
-                                        report-sept.pdf
-                                    </Badge>
-                                    <p className="text-xs text-muted-foreground mt-2">10 min ago</p>
-                                </div>
-
-                                {/* Standup */}
-                                <div className="relative">
-                                    <span className="absolute -left-[40px] flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 text-white shadow-md">
-                                        <Users className="w-4 h-4" />
-                                    </span>
-                                    <h6 className="font-semibold">Team Standup Completed</h6>
-                                    <p className="text-sm text-muted-foreground">
-                                        Daily sync with the product team wrapped up
-                                    </p>
-                                    <p className="text-xs text-muted-foreground mt-2">35 min ago</p>
-                                </div>
-
-                                {/* Feature Deploy */}
-                                <div className="relative">
-                                    <span className="absolute -left-[40px] flex h-8 w-8 items-center justify-center rounded-full bg-sky-500 text-white shadow-md">
-                                        <Rocket className="w-4 h-4" />
-                                    </span>
-                                    <h6 className="font-semibold">New Feature Deployed</h6>
-                                    <p className="text-sm text-muted-foreground">
-                                        Dark mode toggle added to dashboard settings
-                                    </p>
-                                    <p className="text-xs text-muted-foreground mt-2">1 day ago</p>
-                                </div>
-
-                                {/* Security Patch */}
-                                <div className="relative">
-                                    <span className="absolute -left-[40px] flex h-8 w-8 items-center justify-center rounded-full bg-amber-500 text-white shadow-md">
-                                        <ShieldCheck className="w-4 h-4" />
-                                    </span>
-                                    <h6 className="font-semibold">Security Patch Released</h6>
-                                    <p className="text-sm text-muted-foreground">
-                                        Critical update applied to authentication module
-                                    </p>
-                                    <Badge variant="secondary" className="mt-2 rounded-md">
-                                        auth-patch.log
-                                    </Badge>
-                                    <p className="text-xs text-muted-foreground mt-2">2 hours ago</p>
-                                </div>
-
-                                {/* Suspensions */}
-                                <div className="relative">
-                                    <span className="absolute -left-[40px] flex h-8 w-8 items-center justify-center rounded-full bg-red-500 text-white shadow-md">
-                                        <AlertTriangle className="w-4 h-4" />
-                                    </span>
-                                    <h6 className="font-semibold">Account Suspensions</h6>
-                                    <p className="text-sm text-muted-foreground">
-                                        3 user accounts flagged for suspicious activity
-                                    </p>
-                                    <Badge variant="secondary" className="mt-2 rounded-md">
-                                        suspensions.csv
-                                    </Badge>
-                                    <p className="text-xs text-muted-foreground mt-2">25 min ago</p>
-                                </div>
-
-                            </div>
-
-                        </CardContent>
-                    </Card>
-
-                    <div className="grid grid-cols-12 gap-6 hidden">
-
-                        <div className="col-span-12 xl:col-span-6">
-                            <Card>
-                                <CardContent className="p-6">
-
-                                    <h5 className="mb-6 text-lg font-semibold">Connections</h5>
-
-                                    <div className="space-y-5">
-
-                                        {/* Facebook */}
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600/10 text-blue-600">
-                                                <Facebook className="w-5 h-5" />
-                                            </div>
-                                            <span className="font-medium">Facebook</span>
-                                            <Switch className="ml-auto" />
-                                        </div>
-
-                                        {/* Twitter */}
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black/10 text-black dark:text-white">
-                                                <Twitter className="w-5 h-5" />
-                                            </div>
-                                            <span className="font-medium">Twitter</span>
-                                            <Switch className="ml-auto" />
-                                        </div>
-
-                                        {/* Instagram */}
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-pink-600/10 text-pink-600">
-                                                <Instagram className="w-5 h-5" />
-                                            </div>
-                                            <span className="font-medium">Instagram</span>
-                                            <Switch className="ml-auto" />
-                                        </div>
-
-                                        {/* LinkedIn */}
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-700/10 text-blue-700">
-                                                <Linkedin className="w-5 h-5" />
-                                            </div>
-                                            <span className="font-medium">LinkedIn</span>
-                                            <Switch className="ml-auto" />
-                                        </div>
-
-                                        {/* YouTube */}
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-600/10 text-red-600">
-                                                <Youtube className="w-5 h-5" />
-                                            </div>
-                                            <span className="font-medium">YouTube</span>
-                                            <Switch className="ml-auto" />
-                                        </div>
-
-                                        {/* TikTok */}
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black/10 text-black dark:text-white">
-                                                <Music className="w-5 h-5" />
-                                            </div>
-                                            <span className="font-medium">TikTok</span>
-                                            <Switch className="ml-auto" />
-                                        </div>
-
-                                        {/* Pinterest */}
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10 text-red-500">
-                                                <Pin className="w-5 h-5" />
-                                            </div>
-                                            <span className="font-medium">Pinterest</span>
-                                            <Switch className="ml-auto" />
-                                        </div>
-
-                                    </div>
-
-                                <Button variant="link" className="mt-6 px-0">
-                                    View all connections
-                                </Button>
-
-                            </CardContent>
-                        </Card>
+                    </Card> */}
+
+                    {/* Existing edit component */}
+                    <div id="edit-profile-section" className="scroll-mt-6">
+                        <EditProfile />
                     </div>
-
-                    <div className="col-span-12 xl:col-span-6">
-                        <Card>
-                            <CardContent className="p-6">
-
-                                <h5 className="mb-6 text-lg font-semibold">Support</h5>
-
-                                <div className="space-y-5">
-
-                                    {/* Data Analysts */}
-                                    <div className="flex items-center gap-4">
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/10 text-amber-500">
-                                            <BarChart3 className="w-5 h-5" />
-                                        </div>
-
-                                        <div className="flex flex-col">
-                                            <span className="font-semibold">Data Analysts</span>
-                                            <span className="text-xs text-muted-foreground">
-                                                54 members
-                                            </span>
-                                        </div>
-
-                                        <Badge className="ml-auto rounded-full bg-amber-500/10 text-amber-500 hover:bg-amber-500/20">
-                                            Analytics
-                                        </Badge>
-                                    </div>
-
-                                    {/* Cybersecurity */}
-                                    <div className="flex items-center gap-4">
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10 text-red-500">
-                                            <Shield className="w-5 h-5" />
-                                        </div>
-
-                                        <div className="flex flex-col">
-                                            <span className="font-semibold">Cybersecurity Team</span>
-                                            <span className="text-xs text-muted-foreground">
-                                                31 members
-                                            </span>
-                                        </div>
-
-                                        <Badge variant="secondary" className="ml-auto rounded-full bg-red-500/10 text-red-500 hover:bg-red-500/20">
-                                            Security
-                                        </Badge>
-                                    </div>
-
-                                    {/* DevOps */}
-                                    <div className="flex items-center gap-4">
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sky-500/10 text-sky-500">
-                                            <Cloud className="w-5 h-5" />
-                                        </div>
-
-                                        <div className="flex flex-col">
-                                            <span className="font-semibold">DevOps Engineers</span>
-                                            <span className="text-xs text-muted-foreground">
-                                                42 members
-                                            </span>
-                                        </div>
-
-                                        <Badge className="ml-auto rounded-full bg-sky-500/10 text-sky-500 hover:bg-sky-500/20">
-                                            Infrastructure
-                                        </Badge>
-                                    </div>
-
-                                    {/* Content Writers */}
-                                    <div className="flex items-center gap-4">
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500">
-                                            <PenTool className="w-5 h-5" />
-                                        </div>
-
-                                        <div className="flex flex-col">
-                                            <span className="font-semibold">Content Writers</span>
-                                            <span className="text-xs text-muted-foreground">
-                                                25 members
-                                            </span>
-                                        </div>
-
-                                        <Badge className="ml-auto rounded-full bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20">
-                                            Content
-                                        </Badge>
-                                    </div>
-
-                                    {/* Product Managers */}
-                                    <div className="flex items-center gap-4">
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-                                            <Rocket className="w-5 h-5" />
-                                        </div>
-
-                                        <div className="flex flex-col">
-                                            <span className="font-semibold">Product Managers</span>
-                                            <span className="text-xs text-muted-foreground">
-                                                17 members
-                                            </span>
-                                        </div>
-
-                                        <Badge className="ml-auto rounded-full bg-primary/10 text-primary hover:bg-primary/20">
-                                            Strategy
-                                        </Badge>
-                                    </div>
-
-                                </div>
-
-                                <Button variant="link" className="mt-6 px-0">
-                                    View all teams
-                                </Button>
-
-                            </CardContent>
-                        </Card>
-                    </div>
-
-                    </div>
-
-
                 </div>
+            </div>
+        </motion.div>
+    )
+}
 
-             </div>  {/* end grid */}
+function ProfileInfoRow({
+    icon,
+    label,
+    value,
+}: {
+    icon: React.ReactNode
+    label: string
+    value: string
+}) {
+    return (
+        <div className="flex items-start gap-3">
+            <div className="mt-0.5 text-slate-400 dark:text-slate-500">
+                {icon}
+            </div>
 
+            <div className="min-w-0">
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                    {label}
+                </p>
+                <p className="mt-0.5 truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
+                    {value}
+                </p>
+            </div>
+        </div>
+    )
+}
+
+function WorkspaceCard({
+    icon,
+    title,
+    description,
+}: {
+    icon: React.ReactNode
+    title: string
+    description: string
+}) {
+    return (
+        <div className="group rounded-2xl border border-slate-200 bg-slate-50/70 p-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#2780C3]/30 hover:bg-[#2780C3]/5 hover:shadow-md dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-[#2780C3]/35 dark:hover:bg-[#2780C3]/10">
+            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#2780C3] shadow-sm transition-transform duration-300 group-hover:scale-110 dark:bg-white/10 dark:text-[#8BC9F4]">
+                {icon}
+            </div>
+
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                {title}
+            </h3>
+
+            <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                {description}
+            </p>
         </div>
     )
 }

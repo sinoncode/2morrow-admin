@@ -25,7 +25,7 @@ import {
 
 export function UserDropdown() {
   const navigate = useNavigate()
- const logout = useAuthStore((state) => state.logout)
+  const logout = useAuthStore((state) => state.logout)
 
   const handleLogout = async () => {
     await logout()
@@ -51,7 +51,7 @@ export function UserDropdown() {
 
       {/* Content */}
       <DropdownMenuContent align="end" className="w-56 p-3 rounded-xl shadow-xl">
-        
+
         {/* Header */}
         <DropdownMenuLabel className="rounded-xl mb-3 bg-muted/50 border border-border">
           <div className="flex items-center gap-3">
@@ -67,7 +67,7 @@ export function UserDropdown() {
         </DropdownMenuLabel>
 
         {/* Items */}
-        <DropdownMenuItem className="gap-2 h-9">
+        <DropdownMenuItem className="gap-2 h-9 cursor-pointer" onClick={() => navigate("/account/profile")}>
           <User className="!size-5" />
           Profile
         </DropdownMenuItem>
@@ -98,14 +98,14 @@ export function UserDropdown() {
 
         {/* Logout */}
         <div className="mt-3">
-       <Button
-  variant="default"
-  className="w-full h-8 justify-center gap-2"
-  onClick={handleLogout}
->
-  <LogOut className="size-4" />
-  Logout
-</Button>
+          <Button
+            variant="default"
+            className="w-full h-8 justify-center gap-2"
+            onClick={handleLogout}
+          >
+            <LogOut className="size-4" />
+            Logout
+          </Button>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
