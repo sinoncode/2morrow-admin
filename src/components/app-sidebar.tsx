@@ -127,7 +127,7 @@ const data = {
     },
 
     {
-      title: "Agents",
+      title: "Angel",
       url: "docs",
       icon: UserRound,
     },

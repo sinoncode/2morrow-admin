@@ -4,7 +4,6 @@ import { ChangeEvent, useEffect, useRef, useState } from "react"
 import { motion } from "framer-motion"
 import {
   Camera,
-  CheckCircle2,
   Eye,
   EyeOff,
   KeyRound,
@@ -30,21 +29,9 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 
-import api from "@/api/axios" // Change this path if your axios instance has another name.
 import { toast } from "@/lib/toast"
-import { useAuthStore } from "@/store/auth.store"
-
-type ProfileResponse = {
-  success?: boolean
-  message?: string
-  data: {
-    id: number | string
-    name: string
-    email: string
-    phone: string | null
-    avatar: string | null
-  }
-}
+import { useProfileStore } from "@/store/profileStore"
+import type { ProfileUpdatePayload } from "@/types/profile.types"
 
 const getInitials = (name: string) =>
   name
@@ -58,65 +45,62 @@ const getInitials = (name: string) =>
 export default function EditProfile() {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const { user, setUser } = useAuthStore() as {
-    user: {
-      id: string
-      name: string
-      email: string
-      permissions: string[]
-      phone?: string | null
-      avatar?: string | null
-    } | null
-    setUser?: (user: any) => void
-  }
+  const {
+    profile,
+    loading,
+    saving,
+    fetchProfile,
+    updateProfile,
+  } = useProfileStore()
 
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [avatarPreview, setAvatarPreview] = useState("")
 
   const [form, setForm] = useState({
     name: "",
     email: "",
     phone: "",
-    avatar: "",
   })
 
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false)
 
-  const loadProfile = async () => {
-    try {
-      setLoading(true)
-
-      const response = await api.get<ProfileResponse>("/auth/profile")
-      const profile = response.data.data
-
-      setForm({
-        name: profile.name || "",
-        email: profile.email || "",
-        phone: profile.phone || "",
-        avatar: profile.avatar || "",
-      })
-    } catch (error: any) {
-      toast.error(
-        error.response?.data?.message || "Unable to load profile details."
-      )
-    } finally {
-      setLoading(false)
-    }
-  }
+  useEffect(() => {
+    fetchProfile()
+  }, [fetchProfile])
 
   useEffect(() => {
-    loadProfile()
-  }, [])
+    if (!profile) return
+
+    setForm({
+      name: profile.name || "",
+      email: profile.email || "",
+      phone: profile.phone || "",
+    })
+
+    setAvatarPreview(profile.avatar || "")
+  }, [profile])
+
+  useEffect(() => {
+    return () => {
+      if (avatarPreview.startsWith("blob:")) {
+        URL.revokeObjectURL(avatarPreview)
+      }
+    }
+  }, [avatarPreview])
 
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
 
     if (!file) return
 
-    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
+    const allowedTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/webp",
+    ]
 
     if (!allowedTypes.includes(file.type)) {
       toast.error("Please select a JPG, PNG, or WEBP image.")
@@ -128,92 +112,39 @@ export default function EditProfile() {
       return
     }
 
-    setSelectedFile(file)
+    if (avatarPreview.startsWith("blob:")) {
+      URL.revokeObjectURL(avatarPreview)
+    }
 
     const previewUrl = URL.createObjectURL(file)
 
-    setForm((previous) => ({
-      ...previous,
-      avatar: previewUrl,
-    }))
+    setSelectedFile(file)
+    setAvatarPreview(previewUrl)
   }
 
   const handleProfileSave = async () => {
     if (!form.name.trim()) {
-      toast.error("Name is required.")
+      toast.error("Full name is required.")
       return
     }
 
-    try {
-      setSaving(true)
+    const payload: ProfileUpdatePayload = {
+      name: form.name.trim(),
+      phone: form.phone.trim() || null,
+      avatar: selectedFile || undefined,
+    }
 
-      const payload = new FormData()
+    const success = await updateProfile(payload)
 
-      payload.append("name", form.name.trim())
-
-      if (form.phone.trim()) {
-        payload.append("phone", form.phone.trim())
-      } else {
-        payload.append("phone", "")
-      }
-
-      if (selectedFile) {
-        payload.append("avatar", selectedFile)
-      }
-
-      // Laravel commonly accepts POST + _method for multipart PUT requests.
-      payload.append("_method", "PUT")
-
-      const response = await api.post<ProfileResponse>(
-        "/v1/auth/profile",
-        payload,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      )
-
-      const updatedProfile = response.data.data
-
-      setForm({
-        name: updatedProfile.name || form.name,
-        email: updatedProfile.email || form.email,
-        phone: updatedProfile.phone || "",
-        avatar: updatedProfile.avatar || form.avatar,
-      })
-
+    if (success) {
       setSelectedFile(null)
 
-      // Add setUser to your authStore if it does not exist yet.
-      if (setUser && user) {
-        setUser({
-          ...user,
-          name: updatedProfile.name,
-          email: updatedProfile.email,
-          phone: updatedProfile.phone,
-          avatar: updatedProfile.avatar,
-        })
-      }
-
-      toast.success(response.data.message || "Profile updated successfully.")
-    } catch (error: any) {
-      const errors = error.response?.data?.errors
-
-      if (errors) {
-        const firstError = Object.values(errors).flat()[0] as string
-        toast.error(firstError || "Please check the profile fields.")
-      } else {
-        toast.error(
-          error.response?.data?.message || "Unable to update profile."
-        )
-      }
-    } finally {
-      setSaving(false)
+      // Refresh latest backend data after update
+      await fetchProfile()
     }
   }
 
-  if (loading) {
+  if (loading && !profile) {
     return (
       <Card className="rounded-[24px] border border-slate-200/80 bg-white shadow-sm dark:border-white/10 dark:bg-[#15191F]">
         <CardContent className="flex min-h-[420px] items-center justify-center p-6">
@@ -239,6 +170,7 @@ export default function EditProfile() {
               <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
                 Profile settings
               </h2>
+
               <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                 Update your personal information and account preferences.
               </p>
@@ -276,9 +208,9 @@ export default function EditProfile() {
             >
               <div className="flex flex-col gap-5 rounded-2xl border border-slate-100 bg-slate-50/70 p-5 sm:flex-row sm:items-center dark:border-white/10 dark:bg-white/[0.03]">
                 <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl border-4 border-white bg-slate-200 shadow-md dark:border-[#15191F] dark:bg-slate-800">
-                  {form.avatar ? (
+                  {avatarPreview ? (
                     <img
-                      src={form.avatar}
+                      src={avatarPreview}
                       alt={form.name || "Profile"}
                       className="h-full w-full object-cover"
                     />
@@ -293,6 +225,7 @@ export default function EditProfile() {
                   <h3 className="font-semibold text-slate-900 dark:text-white">
                     Profile photo
                   </h3>
+
                   <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                     Use a clear photo to help your team identify you.
                   </p>
@@ -302,6 +235,7 @@ export default function EditProfile() {
                       type="button"
                       variant="outline"
                       onClick={() => fileInputRef.current?.click()}
+                      disabled={saving}
                       className="h-10 rounded-xl border-slate-200 bg-white px-4 text-slate-700 hover:border-[#2780C3]/40 hover:bg-[#2780C3]/5 hover:text-[#2780C3] dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-[#2780C3]/15 dark:hover:text-[#8BC9F4]"
                     >
                       <Camera className="h-4 w-4" />
@@ -331,9 +265,11 @@ export default function EditProfile() {
                   >
                     Full name
                   </Label>
+
                   <Input
                     id="profile-name"
                     value={form.name}
+                    disabled={saving}
                     onChange={(event) =>
                       setForm((previous) => ({
                         ...previous,
@@ -354,6 +290,7 @@ export default function EditProfile() {
 
                   <div className="relative">
                     <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+
                     <Input
                       id="profile-email"
                       value={form.email}
@@ -377,9 +314,11 @@ export default function EditProfile() {
 
                   <div className="relative">
                     <Phone className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+
                     <Input
                       id="profile-phone"
                       value={form.phone}
+                      disabled={saving}
                       onChange={(event) =>
                         setForm((previous) => ({
                           ...previous,
@@ -432,14 +371,16 @@ export default function EditProfile() {
               <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-500/20 dark:bg-amber-500/10">
                 <div className="flex gap-3">
                   <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+
                   <div>
                     <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
                       Security API required
                     </p>
+
                     <p className="mt-1 text-xs leading-5 text-amber-700/80 dark:text-amber-300/70">
-                      Your current API only supports profile information. Connect
-                      password and two-factor endpoints before enabling these
-                      controls.
+                      Your backend currently supports profile updates only.
+                      Password and two-factor controls will work after their API
+                      endpoints are added.
                     </p>
                   </div>
                 </div>
@@ -450,18 +391,21 @@ export default function EditProfile() {
                   <Label className="text-slate-700 dark:text-slate-200">
                     Current password
                   </Label>
+
                   <div className="relative">
                     <KeyRound className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+
                     <Input
                       disabled
                       type={showCurrentPassword ? "text" : "password"}
                       placeholder="••••••••"
                       className="pl-11 pr-11"
                     />
+
                     <button
                       type="button"
                       onClick={() =>
-                        setShowCurrentPassword(!showCurrentPassword)
+                        setShowCurrentPassword((previous) => !previous)
                       }
                       className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition hover:text-[#2780C3]"
                     >
@@ -478,17 +422,22 @@ export default function EditProfile() {
                   <Label className="text-slate-700 dark:text-slate-200">
                     New password
                   </Label>
+
                   <div className="relative">
                     <LockKeyhole className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+
                     <Input
                       disabled
                       type={showNewPassword ? "text" : "password"}
                       placeholder="••••••••"
                       className="pl-11 pr-11"
                     />
+
                     <button
                       type="button"
-                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      onClick={() =>
+                        setShowNewPassword((previous) => !previous)
+                      }
                       className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition hover:text-[#2780C3]"
                     >
                       {showNewPassword ? (
@@ -511,6 +460,7 @@ export default function EditProfile() {
                     <p className="font-semibold text-slate-800 dark:text-white">
                       Two-factor authentication
                     </p>
+
                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                       Add another layer of protection to your account.
                     </p>

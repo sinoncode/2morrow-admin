@@ -1,19 +1,33 @@
-export interface Profile {
-    id: number
+export interface ProfileUser {
+    id: number | string
     name: string
     email: string
     phone: string | null
     avatar: string | null
 }
 
-export interface ProfileApiResponse {
-    success?: boolean
-    message?: string
-    data: Profile
+export interface ProfileResponse {
+    success: boolean
+    message: string
+    data: ProfileUser
 }
 
-export interface UpdateProfileData {
+/**
+ * Payload used when updating the profile.
+ * We use FormData because avatar can be an image file.
+ */
+export interface ProfileUpdatePayload {
     name: string
     phone?: string | null
     avatar?: File | null
+}
+
+/**
+ * Optional: profile form values used in UI.
+ */
+export interface ProfileFormValues {
+    name: string
+    email: string
+    phone: string
+    avatar: string
 }

@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 
 import EditProfile from "@/pages/account/EditProfile"
-import { useAuthStore } from "@/store/auth.store"
+import { useProfileStore } from "@/store/profileStore"
 
 const getInitials = (name?: string) => {
     if (!name) return "U"
@@ -53,22 +53,21 @@ const getRoleLabel = (permissions?: string[]) => {
 }
 
 export default function UserProfile() {
-    const { user, loading } = useAuthStore()
-
-    const role = useMemo(
-        () => getRoleLabel(user?.permissions),
-        [user?.permissions]
-    )
+    const { profile, loading, fetchProfile } = useProfileStore()
 
     useEffect(() => {
-        // Call your profile fetch function here if you have one:
-        // fetchProfile()
+        fetchProfile()
+    }, [fetchProfile])
+
+    const role = useMemo(() => {
+        return "Administrator"
     }, [])
 
-    if (loading && !user) {
+    if (loading && !profile) {
         return (
             <div className="space-y-6 p-4 md:p-6">
                 <Skeleton className="h-[280px] w-full rounded-[28px]" />
+
                 <div className="grid gap-6 xl:grid-cols-3">
                     <Skeleton className="h-[360px] rounded-[28px]" />
                     <Skeleton className="h-[360px] rounded-[28px] xl:col-span-2" />
@@ -77,10 +76,11 @@ export default function UserProfile() {
         )
     }
 
-    const userName = user?.name || "User"
-    const userEmail = user?.email || "No email available"
-    const userPhone = (user as any)?.phone || "Not added yet"
-    const userAvatar = (user as any)?.avatar
+    const userName = profile?.name || "User"
+    const userEmail = profile?.email || "No email available"
+    const userPhone = profile?.phone || "Not added yet"
+    const userAvatar = profile?.avatar
+
 
     return (
         <motion.div

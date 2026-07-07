@@ -84,6 +84,7 @@ import LandingPage from "@/pages/dashboard/analytics/LandingPage"
 
 import ListProperty from "@/modules/properties/PropertyListing"
 import AddProperty from "@/modules/properties/AddProperty"
+import EditProperty from "@/modules/properties/EditProperty"
 // Requests
 import RequestLists from "@/modules/requests/RequestLists"
 import EditRequests from "@/modules/requests/EditRequests"
@@ -158,6 +159,7 @@ export const router = createBrowserRouter(
         // Properties
         { path: "properties/list", element: <ListProperty /> },
         { path: "properties/add-property", element: <AddProperty /> },
+        { path: "properties/edit/:id", element: <EditProperty /> },
         // Requests
         { path: "requests/list", element: <RequestLists /> },
         { path: "requests/edit-requests", element: <EditRequests /> },
