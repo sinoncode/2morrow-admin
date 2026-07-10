@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { usePropertyStore } from "@/store/propertyStore";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     IconMapPin,
@@ -34,81 +36,6 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
-// ─── Mock Property Data ─────────────────────────────────────────────────────
-const MOCK_PROPERTY = {
-    id: 1,
-    title: "Luxury Penthouse with Panoramic City Views",
-    description:
-        "An extraordinary penthouse residence that redefines urban luxury. Spanning the entire top floor, this architectural masterpiece offers unobstructed 360-degree views of the city skyline. The interiors feature Italian marble flooring, custom-designed cabinetry, and floor-to-ceiling windows that flood every room with natural light. The open-plan living area flows seamlessly to a private wraparound terrace — perfect for entertaining or quiet evenings above the city.",
-    price: "12500000",
-    status: "active" as const,
-    type: "Penthouse",
-    listing_type: "sale" as const,
-    address: "2901 Skyline Boulevard",
-    city: "San Francisco",
-    state: "CA",
-    zip_code: "94105",
-    latitude: "37.7749",
-    longitude: "-122.4194",
-    neighborhood_description:
-        "Nestled in the heart of SoMa, steps away from world-class dining, the Ferry Building, and the Embarcadero waterfront promenade.",
-    bedrooms: 4,
-    bathrooms: 5,
-    area: "6200",
-    balconies: 3,
-    floor_number: 42,
-    total_floors: 42,
-    year_built: 2021,
-    furnishing_status: "fully_furnished" as const,
-    facing_direction: "north_east" as const,
-    covered_parking: true,
-    open_parking: false,
-    parking_slots: 3,
-    tax_percentage: "1.2",
-    maintenance_charges: "4500",
-    discount: "500000",
-    indoor_amenities: [
-        "Home Theatre",
-        "Wine Cellar",
-        "Chef's Kitchen",
-        "Walk-in Closets",
-        "Private Elevator",
-        "Gym Room",
-        "Library",
-        "Sauna",
-    ],
-    outdoor_features: [
-        "Wraparound Terrace",
-        "Rooftop Pool",
-        "BBQ Station",
-        "Landscaped Garden",
-        "Outdoor Kitchen",
-        "Fire Pit",
-    ],
-    smart_features: [
-        "Automated Lighting",
-        "Smart Climate Control",
-        "Voice Assistants",
-        "Security AI",
-        "Smart Locks",
-        "Home Automation Hub",
-    ],
-    high_value_assets: [
-        "Designer Furniture",
-        "Art Collection",
-        "Custom Chandeliers",
-        "Italian Marble Floors",
-    ],
-    video_url: "https://youtube.com/watch?v=example",
-    virtual_tour_url: "https://matterport.com/example",
-    title_deed: "/docs/title-deed.pdf",
-    floor_plan: "/docs/floor-plan.pdf",
-    id_proof: "/docs/id-proof.pdf",
-    legal_documents: "/docs/legal.pdf",
-    keywords: ["luxury", "penthouse", "san francisco", "skyline", "panoramic"],
-    created_at: "2024-11-01T10:00:00Z",
-    updated_at: "2025-06-20T14:30:00Z",
-};
 
 // Placeholder images
 const IMAGES = [
@@ -360,15 +287,44 @@ function Section({
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function PropertyViewPage() {
-    const p = MOCK_PROPERTY;
-    const status = STATUS_MAP[p.status];
-    const originalPrice = Number(p.price);
+    const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
+    const { fetchPropertyById, selectedProperty: p, detailsLoading } = usePropertyStore();
+
+    useEffect(() => {
+        if (id) {
+            fetchPropertyById(id);
+        }
+    }, [id, fetchPropertyById]);
+
+    if (detailsLoading) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-muted-foreground gap-4">
+                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-sm font-medium">Loading property details...</p>
+            </div>
+        );
+    }
+
+    if (!p) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-muted-foreground gap-4">
+                <p className="text-sm font-medium">Property not found.</p>
+                <Button onClick={() => navigate("/properties/list")} variant="outline">
+                    Back to Properties
+                </Button>
+            </div>
+        );
+    }
+
+    const status = p.status && STATUS_MAP[p.status] ? STATUS_MAP[p.status] : STATUS_MAP["draft"];
+    const originalPrice = Number(p.price || 0);
     const discount = p.discount ? Number(p.discount) : 0;
     const finalPrice = originalPrice - discount;
 
     return (
         <div className="min-h-screen bg-background text-foreground">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
                 {/* ── Header bar ── */}
                 <motion.div
@@ -419,15 +375,15 @@ export default function PropertyViewPage() {
 
                     {/* Action buttons */}
                     <div className="flex items-center gap-2 shrink-0">
-                        <Button variant="outline" size="sm" className="gap-1.5 rounded-full">
+                        {/* <Button variant="outline" size="sm" className="gap-1.5 rounded-full">
                             <IconShare size={15} />
                             Share
                         </Button>
                         <Button variant="outline" size="sm" className="gap-1.5 rounded-full">
                             <IconHeart size={15} />
                             Save
-                        </Button>
-                        <Button size="sm" className="gap-1.5 rounded-full">
+                        </Button> */}
+                        <Button onClick={() => navigate(`/properties/edit/${p.id}`)} size="sm" className="gap-1.5 rounded-full">
                             <IconEdit size={15} />
                             Edit
                         </Button>
@@ -894,7 +850,7 @@ export default function PropertyViewPage() {
 
                                 <Separator />
 
-                                <div className="space-y-2">
+                                {/* <div className="space-y-2">
                                     <Button className="w-full rounded-xl h-10 font-semibold">
                                         <IconCurrencyDollar size={16} />
                                         Make an Offer
@@ -905,7 +861,7 @@ export default function PropertyViewPage() {
                                     >
                                         Schedule Viewing
                                     </Button>
-                                </div>
+                                </div> */}
                             </div>
 
                             {/* Property summary card */}

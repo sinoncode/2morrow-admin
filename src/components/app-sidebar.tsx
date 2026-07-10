@@ -97,7 +97,7 @@ const data = {
     },
     {
       title: "Contact",
-      url: "docs",
+      url: "contacts/list",
       icon: Phone,
     },
     {

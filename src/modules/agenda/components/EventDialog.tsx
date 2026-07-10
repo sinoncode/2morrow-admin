@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useRef, useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import {
     Calendar,
     Clock,
@@ -9,14 +9,29 @@ import {
     Trash2,
     X,
     Save,
-} from "lucide-react";
+    Upload,
+    FileText,
+    Image as ImageIcon,
+    File,
+    Search,
+    Loader2,
+    Navigation,
+} from "lucide-react"
 
-import type { AgendaPayload } from "@/types/agenda.types";
-import type { AgendaEvent } from "@/types/agenda.types";
+import {
+    GoogleMap,
+    MarkerF,
+    Autocomplete,
+    useJsApiLoader,
+} from "@react-google-maps/api"
 
-import { useAgendaStore } from "@/store/agendaStore";
+import type {
+    AgendaPayload,
+    AgendaEvent,
+    AgendaUser,
+} from "@/types/agenda.types"
 
-import type { AgendaUser } from "@/types/agenda.types";
+import { useAgendaStore } from "@/store/agendaStore"
 
 interface EventDialogProps {
     open: boolean;
@@ -44,6 +59,102 @@ const EventDialog = ({
     onSave,
     onDelete,
 }: EventDialogProps) => {
+
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedFiles = Array.from(event.target.files || [])
+
+        const validFiles = selectedFiles.filter((file) => {
+            const maxSize = 10 * 1024 * 1024
+
+            if (file.size > maxSize) {
+                return false
+            }
+
+            return true
+        })
+
+        setAttachments((previous) => [...previous, ...validFiles])
+
+        event.target.value = ""
+    }
+
+    const removeAttachment = (index: number) => {
+        setAttachments((previous) =>
+            previous.filter((_, attachmentIndex) => attachmentIndex !== index)
+        )
+    }
+
+    const getFileIcon = (file: File) => {
+        if (file.type.startsWith("image/")) {
+            return <ImageIcon className="h-4 w-4" />
+        }
+
+        if (file.type.includes("pdf")) {
+            return <FileText className="h-4 w-4" />
+        }
+
+        return <File className="h-4 w-4" />
+    }
+
+    const onAutocompleteLoad = (
+        autocomplete: google.maps.places.Autocomplete
+    ) => {
+        autocompleteRef.current = autocomplete
+    }
+
+    const handlePlaceChanged = () => {
+        const place = autocompleteRef.current?.getPlace()
+
+        if (!place?.geometry?.location) {
+            return
+        }
+
+        const latitude = place.geometry.location.lat()
+        const longitude = place.geometry.location.lng()
+
+        setLocation(place.formatted_address || place.name || "")
+        setLocationCoordinates({
+            latitude,
+            longitude,
+        })
+
+        setMapCenter({
+            lat: latitude,
+            lng: longitude,
+        })
+    }
+
+    const useCurrentLocation = () => {
+        if (!navigator.geolocation) {
+            return
+        }
+
+        setMapLoading(true)
+
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const latitude = position.coords.latitude
+                const longitude = position.coords.longitude
+
+                setLocationCoordinates({
+                    latitude,
+                    longitude,
+                })
+
+                setMapCenter({
+                    lat: latitude,
+                    lng: longitude,
+                })
+
+                setMapLoading(false)
+            },
+            () => {
+                setMapLoading(false)
+            }
+        )
+    }
+
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
 
@@ -72,7 +183,30 @@ const EventDialog = ({
     const formatDateInput = (date: Date) => {
         return date.toISOString().split("T")[0];
     };
+    const fileInputRef = useRef<HTMLInputElement>(null)
+    const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null)
 
+    const [attachments, setAttachments] = useState<File[]>([])
+    const [locationCoordinates, setLocationCoordinates] = useState<{
+        latitude: number | null
+        longitude: number | null
+    }>({
+        latitude: null,
+        longitude: null,
+    })
+
+    const [mapCenter, setMapCenter] = useState({
+        lat: 46.8182,
+        lng: 8.2275,
+    })
+
+    const [mapLoading, setMapLoading] = useState(false)
+
+    const { isLoaded: isMapLoaded } = useJsApiLoader({
+        id: "2morrow-agenda-map",
+        googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+        libraries: ["places"],
+    })
     const resetForm = () => {
         const today = formatDateInput(selectedDate);
 
@@ -98,6 +232,7 @@ const EventDialog = ({
 
                 searchUsers(memberSearch);
 
+
             } else {
 
                 clearUsers();
@@ -115,6 +250,19 @@ const EventDialog = ({
 
         if (!event) {
             resetForm();
+
+            setAttachments([])
+
+            setLocationCoordinates({
+                latitude: null,
+                longitude: null,
+            })
+
+            setMapCenter({
+                lat: 46.8182,
+                lng: 8.2275,
+            })
+
             return;
         }
 
@@ -141,6 +289,18 @@ const EventDialog = ({
             })
         );
 
+        setLocationCoordinates({
+            latitude: event.latitude || null,
+            longitude: event.longitude || null,
+        })
+
+        if (event.latitude && event.longitude) {
+            setMapCenter({
+                lat: event.latitude,
+                lng: event.longitude,
+            })
+        }
+
         setEndTime(
             event.end.toLocaleTimeString([], {
                 hour: "2-digit",
@@ -164,8 +324,13 @@ const EventDialog = ({
             end_time: endTime,
             location,
             category,
-            members: selectedMembers.map((m) => m.id),
-        };
+            members: selectedMembers.map((member) => member.id),
+
+            latitude: locationCoordinates.latitude,
+            longitude: locationCoordinates.longitude,
+
+            attachments,
+        }
 
         console.log("Payload Object:", payload);
         console.log("Payload JSON:", JSON.stringify(payload, null, 2));
@@ -214,20 +379,20 @@ const EventDialog = ({
                         transition={{
                             duration: 0.25,
                         }}
-                        className="fixed left-1/3 top-5 z-50 w-full max-w-2xl -translate-x-1/2 -translate-y-1/2 rounded-3xl bg-white dark:bg-[#141414] shadow-2xl"
+                        className="fixed inset-0 z-50 flex flex-col bg-white dark:bg-[#141414] shadow-2xl sm:inset-auto sm:left-1/2 sm:top-1/2 sm:max-h-[90vh] sm:w-full sm:max-w-2xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-3xl"
                     >
 
                         {/* Header */}
 
-                        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/50 p-6">
+                        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/50 p-4 sm:p-6">
 
                             <div>
 
-                                <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
+                                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 sm:text-2xl">
                                     {event ? "Edit Event" : "Create Event"}
                                 </h2>
 
-                                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                                <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400 sm:mt-1 sm:text-sm">
                                     Organize your meetings and schedule.
                                 </p>
 
@@ -244,7 +409,7 @@ const EventDialog = ({
 
                         {/* Body */}
 
-                        <div className="max-h-[70vh] space-y-6 overflow-y-auto p-6">
+                        <div className="flex-1 space-y-5 overflow-y-auto p-4 sm:max-h-[60vh] sm:space-y-6 sm:p-6">
 
                             {/* Title */}
 
@@ -285,7 +450,7 @@ const EventDialog = ({
 
                             {/* Date */}
 
-                            <div className="grid grid-cols-2 gap-5">
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
 
                                 <div>
 
@@ -329,7 +494,7 @@ const EventDialog = ({
 
                             {/* Time */}
 
-                            <div className="grid grid-cols-2 gap-5">
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
 
                                 <div>
 
@@ -394,27 +559,92 @@ const EventDialog = ({
                             </div>
 
                             {/* Location */}
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
+                                        <MapPin size={16} />
+                                        Event location
+                                    </label>
 
-                            <div>
+                                    <button
+                                        type="button"
+                                        onClick={useCurrentLocation}
+                                        disabled={mapLoading}
+                                        className="flex items-center gap-1.5 text-xs font-semibold text-[#2780C3] transition hover:text-[#1D6EA9] disabled:opacity-50"
+                                    >
+                                        {mapLoading ? (
+                                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                        ) : (
+                                            <Navigation className="h-3.5 w-3.5" />
+                                        )}
+                                        Use current location
+                                    </button>
+                                </div>
 
-                                <label className="mb-2 flex items-center gap-2 text-sm font-semibold">
+                                {isMapLoaded ? (
+                                    <>
+                                        <Autocomplete
+                                            onLoad={onAutocompleteLoad}
+                                            onPlaceChanged={handlePlaceChanged}
+                                        >
+                                            <div className="relative">
+                                                <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
 
-                                    <MapPin size={16} />
+                                                <input
+                                                    value={location}
+                                                    onChange={(event) => setLocation(event.target.value)}
+                                                    placeholder="Search city, address, landmark or property..."
+                                                    className="w-full rounded-2xl border border-slate-200 bg-white py-3 pl-11 pr-4 text-sm text-slate-800 outline-none transition focus:border-[#2780C3] focus:ring-4 focus:ring-[#2780C3]/10 dark:border-white/10 dark:bg-[#1A1A1A] dark:text-white"
+                                                />
+                                            </div>
+                                        </Autocomplete>
 
-                                    Location
+                                        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 dark:border-white/10 dark:bg-[#1A1A1A]">
+                                            <GoogleMap
+                                                mapContainerStyle={{
+                                                    width: "100%",
+                                                    height: window.innerWidth < 640 ? "180px" : "260px",
+                                                }}
+                                                center={mapCenter}
+                                                zoom={locationCoordinates.latitude ? 15 : 6}
+                                                options={{
+                                                    disableDefaultUI: true,
+                                                    zoomControl: true,
+                                                    streetViewControl: false,
+                                                    mapTypeControl: false,
+                                                }}
+                                            >
+                                                {locationCoordinates.latitude &&
+                                                    locationCoordinates.longitude && (
+                                                        <MarkerF
+                                                            position={{
+                                                                lat: locationCoordinates.latitude,
+                                                                lng: locationCoordinates.longitude,
+                                                            }}
+                                                        />
+                                                    )}
+                                            </GoogleMap>
+                                        </div>
 
-                                </label>
+                                        {locationCoordinates.latitude && locationCoordinates.longitude && (
+                                            <div className="flex flex-col gap-1 rounded-xl border border-[#2780C3]/15 bg-[#2780C3]/5 px-3 py-2.5 text-xs dark:border-[#2780C3]/25 dark:bg-[#2780C3]/10 sm:flex-row sm:items-center sm:justify-between sm:px-4 sm:py-3">
+                                                <span className="font-medium text-slate-600 dark:text-slate-300">
+                                                    Selected coordinates
+                                                </span>
 
-                                <input
-                                    type="text"
-                                    value={location}
-                                    onChange={(e) => setLocation(e.target.value)}
-                                    placeholder="Conference Room"
-                                    className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 px-4 py-3 dark:bg-[#1A1A1A] dark:text-white dark:focus:ring-sky-900"
-                                />
-
+                                                <span className="font-semibold text-[#2780C3] dark:text-[#8BC9F4]">
+                                                    {locationCoordinates.latitude.toFixed(6)},{" "}
+                                                    {locationCoordinates.longitude.toFixed(6)}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </>
+                                ) : (
+                                    <div className="flex h-[180px] items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-sm text-slate-500 dark:border-white/10 dark:bg-white/[0.03] dark:text-slate-400 sm:h-[260px]">
+                                        Loading map...
+                                    </div>
+                                )}
                             </div>
-
                             {/* Members */}
 
                             <div className="relative">
@@ -520,6 +750,93 @@ const EventDialog = ({
                                 )}
 
                             </div>
+                            {/* File Upload */}
+
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
+                                        <Upload size={16} />
+                                        Attachments
+                                    </label>
+
+                                    <span className="text-xs text-slate-400 dark:text-slate-500">
+                                        Maximum file size: 10MB
+                                    </span>
+                                </div>
+
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    multiple
+                                    accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.webp"
+                                    onChange={handleFileChange}
+                                    className="hidden"
+                                />
+
+                                <button
+                                    type="button"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="flex w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/70 px-4 py-5 text-center transition hover:border-[#2780C3]/50 hover:bg-[#2780C3]/5 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-[#2780C3]/50 dark:hover:bg-[#2780C3]/10 sm:px-5 sm:py-7"
+                                >
+                                    <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-[#2780C3]/10 text-[#2780C3] dark:bg-[#2780C3]/20 dark:text-[#8BC9F4]">
+                                        <Upload className="h-5 w-5" />
+                                    </div>
+
+                                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                                        Upload documents or images
+                                    </p>
+
+                                    <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                                        PDF, DOCX, XLSX, JPG, PNG or WEBP
+                                    </p>
+                                </button>
+
+                                {attachments.length > 0 && (
+                                    <div className="space-y-2">
+                                        {attachments.map((file, index) => {
+                                            const isImage = file.type.startsWith("image/")
+                                            const previewUrl = isImage ? URL.createObjectURL(file) : null
+
+                                            return (
+                                                <div
+                                                    key={`${file.name}-${index}`}
+                                                    className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-white/[0.03]"
+                                                >
+                                                    {isImage && previewUrl ? (
+                                                        <img
+                                                            src={previewUrl}
+                                                            alt={file.name}
+                                                            className="h-11 w-11 rounded-lg object-cover"
+                                                        />
+                                                    ) : (
+                                                        <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-[#2780C3]/10 text-[#2780C3] dark:bg-[#2780C3]/20 dark:text-[#8BC9F4]">
+                                                            {getFileIcon(file)}
+                                                        </div>
+                                                    )}
+
+                                                    <div className="min-w-0 flex-1">
+                                                        <p className="truncate text-sm font-semibold text-slate-700 dark:text-slate-200">
+                                                            {file.name}
+                                                        </p>
+
+                                                        <p className="text-xs text-slate-400 dark:text-slate-500">
+                                                            {(file.size / 1024 / 1024).toFixed(2)} MB
+                                                        </p>
+                                                    </div>
+
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeAttachment(index)}
+                                                        className="rounded-lg p-2 text-slate-400 transition hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
+                                                    >
+                                                        <X className="h-4 w-4" />
+                                                    </button>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                )}
+                            </div>
 
                             {/* Color Picker */}
 
@@ -529,7 +846,7 @@ const EventDialog = ({
                                     Event Color
                                 </label>
 
-                                <div className="flex gap-4">
+                                <div className="flex flex-wrap gap-3 sm:gap-4">
 
                                     {defaultColors.map((item) => (
 
@@ -537,7 +854,7 @@ const EventDialog = ({
                                             key={item}
                                             type="button"
                                             onClick={() => setColor(item)}
-                                            className={`h-10 w-10 rounded-full border-4 transition ${color === item
+                                            className={`h-9 w-9 rounded-full border-4 transition sm:h-10 sm:w-10 ${color === item
                                                 ? "border-slate-700 scale-110"
                                                 : "border-transparent"
                                                 }`}
@@ -555,7 +872,7 @@ const EventDialog = ({
 
                         {/* Footer */}
 
-                        <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/50 bg-slate-50 dark:bg-[#1A1A1A] px-6 py-5 rounded-b-3xl">
+                        <div className="flex flex-col-reverse gap-3 border-t border-slate-100 dark:border-slate-800/50 bg-slate-50 dark:bg-[#1A1A1A] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:rounded-b-3xl sm:px-6 sm:py-5">
 
                             {/* Delete Button */}
 
@@ -577,11 +894,11 @@ const EventDialog = ({
 
                             {/* Action Buttons */}
 
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 sm:gap-3">
 
                                 <button
                                     onClick={onClose}
-                                    className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#141414] px-5 py-2.5 font-medium text-slate-700 dark:text-slate-200 transition hover:bg-slate-100 dark:hover:bg-slate-800 dark:bg-slate-800"
+                                    className="flex-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#141414] px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 transition hover:bg-slate-100 dark:hover:bg-slate-800 sm:flex-none sm:px-5 sm:text-base"
                                 >
                                     Cancel
                                 </button>
@@ -591,7 +908,7 @@ const EventDialog = ({
                                         handleSave();
                                         onClose();
                                     }}
-                                    className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 px-6 py-2.5 font-semibold text-white shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
+                                    className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl sm:flex-none sm:px-6 sm:text-base"
                                 >
                                     <Save size={18} />
                                     {event ? "Update Event" : "Save Event"}

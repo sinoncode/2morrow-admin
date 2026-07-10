@@ -85,6 +85,7 @@ import LandingPage from "@/pages/dashboard/analytics/LandingPage"
 import ListProperty from "@/modules/properties/PropertyListing"
 import AddProperty from "@/modules/properties/AddProperty"
 import EditProperty from "@/modules/properties/EditProperty"
+import PropertyView from "@/modules/properties/PropertyView"
 // Requests
 import RequestLists from "@/modules/requests/RequestLists"
 import EditRequests from "@/modules/requests/EditRequests"
@@ -103,6 +104,10 @@ import DossierDetails from "@/modules/dossiers/pages/DossierDetails"
 // Email
 import EmailListing from "@/modules/emails/pages/EmailListing"
 import EmailCompose from "@/modules/emails/pages/Emailcompose"
+
+// Contacts
+import ContactListing from "@/modules/contacts/pages/ContactList"
+// import ContactCreate from "@/modules/contacts/pages/ContactCreate"
 
 
 export const router = createBrowserRouter(
@@ -160,6 +165,7 @@ export const router = createBrowserRouter(
         { path: "properties/list", element: <ListProperty /> },
         { path: "properties/add-property", element: <AddProperty /> },
         { path: "properties/edit/:id", element: <EditProperty /> },
+        { path: "properties/view/:id", element: <PropertyView /> },
         // Requests
         { path: "requests/list", element: <RequestLists /> },
         { path: "requests/edit-requests", element: <EditRequests /> },
@@ -182,6 +188,10 @@ export const router = createBrowserRouter(
         // Emails
         { path: "emails/list", element: <EmailListing /> },
         { path: "emails/compose", element: <EmailCompose /> },
+
+        // Contacts
+        { path: "contacts/list", element: <ContactListing /> },
+        // { path: "contacts/details", element: <ContactDetails /> },
 
         // 🛍️ E-COMMERCE
         { path: "eCommerce/product-list", element: <ProductList /> },
