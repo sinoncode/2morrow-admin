@@ -22,11 +22,19 @@ export default function PropertyWizardHeader() {
           ...form.classification,
           listing_status: statusOverride ?? form.classification?.listing_status ?? "draft",
         },
+        // Top-level duplicates expected by backend validation
         category: form.classification?.category,
         sub_type: form.classification?.sub_type,
         transaction_type: form.classification?.transaction_type,
         price: form.pricing?.price,
         currency: form.pricing?.currency,
+        // Surface commonly-required dimension fields at top-level
+        living_area: form.dimensions?.living_area ?? null,
+        bedrooms: form.dimensions?.bedrooms ?? null,
+        bathrooms: form.dimensions?.bathrooms ?? null,
+        rooms: form.dimensions?.rooms ?? null,
+        gross_floor_area: form.dimensions?.gross_floor_area ?? null,
+        plot_area: form.dimensions?.plot_area ?? null,
       }
 
       const success = await createProperty(payload)

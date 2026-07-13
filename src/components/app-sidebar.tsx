@@ -19,8 +19,20 @@ import {
   Settings,
   Layers,
   Book,
+  BrickWallShield,
+  MessageCircleQuestionMark,
+  Gavel,
+  Store,
 } from "lucide-react"
 
+
+
+import { MdOutlineRealEstateAgent } from "react-icons/md";
+import { GiAngelOutfit } from "react-icons/gi";
+import { GrCloudSoftware } from "react-icons/gr";
+
+import CloudKeyOutlineIcon from "@/components/icons/mdi-cloud-key-outline";
+import AccountSettingsVariantIcon from "@/components/icons/mdi-account-settings-variant";
 
 import { NavMain } from "@/components/nav-main"
 import { NavProjects } from "@/components/nav-projects"
@@ -73,7 +85,7 @@ const data = {
     {
       title: "Permission",
       url: "permission",
-      icon: Handshake,
+      icon: AccountSettingsVariantIcon,
     },
     {
       title: "Properties",
@@ -83,12 +95,12 @@ const data = {
     {
       title: "New Projects",
       url: "docs",
-      icon: Layers,
+      icon: BrickWallShield,
     },
     {
       title: "Requests",
       url: "requests/list",
-      icon: Handshake,
+      icon: MessageCircleQuestionMark,
     },
     {
       title: "Leads",
@@ -129,13 +141,30 @@ const data = {
     {
       title: "Angel",
       url: "docs",
-      icon: UserRound,
+      icon: GiAngelOutfit,
+    },
+    {
+      title: "Agent",
+      url: "docs",
+      icon: MdOutlineRealEstateAgent,
+    },
+    {
+      title: "Partners",
+      url: "docs",
+      icon: Gavel,
     },
     {
       title: "Agency",
       url: "docs",
-      icon: CirclePile,
+      icon: Store,
     },
+
+      {
+      title: "Cloud",
+      url: "docs",
+      icon: CloudKeyOutlineIcon,
+    },
+
     {
       title: "Billing",
       url: "docs",

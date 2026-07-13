@@ -1,3 +1,4 @@
+import { useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -11,6 +12,12 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+import {
+  GoogleMap,
+  MarkerF,
+  useJsApiLoader,
+} from "@react-google-maps/api"
+
 import { MapPin, Building2, Globe, Landmark } from "lucide-react"
 
 import { usePropertyCreationStore } from "../store/propertyCreationStore"
@@ -21,6 +28,23 @@ import {
 
 export default function CharacteristicsStep() {
   const { form, updateForm } = usePropertyCreationStore()
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY ?? "",
+  })
+
+  const latitude = form.location?.coordinates?.latitude
+  const longitude = form.location?.coordinates?.longitude
+  const hasValidCoordinates =
+    typeof latitude === "number" &&
+    typeof longitude === "number"
+
+  const mapCenter = useMemo<google.maps.LatLngLiteral>(
+    () => ({
+      lat: hasValidCoordinates ? latitude! : 46.2044,
+      lng: hasValidCoordinates ? longitude! : 6.1432,
+    }),
+    [hasValidCoordinates, latitude, longitude]
+  )
 
   return (
     <div className="space-y-6">
@@ -293,19 +317,41 @@ export default function CharacteristicsStep() {
           </CardHeader>
 
           <CardContent>
-            <div className="flex h-[420px] items-center justify-center rounded-xl border border-dashed bg-muted/30">
-              <div className="text-center">
-                <MapPin className="mx-auto mb-3 h-10 w-10 text-primary" />
+            <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-100 dark:border-white/10 dark:bg-[#1A1A1A]">
+              {isLoaded ? (
+                <GoogleMap
+                  mapContainerStyle={{ width: "100%", height: "820px" }}
+                  center={mapCenter}
+                  zoom={hasValidCoordinates ? 15 : 6}
+                  options={{
+                    disableDefaultUI: true,
+                    zoomControl: true,
+                    streetViewControl: false,
+                    mapTypeControl: false,
+                  }}
+                >
+                  {hasValidCoordinates && (
+                    <MarkerF
+                      position={{
+                        lat: latitude!,
+                        lng: longitude!,
+                      }}
+                    />
+                  )}
+                </GoogleMap>
+              ) : (
+                <div className="flex h-[420px] items-center justify-center rounded-xl border border-dashed bg-muted/30">
+                  <div className="text-center">
+                    <MapPin className="mx-auto mb-3 h-10 w-10 text-primary" />
 
-                <h3 className="font-medium">
-                  Map Integration
-                </h3>
+                    <h3 className="font-medium">Map Integration</h3>
 
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Google Maps / Leaflet Map
-                  will appear here.
-                </p>
-              </div>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Google Maps will appear here once the API is loaded.
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
