@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
 
 import {
   DollarSign,
@@ -20,6 +21,13 @@ import {
 } from "lucide-react"
 
 import { usePropertyCreationStore } from "../store/propertyCreationStore"
+import {
+  FURNISHING_STATUS_OPTIONS,
+  FACING_DIRECTION_OPTIONS,
+  PRICE_TYPE_OPTIONS,
+  CONDITION_OPTIONS,
+  CONSTRUCTION_TYPE_OPTIONS,
+} from "@/types/property.types"
 
 const bedroomOptions = [
   "Studio",
@@ -41,7 +49,7 @@ const bathroomOptions = [
 ]
 
 export default function PricingStep() {
-  const { form, updateField } = usePropertyCreationStore()
+  const { form, updateForm } = usePropertyCreationStore()
 
   return (
     <div className="space-y-6">
@@ -57,37 +65,55 @@ export default function PricingStep() {
 
         <CardContent className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
           <div className="space-y-2">
-            <Label>Built-up Area (Sq Ft)</Label>
+            <Label>Living Area (m²)</Label>
 
             <Input
-              placeholder="4500"
-              value={form.builtUpArea || ""}
+              type="number"
+              placeholder="120"
+              value={form.dimensions?.living_area ?? ""}
               onChange={(e) =>
-                updateField("builtUpArea", e.target.value)
+                updateForm({
+                  dimensions: {
+                    ...form.dimensions,
+                    living_area: e.target.value ? Number(e.target.value) : null,
+                  },
+                })
               }
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Plot Area (Sq Ft) <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
+            <Label>Gross Floor Area (m²)</Label>
 
             <Input
-              placeholder="6000"
-              value={form.plotArea || ""}
+              type="number"
+              placeholder="150"
+              value={form.dimensions?.gross_floor_area ?? ""}
               onChange={(e) =>
-                updateField("plotArea", e.target.value)
+                updateForm({
+                  dimensions: {
+                    ...form.dimensions,
+                    gross_floor_area: e.target.value ? Number(e.target.value) : null,
+                  },
+                })
               }
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Property Age <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
+            <Label>Plot Area (m²)</Label>
 
             <Input
-              placeholder="2 Years"
-              value={form.propertyAge || ""}
+              type="number"
+              placeholder="500"
+              value={form.dimensions?.plot_area ?? ""}
               onChange={(e) =>
-                updateField("propertyAge", e.target.value)
+                updateForm({
+                  dimensions: {
+                    ...form.dimensions,
+                    plot_area: e.target.value ? Number(e.target.value) : null,
+                  },
+                })
               }
             />
           </div>
@@ -96,10 +122,16 @@ export default function PricingStep() {
             <Label>Year Built</Label>
 
             <Input
+              type="number"
               placeholder="2024"
-              value={form.yearBuilt || ""}
+              value={form.construction?.year_built ?? ""}
               onChange={(e) =>
-                updateField("yearBuilt", e.target.value)
+                updateForm({
+                  construction: {
+                    ...form.construction,
+                    year_built: e.target.value ? Number(e.target.value) : null,
+                  },
+                })
               }
             />
           </div>
@@ -125,19 +157,22 @@ export default function PricingStep() {
                 <Button
                   key={room}
                   variant={
-                    `${form.bedrooms}` === room
+                    `${form.dimensions?.bedrooms ?? 0}` === room
                       ? "default"
                       : "outline"
                   }
                   onClick={() =>
-                    updateField(
-                      "bedrooms",
-                      room === "Studio"
-                        ? 0
-                        : room === "6+"
-                        ? 6
-                        : Number(room)
-                    )
+                    updateForm({
+                      dimensions: {
+                        ...form.dimensions,
+                        bedrooms:
+                          room === "Studio"
+                            ? 0
+                            : room === "6+"
+                              ? 6
+                              : Number(room),
+                      },
+                    })
                   }
                 >
                   {room}
@@ -154,22 +189,81 @@ export default function PricingStep() {
                 <Button
                   key={room}
                   variant={
-                    `${form.bathrooms}` === room
+                    `${form.dimensions?.bathrooms ?? 0}` === room
                       ? "default"
                       : "outline"
                   }
                   onClick={() =>
-                    updateField(
-                      "bathrooms",
-                      room === "6+"
-                        ? 6
-                        : Number(room)
-                    )
+                    updateForm({
+                      dimensions: {
+                        ...form.dimensions,
+                        bathrooms:
+                          room === "6+"
+                            ? 6
+                            : Number(room),
+                      },
+                    })
                   }
                 >
                   {room}
                 </Button>
               ))}
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="space-y-2">
+              <Label>Rooms (Total)</Label>
+
+              <Input
+                type="number"
+                placeholder="5"
+                value={form.dimensions?.rooms ?? ""}
+                onChange={(e) =>
+                  updateForm({
+                    dimensions: {
+                      ...form.dimensions,
+                      rooms: e.target.value ? Number(e.target.value) : null,
+                    },
+                  })
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Shower Rooms</Label>
+
+              <Input
+                type="number"
+                placeholder="1"
+                value={form.dimensions?.shower_rooms ?? ""}
+                onChange={(e) =>
+                  updateForm({
+                    dimensions: {
+                      ...form.dimensions,
+                      shower_rooms: e.target.value ? Number(e.target.value) : null,
+                    },
+                  })
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Separate WCs</Label>
+
+              <Input
+                type="number"
+                placeholder="1"
+                value={form.dimensions?.separate_wcs ?? ""}
+                onChange={(e) =>
+                  updateForm({
+                    dimensions: {
+                      ...form.dimensions,
+                      separate_wcs: e.target.value ? Number(e.target.value) : null,
+                    },
+                  })
+                }
+              />
             </div>
           </div>
         </CardContent>
@@ -190,10 +284,15 @@ export default function PricingStep() {
             <Label>Floor Number</Label>
 
             <Input
-              placeholder="12"
-              value={form.floorNumber || ""}
+              placeholder="3"
+              value={form.dimensions?.floor_number ?? ""}
               onChange={(e) =>
-                updateField("floorNumber", e.target.value)
+                updateForm({
+                  dimensions: {
+                    ...form.dimensions,
+                    floor_number: e.target.value || null,
+                  },
+                })
               }
             />
           </div>
@@ -202,10 +301,16 @@ export default function PricingStep() {
             <Label>Total Floors</Label>
 
             <Input
-              placeholder="45"
-              value={form.totalFloors || ""}
+              type="number"
+              placeholder="10"
+              value={form.dimensions?.total_floors ?? ""}
               onChange={(e) =>
-                updateField("totalFloors", e.target.value)
+                updateForm({
+                  dimensions: {
+                    ...form.dimensions,
+                    total_floors: e.target.value ? Number(e.target.value) : null,
+                  },
+                })
               }
             />
           </div>
@@ -214,34 +319,47 @@ export default function PricingStep() {
             <Label>Balconies</Label>
 
             <Input
+              type="number"
               placeholder="2"
-              value={form.balconies || ""}
+              value={form.dimensions?.balconies ?? ""}
               onChange={(e) =>
-                updateField("balconies", e.target.value)
+                updateForm({
+                  dimensions: {
+                    ...form.dimensions,
+                    balconies: e.target.value ? Number(e.target.value) : null,
+                  },
+                })
               }
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Elevators <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
+            <Label>Ceiling Height (m)</Label>
 
             <Input
-              placeholder="4"
-              value={form.elevators || ""}
+              type="number"
+              step="0.1"
+              placeholder="2.7"
+              value={form.dimensions?.ceiling_height ?? ""}
               onChange={(e) =>
-                updateField("elevators", e.target.value)
+                updateForm({
+                  dimensions: {
+                    ...form.dimensions,
+                    ceiling_height: e.target.value ? Number(e.target.value) : null,
+                  },
+                })
               }
             />
           </div>
         </CardContent>
       </Card>
 
-      {/* Furnishing */}
+      {/* Furnishing & Construction */}
 
       <Card>
         <CardHeader>
           <CardTitle>
-            Furnishing & Ownership
+            Furnishing & Construction
           </CardTitle>
         </CardHeader>
 
@@ -250,9 +368,14 @@ export default function PricingStep() {
             <Label>Furnishing Status</Label>
 
             <Select
-              value={form.furnishing}
+              value={form.equipment?.furnishing_status ?? ""}
               onValueChange={(value) =>
-                updateField("furnishing", value)
+                updateForm({
+                  equipment: {
+                    ...form.equipment,
+                    furnishing_status: value as any,
+                  },
+                })
               }
             >
               <SelectTrigger>
@@ -260,42 +383,95 @@ export default function PricingStep() {
               </SelectTrigger>
 
               <SelectContent>
-                <SelectItem value="fully_furnished">
-                  Fully Furnished
-                </SelectItem>
-
-                <SelectItem value="semi_furnished">
-                  Semi Furnished
-                </SelectItem>
-
-                <SelectItem value="unfurnished">
-                  Unfurnished
-                </SelectItem>
+                {FURNISHING_STATUS_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label>Ownership Type <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
+            <Label>Condition</Label>
 
             <Select
-              value={form.ownershipType}
+              value={form.construction?.condition ?? ""}
               onValueChange={(value) =>
-                updateField("ownershipType", value)
+                updateForm({
+                  construction: {
+                    ...form.construction,
+                    condition: value as any,
+                  },
+                })
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder="Ownership" />
+                <SelectValue placeholder="Condition" />
               </SelectTrigger>
 
               <SelectContent>
-                <SelectItem value="freehold">
-                  Freehold
-                </SelectItem>
+                {CONDITION_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-                <SelectItem value="leasehold">
-                  Leasehold
-                </SelectItem>
+          <div className="space-y-2">
+            <Label>Facing Direction</Label>
+
+            <Select
+              value={form.orientation?.facing_direction ?? ""}
+              onValueChange={(value) =>
+                updateForm({
+                  orientation: {
+                    ...form.orientation,
+                    facing_direction: value as any,
+                  },
+                })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select facing" />
+              </SelectTrigger>
+
+              <SelectContent>
+                {FACING_DIRECTION_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Construction Type</Label>
+
+            <Select
+              value={form.construction?.construction_type ?? ""}
+              onValueChange={(value) =>
+                updateForm({
+                  construction: {
+                    ...form.construction,
+                    construction_type: value as any,
+                  },
+                })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Construction" />
+              </SelectTrigger>
+
+              <SelectContent>
+                {CONSTRUCTION_TYPE_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -313,47 +489,50 @@ export default function PricingStep() {
         </CardHeader>
 
         <CardContent className="grid gap-5 md:grid-cols-3">
-          <div className="space-y-2">
+          <div className="flex items-center justify-left gap-5">
             <Label>Covered Parking</Label>
-
-            <Input
-              placeholder="2"
-              value={form.coveredParking ? "true" : ""}
-              onChange={(e) =>
-                updateField(
-                  "coveredParking",
-                  e.target.value !== ""
-                )
+            <Switch
+              checked={form.parking?.covered_parking ?? false}
+              onCheckedChange={(val) =>
+                updateForm({
+                  parking: {
+                    ...form.parking,
+                    covered_parking: val,
+                  },
+                })
               }
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="flex items-center justify-left gap-5">
             <Label>Open Parking</Label>
-
-            <Input
-              placeholder="1"
-              value={form.openParking ? "true" : ""}
-              onChange={(e) =>
-                updateField(
-                  "openParking",
-                  e.target.value !== ""
-                )
+            <Switch
+              checked={form.parking?.open_parking ?? false}
+              onCheckedChange={(val) =>
+                updateForm({
+                  parking: {
+                    ...form.parking,
+                    open_parking: val,
+                  },
+                })
               }
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Visitor Parking <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
+            <Label>Parking Slots</Label>
 
             <Input
-              placeholder="Available"
-              value={form.visitorParking || ""}
+              type="number"
+              placeholder="2"
+              value={form.parking?.parking_slots ?? ""}
               onChange={(e) =>
-                updateField(
-                  "visitorParking",
-                  e.target.value
-                )
+                updateForm({
+                  parking: {
+                    ...form.parking,
+                    parking_slots: e.target.value ? Number(e.target.value) : null,
+                  },
+                })
               }
             />
           </div>
@@ -375,70 +554,79 @@ export default function PricingStep() {
             <Label>Property Price</Label>
 
             <Input
-              placeholder="AED 8,500,000"
-              value={form.price || ""}
+              type="number"
+              placeholder="850000"
+              value={form.pricing?.price ?? ""}
               onChange={(e) =>
-                updateField("price", e.target.value)
+                updateForm({
+                  pricing: {
+                    ...form.pricing,
+                    price: e.target.value ? Number(e.target.value) : 0,
+                  },
+                })
               }
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Price Per Sq Ft <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
+            <Label>Currency</Label>
 
             <Input
-              placeholder="AED 1,888"
-              value={form.pricePerSqft || ""}
+              placeholder="CHF"
+              value={form.pricing?.currency ?? "CHF"}
               onChange={(e) =>
-                updateField(
-                  "pricePerSqft",
-                  e.target.value
-                )
+                updateForm({
+                  pricing: {
+                    ...form.pricing,
+                    currency: e.target.value,
+                  },
+                })
               }
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Maintenance Fee</Label>
+            <Label>Price Type</Label>
 
-            <Input
-              placeholder="AED 25,000"
-              value={form.maintenanceFee || ""}
-              onChange={(e) =>
-                updateField(
-                  "maintenanceFee",
-                  e.target.value
-                )
+            <Select
+              value={form.pricing?.price_type ?? ""}
+              onValueChange={(value) =>
+                updateForm({
+                  pricing: {
+                    ...form.pricing,
+                    price_type: value as any,
+                  },
+                })
               }
-            />
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select type" />
+              </SelectTrigger>
+
+              <SelectContent>
+                {PRICE_TYPE_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
-            <Label>Security Deposit <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
+            <Label>Price Per m²</Label>
 
             <Input
-              placeholder="5%"
-              value={form.securityDeposit || ""}
+              type="number"
+              placeholder="7000"
+              value={form.pricing?.price_per_sqm ?? ""}
               onChange={(e) =>
-                updateField(
-                  "securityDeposit",
-                  e.target.value
-                )
-              }
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Tax Percentage</Label>
-
-            <Input
-              placeholder="5%"
-              value={form.taxPercentage || ""}
-              onChange={(e) =>
-                updateField(
-                  "taxPercentage",
-                  e.target.value
-                )
+                updateForm({
+                  pricing: {
+                    ...form.pricing,
+                    price_per_sqm: e.target.value ? Number(e.target.value) : null,
+                  },
+                })
               }
             />
           </div>
@@ -447,67 +635,118 @@ export default function PricingStep() {
             <Label>Discount</Label>
 
             <Input
-              placeholder="10%"
-              value={form.discount || ""}
+              type="number"
+              placeholder="5000"
+              value={form.pricing?.discount ?? ""}
               onChange={(e) =>
-                updateField(
-                  "discount",
-                  e.target.value
-                )
+                updateForm({
+                  pricing: {
+                    ...form.pricing,
+                    discount: e.target.value ? Number(e.target.value) : null,
+                  },
+                })
               }
             />
           </div>
+
+          <div className="flex items-center justify-left gap-5 col-span-1">
+            <Label>VAT Applicable</Label>
+            <Switch
+              checked={form.pricing?.vat_applicable ?? false}
+              onCheckedChange={(val) =>
+                updateForm({
+                  pricing: {
+                    ...form.pricing,
+                    vat_applicable: val,
+                  },
+                })
+              }
+            />
+          </div>
+
+          {form.pricing?.vat_applicable && (
+            <div className="space-y-2">
+              <Label>VAT Rate (%)</Label>
+
+              <Input
+                type="number"
+                step="0.1"
+                placeholder="7.7"
+                value={form.pricing?.vat_rate ?? ""}
+                onChange={(e) =>
+                  updateForm({
+                    pricing: {
+                      ...form.pricing,
+                      vat_rate: e.target.value ? Number(e.target.value) : null,
+                    },
+                  })
+                }
+              />
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      {/* Market Insights */}
+      {/* Financial Details */}
 
       <Card>
         <CardHeader>
           <CardTitle>
-            Market Valuation & Investment
+            Financial Details
           </CardTitle>
         </CardHeader>
 
         <CardContent className="grid gap-5 md:grid-cols-3">
           <div className="space-y-2">
-            <Label>Estimated ROI <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
+            <Label>Annual Property Tax</Label>
 
             <Input
-              placeholder="8.5%"
-              value={form.roi || ""}
+              type="number"
+              placeholder="5000"
+              value={form.financials?.annual_property_tax ?? ""}
               onChange={(e) =>
-                updateField("roi", e.target.value)
+                updateForm({
+                  financials: {
+                    ...form.financials,
+                    annual_property_tax: e.target.value ? Number(e.target.value) : null,
+                  },
+                })
               }
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Rental Yield <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
+            <Label>Maintenance Charges</Label>
 
             <Input
-              placeholder="7%"
-              value={form.rentalYield || ""}
+              type="number"
+              placeholder="500"
+              value={form.financials?.maintenance_charges ?? ""}
               onChange={(e) =>
-                updateField(
-                  "rentalYield",
-                  e.target.value
-                )
+                updateForm({
+                  financials: {
+                    ...form.financials,
+                    maintenance_charges: e.target.value ? Number(e.target.value) : null,
+                  },
+                })
               }
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Market Value <span className="ml-1 text-[10px] text-muted-foreground">(Extra field)</span></Label>
+            <Label>Monthly HOA Charges</Label>
 
             <Input
-              placeholder="AED 8.8M"
-              value={form.marketValue || ""}
+              type="number"
+              placeholder="300"
+              value={form.financials?.monthly_hoa_charges ?? ""}
               onChange={(e) =>
-                updateField(
-                  "marketValue",
-                  e.target.value
-                )
+                updateForm({
+                  financials: {
+                    ...form.financials,
+                    monthly_hoa_charges: e.target.value ? Number(e.target.value) : null,
+                  },
+                })
               }
             />
           </div>

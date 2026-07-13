@@ -17,16 +17,24 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Textarea } from "@/components/ui/textarea"
 
 import { usePropertyCreationStore } from "../store/propertyCreationStore"
+import {
+  PROPERTY_CATEGORY_OPTIONS,
+  PROPERTY_SUB_TYPE_OPTIONS,
+  LISTING_TYPE_OPTIONS,
+  PROPERTY_STATUS_OPTIONS,
+} from "@/types/property.types"
+import type { PropertyStatus } from "@/types/property.types"
 
-const statusMetadata = {
+const statusMetadata: Record<string, { title: string; desc: string }> = {
   draft: { title: "Draft", desc: "Visible only to you" },
   active: { title: "Active", desc: "Publicly listed" },
   sold: { title: "Sold", desc: "Archive from market" },
+  inactive: { title: "Inactive", desc: "Temporarily hidden" },
+  archived: { title: "Archived", desc: "Permanently archived" },
 }
 
 export default function GeneralStep() {
-  const { form, updateField } =
-    usePropertyCreationStore()
+  const { form, updateForm } = usePropertyCreationStore()
 
   return (
     <div className="grid gap-6 lg:grid-cols-3">
@@ -40,24 +48,57 @@ export default function GeneralStep() {
             <Input
               value={form.title}
               onChange={(e) =>
-                updateField("title", e.target.value)
+                updateForm({ title: e.target.value })
               }
               placeholder="The Obsidian Penthouse"
             />
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-3">
+            <div>
+              <label className="mb-2 block text-sm">
+                Category
+              </label>
+
+              <Select
+                value={form.classification?.category ?? ""}
+                onValueChange={(value) =>
+                  updateForm({
+                    classification: {
+                      ...form.classification,
+                      category: value as any,
+                    },
+                  })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+
+                <SelectContent>
+                  {PROPERTY_CATEGORY_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div>
               <label className="mb-2 block text-sm">
                 Property Type
               </label>
 
               <Select
+                value={form.classification?.sub_type ?? ""}
                 onValueChange={(value) =>
-                  updateField(
-                    "propertyType",
-                    value
-                  )
+                  updateForm({
+                    classification: {
+                      ...form.classification,
+                      sub_type: value as any,
+                    },
+                  })
                 }
               >
                 <SelectTrigger>
@@ -65,21 +106,11 @@ export default function GeneralStep() {
                 </SelectTrigger>
 
                 <SelectContent>
-                  <SelectItem value="Apartment">
-                    Apartment
-                  </SelectItem>
-
-                  <SelectItem value="Villa">
-                    Villa
-                  </SelectItem>
-
-                  <SelectItem value="Penthouse">
-                    Penthouse
-                  </SelectItem>
-
-                  <SelectItem value="Office">
-                    Office
-                  </SelectItem>
+                  {PROPERTY_SUB_TYPE_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -90,11 +121,14 @@ export default function GeneralStep() {
               </label>
 
               <Select
+                value={form.classification?.transaction_type ?? ""}
                 onValueChange={(value) =>
-                  updateField(
-                    "listingType",
-                    value
-                  )
+                  updateForm({
+                    classification: {
+                      ...form.classification,
+                      transaction_type: value as any,
+                    },
+                  })
                 }
               >
                 <SelectTrigger>
@@ -102,13 +136,11 @@ export default function GeneralStep() {
                 </SelectTrigger>
 
                 <SelectContent>
-                  <SelectItem value="sale">
-                    Sale
-                  </SelectItem>
-
-                  <SelectItem value="rent">
-                    Rent
-                  </SelectItem>
+                  {LISTING_TYPE_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -121,12 +153,11 @@ export default function GeneralStep() {
 
             <Textarea
               rows={8}
-              value={form.description}
+              value={form.description ?? ""}
               onChange={(e) =>
-                updateField(
-                  "description",
-                  e.target.value
-                )
+                updateForm({
+                  description: e.target.value,
+                })
               }
             />
           </div>
@@ -140,12 +171,19 @@ export default function GeneralStep() {
           </h3>
 
           <RadioGroup
-            value={form.publicationStatus}
-            onValueChange={(value) => updateField("publicationStatus", value)}
+            value={form.classification?.listing_status ?? "draft"}
+            onValueChange={(value) =>
+              updateForm({
+                classification: {
+                  ...form.classification,
+                  listing_status: value as PropertyStatus,
+                },
+              })
+            }
             className="grid gap-3"
           >
-            {["draft", "active", "sold"].map((status) => {
-              const meta = statusMetadata[status as keyof typeof statusMetadata]
+            {(["draft", "active", "sold", "inactive", "archived"] as PropertyStatus[]).map((status) => {
+              const meta = statusMetadata[status]
 
               return (
                 <RadioGroupItem key={status} value={status}>

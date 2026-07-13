@@ -15,6 +15,8 @@ export interface PropertyListParams {
     listing_type?: string;
     type?: string;
     city?: string;
+    category?: string;
+    sub_type?: string;
 }
 
 export interface ApiResponse<T> {
@@ -29,6 +31,8 @@ export const PropertyService = {
      * Get all properties with optional pagination and filters.
      *
      * GET /v1/admin/properties
+     *
+     * Returns { data: Property[], links: PropertyLinks, meta: PropertyMeta }
      */
     getAll: (params?: PropertyListParams) => {
         return api.get<PropertyListResponse>("/admin/properties", {
@@ -40,6 +44,8 @@ export const PropertyService = {
      * Get one property by ID.
      *
      * GET /v1/admin/properties/:id
+     *
+     * Returns { data: Property }
      */
     getById: (id: number | string) => {
         return api.get<PropertyResponse>(

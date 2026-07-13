@@ -38,17 +38,22 @@ const outdoorAmenities = [
   "Jogging Track",
 ]
 
-const buildingAmenities = [
-  "Concierge",
-  "24/7 Security",
-  "CCTV",
-  "Lobby",
+const wellnessAmenities = [
   "Gym",
   "Spa",
   "Sauna",
   "Steam Room",
-  "Business Center",
-  "Conference Room",
+  "Yoga Studio",
+]
+
+const securityAmenities = [
+  "Concierge",
+  "24/7 Security",
+  "CCTV",
+  "Lobby",
+  "Intercom",
+  "Alarm System",
+  "Biometric Access",
 ]
 
 const smartFeatures = [
@@ -62,30 +67,40 @@ const smartFeatures = [
   "Remote Access",
 ]
 
+type EquipmentKey = 'interior_amenities' | 'exterior_amenities' | 'wellness_amenities' | 'security_amenities' | 'smart_home_features'
+
 function AmenitySection({
   title,
   icon,
   amenities,
+  fieldKey,
 }: {
   title: string
   icon: React.ReactNode
   amenities: string[]
+  fieldKey: EquipmentKey
 }) {
-  const { form, updateField } = usePropertyCreationStore()
+  const { form, updateForm } = usePropertyCreationStore()
+  
+  const currentAmenities = form.equipment?.[fieldKey] || []
 
   const toggleAmenity = (amenity: string) => {
-    const exists = form.amenities.includes(amenity)
+    const exists = currentAmenities.includes(amenity)
 
     if (exists) {
-      updateField(
-        "amenities",
-        form.amenities.filter((a) => a !== amenity)
-      )
+      updateForm({
+        equipment: {
+          ...form.equipment,
+          [fieldKey]: currentAmenities.filter((a) => a !== amenity),
+        },
+      })
     } else {
-      updateField("amenities", [
-        ...form.amenities,
-        amenity,
-      ])
+      updateForm({
+        equipment: {
+          ...form.equipment,
+          [fieldKey]: [...currentAmenities, amenity],
+        },
+      })
     }
   }
 
@@ -101,8 +116,7 @@ function AmenitySection({
       <CardContent>
         <div className="flex flex-wrap gap-2">
           {amenities.map((amenity) => {
-            const selected =
-              form.amenities.includes(amenity)
+            const selected = currentAmenities.includes(amenity)
 
             return (
               <Badge
@@ -135,58 +149,8 @@ function AmenitySection({
 }
 
 export default function DescriptionStep() {
-  const { form, updateField } =
-    usePropertyCreationStore()
-
   return (
     <div className="space-y-6">
-      {/* Property Description */}
-
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            Property Description
-          </CardTitle>
-        </CardHeader>
-
-        <CardContent>
-          <div className="space-y-2">
-            <Label>
-              Detailed Property Description
-            </Label>
-
-            <Textarea
-              rows={8}
-              placeholder="Describe the property, location, lifestyle benefits, views, nearby attractions and investment potential..."
-              value={form.description}
-              onChange={(e) =>
-                updateField(
-                  "description",
-                  e.target.value
-                )
-              }
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Key Highlights */}
-
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            Property Highlights
-          </CardTitle>
-        </CardHeader>
-
-        <CardContent>
-          <Textarea
-            rows={4}
-            placeholder="Luxury Sea View, Walking Distance To Metro, Premium Finishes, Smart Home Enabled..."
-          />
-        </CardContent>
-      </Card>
-
       {/* Amenities */}
 
       <div className="grid gap-6 xl:grid-cols-2">
@@ -196,6 +160,7 @@ export default function DescriptionStep() {
             <Home className="h-5 w-5 text-primary" />
           }
           amenities={indoorAmenities}
+          fieldKey="interior_amenities"
         />
 
         <AmenitySection
@@ -204,14 +169,25 @@ export default function DescriptionStep() {
             <Trees className="h-5 w-5 text-primary" />
           }
           amenities={outdoorAmenities}
+          fieldKey="exterior_amenities"
         />
 
         <AmenitySection
-          title="Building Amenities"
+          title="Security Amenities"
           icon={
-            <Building2 className="h-5 w-5 text-primary" />
+            <ShieldCheck className="h-5 w-5 text-primary" />
           }
-          amenities={buildingAmenities}
+          amenities={securityAmenities}
+          fieldKey="security_amenities"
+        />
+        
+        <AmenitySection
+          title="Wellness Amenities"
+          icon={
+            <Sparkles className="h-5 w-5 text-primary" />
+          }
+          amenities={wellnessAmenities}
+          fieldKey="wellness_amenities"
         />
 
         <AmenitySection
@@ -220,66 +196,9 @@ export default function DescriptionStep() {
             <Sparkles className="h-5 w-5 text-primary" />
           }
           amenities={smartFeatures}
+          fieldKey="smart_home_features"
         />
       </div>
-
-      {/* Luxury Features */}
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ShieldCheck className="h-5 w-5 text-primary" />
-            Premium & Luxury Features
-          </CardTitle>
-        </CardHeader>
-
-        <CardContent>
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            {[
-              "Private Elevator",
-              "Infinity Pool",
-              "Private Beach Access",
-              "Penthouse Level",
-              "Sky Lounge",
-              "Golf Course View",
-              "Marina View",
-              "Burj Khalifa View",
-            ].map((feature) => (
-              <Badge
-                key={feature}
-                variant="outline"
-                className="
-                  justify-center
-                  py-3
-                  cursor-pointer
-                  hover:bg-primary
-                  hover:text-primary-foreground
-                  transition-all
-                "
-              >
-                {feature}
-              </Badge>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* SEO Keywords */}
-
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            SEO Keywords & Tags
-          </CardTitle>
-        </CardHeader>
-
-        <CardContent>
-          <Textarea
-            rows={3}
-            placeholder="Luxury Villa, Dubai Marina, Sea View Apartment, Smart Home..."
-          />
-        </CardContent>
-      </Card>
     </div>
   )
 }

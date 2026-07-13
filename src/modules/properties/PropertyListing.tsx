@@ -63,12 +63,16 @@ import {
 } from "lucide-react"
 
 import { usePropertyStore } from "@/store/propertyStore"
-import { toast } from "@/lib/toast"
-import type { Property } from "@/types/property.types"
+import type { Property, PropertyStatus, ListingType } from "@/types/property.types"
+import {
+  PROPERTY_STATUS_OPTIONS,
+  PROPERTY_SUB_TYPE_OPTIONS,
+  LISTING_TYPE_OPTIONS,
+} from "@/types/property.types"
 
 // ─── Status badge ────────────────────────────────────────────────────────────
-function StatusBadge({ status }: { status: Property["status"] }) {
-  const configs: Record<Property["status"], { bg: string; text: string; dot: string }> = {
+function StatusBadge({ status }: { status: PropertyStatus }) {
+  const configs: Record<PropertyStatus, { bg: string; text: string; dot: string }> = {
     active: { bg: "bg-emerald-50 dark:bg-emerald-500/15", text: "text-emerald-700 dark:text-emerald-400", dot: "bg-emerald-500" },
     draft: { bg: "bg-amber-50 dark:bg-amber-500/15", text: "text-amber-700 dark:text-amber-400", dot: "bg-amber-500" },
     sold: { bg: "bg-purple-50 dark:bg-purple-500/15", text: "text-purple-700 dark:text-purple-400", dot: "bg-purple-500" },
@@ -85,7 +89,7 @@ function StatusBadge({ status }: { status: Property["status"] }) {
 }
 
 // ─── Listing type badge ───────────────────────────────────────────────────────
-function ListingBadge({ type }: { type: Property["listing_type"] }) {
+function ListingBadge({ type }: { type: ListingType }) {
   if (!type) return <span className="text-muted-foreground text-sm">—</span>
   const isSale = type === "sale"
   return (
@@ -102,7 +106,7 @@ function ListingBadge({ type }: { type: Property["listing_type"] }) {
 function SkeletonRow() {
   return (
     <TableRow className="animate-pulse">
-      {Array.from({ length: 6 }).map((_, i) => (
+      {Array.from({ length: 7 }).map((_, i) => (
         <TableCell key={i}>
           <div className="h-4 rounded-md bg-muted" style={{ width: `${60 + Math.random() * 30}%` }} />
         </TableCell>
@@ -144,6 +148,13 @@ function StatCard({
   )
 }
 
+// ─── Format label helper ──────────────────────────────────────────────────────
+function formatSubType(subType: string | undefined): string {
+  if (!subType) return "—"
+  const found = PROPERTY_SUB_TYPE_OPTIONS.find((o) => o.value === subType)
+  return found?.label ?? subType.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 export default function PropertyListing() {
   const { properties, fetchProperties, deleteProperty, loading, deleting, meta } = usePropertyStore()
@@ -169,7 +180,7 @@ export default function PropertyListing() {
       per_page: 10,
       search: debouncedSearch || undefined,
       status: statusFilter !== "all" ? statusFilter : undefined,
-      type: typeFilter !== "all" ? typeFilter : undefined,
+      sub_type: typeFilter !== "all" ? typeFilter : undefined,
       listing_type: listingFilter !== "all" ? listingFilter : undefined,
     })
   }, [pageState, debouncedSearch, statusFilter, typeFilter, listingFilter, fetchProperties])
@@ -202,9 +213,9 @@ export default function PropertyListing() {
   const hasActiveFilters = statusFilter !== "all" || typeFilter !== "all" || listingFilter !== "all" || debouncedSearch.trim().length > 0
 
   const listingCounts = useMemo(() => {
-    const sale = properties.filter((property) => property.listing_type === "sale").length
-    const rent = properties.filter((property) => property.listing_type === "rent").length
-    const sold = properties.filter((property) => property.status === "sold").length
+    const sale = properties.filter((p) => p.classification?.transaction_type === "sale").length
+    const rent = properties.filter((p) => p.classification?.transaction_type === "rent").length
+    const sold = properties.filter((p) => p.classification?.listing_status === "sold").length
 
     return {
       total: totalProps,
@@ -261,15 +272,15 @@ export default function PropertyListing() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="sold">Sold</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-                  <SelectItem value="archived">Archived</SelectItem>
+                  {PROPERTY_STATUS_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
 
-              {/* Property Type */}
+              {/* Property Sub-Type */}
               <Select
                 value={typeFilter}
                 onValueChange={(v) => { setTypeFilter(v); setPageState(1) }}
@@ -279,13 +290,11 @@ export default function PropertyListing() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="Apartment">Apartment</SelectItem>
-                  <SelectItem value="Villa">Villa</SelectItem>
-                  <SelectItem value="Penthouse">Penthouse</SelectItem>
-                  <SelectItem value="Office">Office</SelectItem>
-                  <SelectItem value="House">House</SelectItem>
-                  <SelectItem value="Studio">Studio</SelectItem>
-                  <SelectItem value="Commercial">Commercial</SelectItem>
+                  {PROPERTY_SUB_TYPE_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
 
@@ -299,8 +308,11 @@ export default function PropertyListing() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Listings</SelectItem>
-                  <SelectItem value="sale">For Sale</SelectItem>
-                  <SelectItem value="rent">For Rent</SelectItem>
+                  {LISTING_TYPE_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
 
@@ -381,37 +393,36 @@ export default function PropertyListing() {
                       {/* Title */}
                       <TableCell className="pl-5">
                         <div className="flex items-center gap-3">
-                          {/* <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted font-semibold text-sm uppercase text-muted-foreground">
-                            {property.title?.charAt(0) ?? "P"}
-                          </div> */}
                           <div>
                             <p className="font-medium leading-tight line-clamp-1 max-w-[200px]">{property.title}</p>
-                            {/* {property.type && (
-                              <p className="text-xs text-muted-foreground">{property.type}</p>
-                            )} */}
+                            {property.internal_reference && (
+                              <p className="text-xs text-muted-foreground">Ref: {property.internal_reference}</p>
+                            )}
                           </div>
                         </div>
                       </TableCell>
 
                       {/* Type */}
                       <TableCell>
-                        <span className="text-sm">{property.type ?? "—"}</span>
+                        <span className="text-sm">{formatSubType(property.classification?.sub_type)}</span>
                       </TableCell>
 
                       {/* Listing */}
                       <TableCell>
-                        <ListingBadge type={property.listing_type} />
+                        <ListingBadge type={property.classification?.transaction_type} />
                       </TableCell>
 
                       {/* Status */}
                       <TableCell>
-                        <StatusBadge status={property.status} />
+                        <StatusBadge status={property.classification?.listing_status ?? "draft"} />
                       </TableCell>
 
                       {/* Price */}
                       <TableCell>
                         <span className="text-sm font-medium">
-                          {property.price ? `${Number(property.price).toLocaleString()}` : "—"}
+                          {property.pricing?.price
+                            ? `${property.pricing.currency ?? "CHF"} ${Number(property.pricing.price).toLocaleString()}`
+                            : "—"}
                         </span>
                       </TableCell>
 
@@ -419,9 +430,9 @@ export default function PropertyListing() {
                       <TableCell>
                         <p
                           className="max-w-[180px] truncate text-sm text-muted-foreground"
-                          title={[property.city, property.state].filter(Boolean).join(", ") || property.address || "—"}
+                          title={[property.location?.city, property.location?.state].filter(Boolean).join(", ") || property.location?.address_line_1 || "—"}
                         >
-                          {[property.city, property.state].filter(Boolean).join(", ") || property.address || "—"}
+                          {[property.location?.city, property.location?.state].filter(Boolean).join(", ") || property.location?.address_line_1 || "—"}
                         </p>
                       </TableCell>
 
@@ -440,12 +451,11 @@ export default function PropertyListing() {
                           </DropdownMenuTrigger>
 
                           <DropdownMenuContent align="end" className="w-44">
-                            <DropdownMenuItem
-                              onClick={() => toast.success(`Viewing Property #${property.id}`)}
-                            >
+                            <DropdownMenuItem asChild>
                               <Link to={`/properties/view/${property.id}`} className="flex items-center">
                                 <Eye className="mr-2 h-4 w-4" />
-                                View Details</Link>
+                                View Details
+                              </Link>
                             </DropdownMenuItem>
 
                             <DropdownMenuItem asChild>

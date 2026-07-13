@@ -1,204 +1,41 @@
 import { create } from "zustand"
+import type { PropertyPayload } from "@/types/property.types"
+import { DEFAULT_PROPERTY_PAYLOAD } from "@/types/property.types"
 
-export interface PropertyFormData {
-  title: string
-  propertyType: string
-  listingType: string
+/**
+ * Property creation / edit store.
+ *
+ * Uses the same nested PropertyPayload shape from the types file
+ * so that the wizard state can be sent directly to the API without
+ * manual field mapping.
+ */
+interface PropertyCreationStore {
+  form: PropertyPayload
 
-  description: string
+  /** Deep-merge partial updates into the form. */
+  updateForm: (partial: Partial<PropertyPayload>) => void
 
-  address: string
-  city: string
-  state: string
-  zipCode: string
-  latitude: string
-  longitude: string
-
-  area: string
-  bedrooms: number
-  bathrooms: number
-  balconies: number
-
-  floor: string
-  totalFloors: string
-  yearBuilt: string
-
-  furnishing: string
-  facing: string
-
-  coveredParking: boolean
-  openParking: boolean
-  parkingSlots: string
-
-  amenities: string[]
-
-  images: string[]
-
-  publicationStatus: "draft" | "active" | "sold"
-
-  keywords: string[]
-
-//   Characteristics Steps
-
-country: ""
-community: ""
-subCommunity: ""
-buildingName: ""
-
-locationDescription: ""
-
-//   Pricing Step
-
-builtUpArea: ""
-plotArea: ""
-propertyAge: ""
-
-floorNumber: ""
-elevators: ""
-ownershipType: ""
-
-visitorParking: ""
-
-price: ""
-pricePerSqft: ""
-
-maintenanceFee: ""
-securityDeposit: ""
-taxPercentage: ""
-discount: ""
-
-roi: ""
-rentalYield: ""
-marketValue: ""
-
-
-// Publication Step
-
-visibility: string
-
-isFeatured: boolean
-
-priority: string
-
-assignedAgent: string
-
-publishDate: string
-expiryDate: string
-
-isVerified: boolean
-requiresApproval: boolean
-
-seoTitle: string
-metaDescription: string
-seoKeywords: string
-}
-
-interface PropertyStore {
-  form: PropertyFormData
-
-  updateField: (
-    key: keyof PropertyFormData,
-    value: any
+  /** Shallow-update a single top-level key. */
+  updateField: <K extends keyof PropertyPayload>(
+    key: K,
+    value: PropertyPayload[K]
   ) => void
 
+  /** Reset the form back to defaults. */
   reset: () => void
-}
 
-const initialState: PropertyFormData = {
-  title: "",
-  propertyType: "",
-  listingType: "",
-
-  description: "",
-
-  address: "",
-  city: "",
-  state: "",
-  zipCode: "",
-  latitude: "",
-  longitude: "",
-
-  area: "",
-  bedrooms: 0,
-  bathrooms: 0,
-  balconies: 0,
-
-  floor: "",
-  totalFloors: "",
-  yearBuilt: "",
-
-  furnishing: "",
-
-  facing: "",
-
-  coveredParking: false,
-  openParking: false,
-  parkingSlots: "",
-
-  amenities: [],
-
-  images: [],
-
-  publicationStatus: "draft",
-
-  keywords: [],
-
-//   Characteristics Step
-country: "",
-community: "",
-subCommunity: "",
-buildingName: "",
-
-locationDescription: "",
-
-//   Pricing Step
-
-builtUpArea: "",
-plotArea: "",
-propertyAge: "",
-
-floorNumber: "",
-elevators: "",
-ownershipType: "",
-
-visitorParking: "",
-
-price: "",
-pricePerSqft: "",
-
-maintenanceFee: "",
-securityDeposit: "",
-taxPercentage: "",
-discount: "",
-
-roi: "",
-rentalYield: "",
-marketValue: "",
-
-// Publication Step
-
-visibility: "public",
-
-isFeatured: false,
-
-priority: "normal",
-
-assignedAgent: "",
-
-publishDate: "",
-expiryDate: "",
-
-isVerified: false,
-requiresApproval: false,
-
-seoTitle: "",
-metaDescription: "",
-seoKeywords: "",
+  /** Load an existing property into the form (for edit mode). */
+  loadFromProperty: (data: Partial<PropertyPayload>) => void
 }
 
 export const usePropertyCreationStore =
-  create<PropertyStore>((set) => ({
-    form: initialState,
+  create<PropertyCreationStore>((set) => ({
+    form: { ...DEFAULT_PROPERTY_PAYLOAD },
+
+    updateForm: (partial) =>
+      set((state) => ({
+        form: deepMerge(state.form, partial),
+      })),
 
     updateField: (key, value) =>
       set((state) => ({
@@ -210,6 +47,44 @@ export const usePropertyCreationStore =
 
     reset: () =>
       set({
-        form: initialState,
+        form: { ...DEFAULT_PROPERTY_PAYLOAD },
+      }),
+
+    loadFromProperty: (data) =>
+      set({
+        form: deepMerge({ ...DEFAULT_PROPERTY_PAYLOAD }, data),
       }),
   }))
+
+
+// ─── Utility: deep merge ────────────────────────────────────────────────────
+
+function deepMerge<T extends Record<string, any>>(
+  target: T,
+  source: Partial<T>
+): T {
+  const result = { ...target }
+
+  for (const key in source) {
+    const sourceVal = source[key]
+    const targetVal = target[key]
+
+    if (
+      sourceVal !== null &&
+      typeof sourceVal === "object" &&
+      !Array.isArray(sourceVal) &&
+      targetVal !== null &&
+      typeof targetVal === "object" &&
+      !Array.isArray(targetVal)
+    ) {
+      ;(result as any)[key] = deepMerge(
+        targetVal as Record<string, any>,
+        sourceVal as Record<string, any>
+      )
+    } else {
+      ;(result as any)[key] = sourceVal
+    }
+  }
+
+  return result
+}
