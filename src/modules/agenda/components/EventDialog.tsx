@@ -379,7 +379,18 @@ const EventDialog = ({
                         transition={{
                             duration: 0.25,
                         }}
-                        className="fixed inset-0 z-50 flex flex-col bg-white dark:bg-[#141414] shadow-2xl sm:inset-auto sm:left-1/2 sm:top-1/2 sm:max-h-[90vh] sm:w-full sm:max-w-2xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-3xl"
+                     className="
+fixed inset-0 lg:top-40 lg:left-1/3 z-50
+flex flex-col
+bg-white shadow-2xl
+dark:bg-[#141414]
+sm:left-1/2 sm:top-1/2
+sm:w-full sm:max-w-2xl
+sm:max-h-[90vh]
+sm:-translate-x-1/2 sm:-translate-y-1/2
+sm:rounded-3xl
+sm:inset-auto
+"
                     >
 
                         {/* Header */}

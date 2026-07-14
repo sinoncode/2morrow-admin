@@ -29,11 +29,11 @@ const CalendarSidebar = ({
         <motion.div
             initial={{ x: -30, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            className="space-y-6"
+            className="space-y-4 sm:space-y-6"
         >
             {/* Today's Card */}
 
-            <div className="group relative overflow-hidden rounded-[32px] border border-white/20 bg-gradient-to-br from-white/15 via-white/10 to-white/5 p-7 text-white backdrop-blur-3xl shadow-[0_8px_40px_rgba(0,0,0,0.25)] transition-all duration-500 hover:border-white/30 hover:shadow-[0_20px_60px_rgba(99,102,241,0.25)]">
+            <div className="group relative overflow-hidden rounded-[24px] border border-white/20 bg-gradient-to-br from-white/15 via-white/10 to-white/5 p-5 text-white backdrop-blur-3xl shadow-[0_8px_40px_rgba(0,0,0,0.25)] transition-all duration-500 hover:border-white/30 hover:shadow-[0_20px_60px_rgba(99,102,241,0.25)] sm:rounded-[32px] sm:p-7">
 
                 {/* Ambient Glow */}
                 <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-sky-400/20 blur-[100px]" />
@@ -62,7 +62,7 @@ const CalendarSidebar = ({
 
                     <div className="mt-10">
 
-                        <h2 className="text-6xl font-bold tracking-tight">
+                        <h2 className="text-4xl font-bold tracking-tight sm:text-6xl">
                             {selectedDate.getDate()}
                         </h2>
 
@@ -84,7 +84,7 @@ const CalendarSidebar = ({
 
                         <div className="mt-3 flex items-end justify-between">
 
-                            <h1 className="text-5xl font-bold">
+                            <h1 className="text-3xl font-bold sm:text-5xl">
                                 {todayEvents.length}
                             </h1>
 
@@ -227,7 +227,7 @@ const CalendarSidebar = ({
 
                 <div className="relative z-10">
 
-                    <h3 className="mb-7 text-xl font-semibold tracking-wide text-white">
+                    <h3 className="mb-5 text-lg font-semibold tracking-wide text-white sm:mb-7 sm:text-xl">
                         Categories
                     </h3>
 
@@ -313,7 +313,7 @@ const CalendarSidebar = ({
 
                 <div className="relative z-10">
 
-                    <h3 className="mb-7 text-xl font-semibold tracking-wide text-white">
+                    <h3 className="mb-5 text-lg font-semibold tracking-wide text-white sm:mb-7 sm:text-xl">
                         Upcoming Events
                     </h3>
 
