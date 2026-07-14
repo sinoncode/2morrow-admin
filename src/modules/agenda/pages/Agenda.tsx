@@ -197,148 +197,17 @@ const Agenda = () => {
 
                             <div className="flex flex-1 overflow-hidden">
 
-                                {/* ================= Left Dashboard ================= */}
+                                <div className="flex min-w-0 flex-1 flex-col">
 
-                                {/* <aside className="hidden w-[360px] shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-[#141414] p-6 2xl:block">
-
-                                    <div className="flex h-full flex-col gap-6">
-
-
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ duration: 0.45 }}
-                                            className="rounded-3xl bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 p-6 text-white shadow-xl"
-                                        >
-                                            <p className="text-sm font-medium text-indigo-100">
-                                                Productivity
-                                            </p>
-
-                                            <h2 className="mt-2 text-4xl font-bold">
-                                                86%
-                                            </h2>
-
-                                            <p className="mt-2 text-sm text-indigo-100">
-                                                You completed most of this week's
-                                                scheduled meetings.
-                                            </p>
-
-                                            <div className="mt-6 h-2 overflow-hidden rounded-full bg-white dark:bg-[#141414]/20">
-                                                <div className="h-full w-[86%] rounded-full bg-white dark:bg-[#141414]" />
-                                            </div>
-                                        </motion.div>
-
-
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 25 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.05 }}
-                                            className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#141414] p-6 shadow-sm"
-                                        >
-                                            <h3 className="mb-5 text-lg font-semibold text-slate-900 dark:text-white">
-                                                Category Progress
-                                            </h3>
-
-                                            <CategoryProgress
-                                                events={filteredEvents}
-                                            />
-                                        </motion.div>
-
-
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 25 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.1 }}
-                                            className="flex-1 rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#141414] p-6 shadow-sm"
-                                        >
-                                            <div className="mb-5 flex items-center justify-between">
-
-                                                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-                                                    Upcoming Meetings
-                                                </h3>
-
-                                                <button className="rounded-xl bg-slate-100 dark:bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 transition hover:bg-slate-200 dark:hover:bg-slate-700">
-                                                    View All
-                                                </button>
-
-                                            </div>
-
+                                    {/* <div className="border-b border-slate-200 bg-slate-50/80 p-4 dark:border-slate-800 dark:bg-[#141414]/70 sm:p-6 lg:p-8">
+                                        <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+                                            <CategoryProgress events={filteredEvents} />
                                             <UpcomingMeeting
                                                 events={filteredEvents}
                                                 onSelect={openEditDialog}
                                             />
-                                        </motion.div>
-
-
-                                        <motion.div
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            transition={{ delay: 0.2 }}
-                                            className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#141414] p-6 shadow-sm"
-                                        >
-                                            <h3 className="mb-5 text-lg font-semibold text-slate-900 dark:text-white">
-                                                Quick Stats
-                                            </h3>
-
-                                            <div className="space-y-4">
-
-                                                <div className="flex items-center justify-between">
-
-                                                    <span className="text-sm text-slate-500 dark:text-slate-400">
-                                                        Total Events
-                                                    </span>
-
-                                                    <span className="font-bold text-slate-900 dark:text-white">
-                                                        {filteredEvents.length}
-                                                    </span>
-
-                                                </div>
-
-                                                <div className="flex items-center justify-between">
-
-                                                    <span className="text-sm text-slate-500 dark:text-slate-400">
-                                                        Today's Events
-                                                    </span>
-
-                                                    <span className="font-bold text-slate-900 dark:text-white">
-                                                        {
-                                                            filteredEvents.filter(
-                                                                (event) =>
-                                                                    event.start.toDateString() ===
-                                                                    selectedDate.toDateString()
-                                                            ).length
-                                                        }
-                                                    </span>
-
-                                                </div>
-
-                                                <div className="flex items-center justify-between">
-
-                                                    <span className="text-sm text-slate-500 dark:text-slate-400">
-                                                        Categories
-                                                    </span>
-
-                                                    <span className="font-bold text-slate-900 dark:text-white">
-                                                        {
-                                                            new Set(
-                                                                filteredEvents.map(
-                                                                    (event) =>
-                                                                        event.category
-                                                                )
-                                                            ).size
-                                                        }
-                                                    </span>
-
-                                                </div>
-
-                                            </div>
-                                        </motion.div>
-
-                                    </div>
-
-                                </aside> */}
-
-                                <div className="flex min-w-0 flex-1 flex-col">
+                                        </div>
+                                    </div> */}
 
                                     {/* Calendar Header */}
 

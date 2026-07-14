@@ -8,6 +8,8 @@ import {
 } from "lucide-react";
 import { AgendaEvent } from "@/types/agenda.types";
 
+
+
 interface CalendarSidebarProps {
     selectedDate: Date;
     onDateChange: (date: Date) => void;
