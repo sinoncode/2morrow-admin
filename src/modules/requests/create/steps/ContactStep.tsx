@@ -19,7 +19,14 @@ import { Textarea } from "@/components/ui/textarea"
 import { useRequestCreationStore } from "../store/requestCreationStore"
 import { Button } from "@/components/ui/button"
 
-export default function ContactStep() {
+interface ContactStepProps {
+  onSave: () => void
+  isSubmitting: boolean
+  onCancel: () => void
+  onNext: () => void
+}
+
+export default function ContactStep({ onSave, isSubmitting, onCancel, onNext }: ContactStepProps) {
   const { form, updateField } = useRequestCreationStore()
 
   return (
@@ -38,8 +45,8 @@ export default function ContactStep() {
                 First Name
               </label>
               <Input 
-                value={form.firstName || ""} 
-                onChange={(e) => updateField("firstName", e.target.value)}
+                value={form.first_name || ""} 
+                onChange={(e) => updateField("first_name", e.target.value)}
                 placeholder="John" 
               />
             </div>
@@ -50,8 +57,8 @@ export default function ContactStep() {
                 Last Name
               </label>
               <Input 
-                value={form.lastName || ""} 
-                onChange={(e) => updateField("lastName", e.target.value)}
+                value={form.last_name || ""} 
+                onChange={(e) => updateField("last_name", e.target.value)}
                 placeholder="Doe" 
               />
             </div>
@@ -125,9 +132,23 @@ export default function ContactStep() {
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="lead">Lead</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
+                 <SelectItem value="NEW">New</SelectItem>
+
+<SelectItem value="CONTACTED">
+Contacted
+</SelectItem>
+
+<SelectItem value="MATCHED">
+Matched
+</SelectItem>
+
+<SelectItem value="CLOSED">
+Closed
+</SelectItem>
+
+<SelectItem value="CANCELLED">
+Cancelled
+</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -145,9 +166,25 @@ export default function ContactStep() {
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="buyer">Buyer</SelectItem>
-                  <SelectItem value="seller">Seller</SelectItem>
-                  <SelectItem value="rentor">Rentor</SelectItem>
+                  <SelectItem value="APARTMENT">
+Apartment
+</SelectItem>
+
+<SelectItem value="HOUSE">
+House
+</SelectItem>
+
+<SelectItem value="BUILDING">
+Building
+</SelectItem>
+
+<SelectItem value="LAND">
+Land
+</SelectItem>
+
+<SelectItem value="COMMERCIAL">
+Commercial
+</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -163,11 +200,11 @@ export default function ContactStep() {
                 className="flex gap-3 h-10 items-center"
               >
                 <label className="flex items-center gap-2 rounded-lg border px-4 py-2 cursor-pointer text-sm">
-                  <RadioGroupItem value="buy" />
+                  <RadioGroupItem value="BUY" />
                   Buy
                 </label>
                 <label className="flex items-center gap-2 rounded-lg border px-4 py-2 cursor-pointer text-sm">
-                  <RadioGroupItem value="rent" />
+                  <RadioGroupItem value="RENT" />
                   Rent
                 </label>
               </RadioGroup>
@@ -211,14 +248,13 @@ export default function ContactStep() {
           </div>
 
           {/* Form Actions */}
-          <div className="mt-6 flex gap-3">
-            <Button className="rounded-lg py-5 px-8">Save</Button>
-            <button 
-              type="button" 
-              className="rounded-lg border border-red-500 px-8 py-2 text-red-500 hover:bg-red-50 transition-colors"
-            >
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Button variant="outline" className="rounded-lg py-5 px-8" onClick={onCancel}>
               Cancel
-            </button>
+            </Button>
+            <Button className="rounded-lg py-5 px-8" onClick={onNext}>
+              Continue
+            </Button>
           </div>
         </CardContent>
       </Card>

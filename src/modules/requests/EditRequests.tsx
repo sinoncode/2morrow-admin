@@ -1,4 +1,4 @@
-import RequestWizard from "./create/RequestWizard"
+import RequestWizard from "./edit/RequestWizard"
 
 export default function EditRequestsPage() {
   return (

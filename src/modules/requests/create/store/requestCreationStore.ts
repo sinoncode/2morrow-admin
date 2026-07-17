@@ -1,196 +1,99 @@
-import { create } from "zustand"
+import { create } from "zustand";
 
 export interface RequestFormData {
-  title: string
-  requestType: string
-  listingType: string
+  first_name: string;
+  last_name: string;
 
-  description: string
+  phones: string;
+  emails: string;
+  language: string;
 
-  address: string
-  city: string
-  state: string
-  zipCode: string
-  latitude: string
-  longitude: string
+  memo: string;
+  notes: string;
 
-  area: string
-  bedrooms: number
-  bathrooms: number
-  balconies: number
+  status: string;
 
-  floor: string
-  totalFloors: string
-  yearBuilt: string
+  transaction: string;
+  category: string;
 
-  furnishing: string
-  facing: string
+  budget_min: number | string;
+  budget_max: number | string;
+  currency: string;
 
-  coveredParking: boolean
-  openParking: boolean
-  parkingSlots: string
+  zip: string;
+  city: string;
+  country: string;
+  radius: number;
 
-  amenities: string[]
+  rooms_min: number | string;
+  rooms_max: number | string;
 
-  images: string[]
+  livable_space_min: number | string;
+  livable_space_max: number | string;
 
-  publicationStatus: "draft" | "active" | "sold"
+  surface_land_min: number | string;
+  surface_land_max: number | string;
 
-  keywords: string[]
-
-//   Characteristics Steps
-
-country: ""
-community: ""
-subCommunity: ""
-buildingName: ""
-
-locationDescription: ""
-
-//   Pricing Step
-
-builtUpArea: ""
-plotArea: ""
-requestAge: ""
-
-floorNumber: ""
-elevators: ""
-ownershipType: ""
-
-visitorParking: ""
-
-price: ""
-pricePerSqft: ""
-
-maintenanceFee: ""
-securityDeposit: ""
-
-roi: ""
-rentalYield: ""
-marketValue: ""
-
-
-// Publication Step
-
-visibility: string
-
-isFeatured: boolean
-
-priority: string
-
-assignedAgent: string
-
-publishDate: string
-expiryDate: string
-
-isVerified: boolean
-requiresApproval: boolean
-
-seoTitle: string
-metaDescription: string
-seoKeywords: string
+  minimumPrice: number | string;
+  maximumPrice: number | string;
+  minimumBalconies: number | string;
+  maximumBalconies: number | string;
+  minimumBuiltYear: number | string;
+  maximumBuiltYear: number | string;
 }
 
 interface RequestStore {
-  form: RequestFormData
+  form: RequestFormData;
 
   updateField: (
     key: keyof RequestFormData,
-    value: any
-  ) => void
+    value: RequestFormData[keyof RequestFormData]
+  ) => void;
 
-  reset: () => void
+  reset: () => void;
 }
 
 const initialState: RequestFormData = {
-  title: "",
-  requestType: "",
-  listingType: "",
+  first_name: "",
+  last_name: "",
 
-  description: "",
+  phones: "",
+  emails: "",
+  language: "",
 
-  address: "",
+  memo: "",
+  notes: "",
+
+  status: "NEW",
+
+  transaction: "BUY",
+  category: "",
+
+  budget_min: 0,
+  budget_max: 0,
+  currency: "CHF",
+
+  zip: "",
   city: "",
-  state: "",
-  zipCode: "",
-  latitude: "",
-  longitude: "",
+  country: "",
+  radius: 0,
 
-  area: "",
-  bedrooms: 0,
-  bathrooms: 0,
-  balconies: 0,
+  rooms_min: 0,
+  rooms_max: 0,
 
-  floor: "",
-  totalFloors: "",
-  yearBuilt: "",
+  livable_space_min: 0,
+  livable_space_max: 0,
 
-  furnishing: "",
+  surface_land_min: 0,
+  surface_land_max: 0,
 
-  facing: "",
-
-  coveredParking: false,
-  openParking: false,
-  parkingSlots: "",
-
-  amenities: [],
-
-  images: [],
-
-  publicationStatus: "draft",
-
-  keywords: [],
-
-//   Characteristics Step
-country: "",
-community: "",
-subCommunity: "",
-buildingName: "",
-
-locationDescription: "",
-
-//   Pricing Step
-
-builtUpArea: "",
-plotArea: "",
-requestAge: "",
-
-floorNumber: "",
-elevators: "",
-ownershipType: "",
-
-visitorParking: "",
-
-price: "",
-pricePerSqft: "",
-
-maintenanceFee: "",
-securityDeposit: "",
-
-roi: "",
-rentalYield: "",
-marketValue: "",
-
-// Publication Step
-
-visibility: "public",
-
-isFeatured: false,
-
-priority: "normal",
-
-assignedAgent: "",
-
-publishDate: "",
-expiryDate: "",
-
-isVerified: false,
-requiresApproval: false,
-
-seoTitle: "",
-metaDescription: "",
-seoKeywords: "",
-}
+  minimumPrice: "",
+  maximumPrice: "",
+  minimumBalconies: "",
+  maximumBalconies: "",
+  minimumBuiltYear: "",
+  maximumBuiltYear: "",
+};
 
 export const useRequestCreationStore =
   create<RequestStore>((set) => ({
@@ -208,4 +111,4 @@ export const useRequestCreationStore =
       set({
         form: initialState,
       }),
-  }))
+  }));

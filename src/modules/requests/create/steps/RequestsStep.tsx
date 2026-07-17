@@ -6,7 +6,14 @@ import { Button } from "@/components/ui/button"
 import { MapPin, Building2, Globe, Landmark } from "lucide-react"
 import { useRequestCreationStore } from "../store/requestCreationStore"
 
-export default function RequestsStep() {
+interface RequestsStepProps {
+  onSave: () => void
+  isSubmitting: boolean
+  onCancel: () => void
+  onBack: () => void
+}
+
+export default function RequestsStep({ onSave, isSubmitting, onCancel, onBack }: RequestsStepProps) {
   const { form, updateField } = useRequestCreationStore()
 
   return (
@@ -23,15 +30,15 @@ export default function RequestsStep() {
             <div>
               <Label className="mb-2 block text-sm">Property Transaction Type</Label>
               <Select
-                value={form.propertyTransactionType || ""}
-                onValueChange={(v) => updateField("propertyTransactionType", v)}
+                value={form.transaction || ""}
+                onValueChange={(v) => updateField("transaction", v)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Buy">Buy</SelectItem>
-                  <SelectItem value="Rent">Rent</SelectItem>
+                  <SelectItem value="BUY">Buy</SelectItem>
+                  <SelectItem value="RENT">Rent</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -41,8 +48,8 @@ export default function RequestsStep() {
               <Input
                 type="number"
                 placeholder="Budget min"
-                value={form.minimumBudget || ""}
-                onChange={(e) => updateField("minimumBudget", e.target.value)}
+                value={form.budget_min || ""}
+                onChange={(e) => updateField("budget_min", e.target.value)}
               />
             </div>
 
@@ -51,8 +58,8 @@ export default function RequestsStep() {
               <Input
                 type="number"
                 placeholder="Budget max"
-                value={form.maximumBudget || ""}
-                onChange={(e) => updateField("maximumBudget", e.target.value)}
+                value={form.budget_max || ""}
+                onChange={(e) => updateField("budget_max", e.target.value)}
               />
             </div>
 
@@ -107,8 +114,8 @@ export default function RequestsStep() {
               <Label className="mb-2 block text-sm">Zip Code</Label>
               <Input
                 placeholder="Zip"
-                value={form.zipCode || ""}
-                onChange={(e) => updateField("zipCode", e.target.value)}
+                value={form.zip || ""}
+                onChange={(e) => updateField("zip", e.target.value)}
               />
             </div>
 
@@ -117,8 +124,8 @@ export default function RequestsStep() {
               <Input
                 type="number"
                 placeholder="Radius (km)"
-                value={form.searchRadius || ""}
-                onChange={(e) => updateField("searchRadius", e.target.value)}
+                value={form.radius || ""}
+                onChange={(e) => updateField("radius", e.target.value)}
               />
             </div>
           </div>
@@ -141,14 +148,14 @@ export default function RequestsStep() {
                 <Input
                   type="number"
                   placeholder="Rooms min"
-                  value={form.minimumRooms || ""}
-                  onChange={(e) => updateField("minimumRooms", e.target.value)}
+                  value={form.rooms_min || ""}
+                  onChange={(e) => updateField("rooms_min", e.target.value)}
                 />
                 <Input
                   type="number"
                   placeholder="Rooms max"
-                  value={form.maximumRooms || ""}
-                  onChange={(e) => updateField("maximumRooms", e.target.value)}
+                  value={form.rooms_max || ""}
+                  onChange={(e) => updateField("rooms_max", e.target.value)}
                 />
               </div>
             </div>
@@ -160,14 +167,14 @@ export default function RequestsStep() {
                 <Input
                   type="number"
                   placeholder="Livable space min"
-                  value={form.minimumLivableSpace || ""}
-                  onChange={(e) => updateField("minimumLivableSpace", e.target.value)}
+                  value={form.livable_space_min || ""}
+                  onChange={(e) => updateField("livable_space_min", e.target.value)}
                 />
                 <Input
                   type="number"
                   placeholder="Livable space max"
-                  value={form.maximumLivableSpace || ""}
-                  onChange={(e) => updateField("maximumLivableSpace", e.target.value)}
+                  value={form.livable_space_max || ""}
+                  onChange={(e) => updateField("livable_space_max", e.target.value)}
                 />
               </div>
             </div>
@@ -179,14 +186,14 @@ export default function RequestsStep() {
                 <Input
                   type="number"
                   placeholder="Surface land min"
-                  value={form.minimumLandArea || ""}
-                  onChange={(e) => updateField("minimumLandArea", e.target.value)}
+                  value={form.surface_land_min || ""}
+                  onChange={(e) => updateField("surface_land_min", e.target.value)}
                 />
                 <Input
                   type="number"
                   placeholder="Surface land max"
-                  value={form.maximumLandArea || ""}
-                  onChange={(e) => updateField("maximumLandArea", e.target.value)}
+                  value={form.surface_land_max || ""}
+                  onChange={(e) => updateField("surface_land_max", e.target.value)}
                 />
               </div>
             </div>
@@ -202,69 +209,11 @@ export default function RequestsStep() {
             Additional Criteria
           </h3>
 
-          <div className="grid gap-10 lg:grid-cols-2">
-            {/* LEFT COLUMN */}
-            <div className="space-y-8">
-              {/* Bathrooms */}
-              <div>
-                <Label className="mb-3 block text-sm font-medium">Bathroom(s)</Label>
-                <div className="grid grid-cols-2 gap-4">
-                  <Input
-                    type="number"
-                    placeholder="Min"
-                    value={form.minimumBathrooms || ""}
-                    onChange={(e) => updateField("minimumBathrooms", e.target.value)}
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Max"
-                    value={form.maximumBathrooms || ""}
-                    onChange={(e) => updateField("maximumBathrooms", e.target.value)}
-                  />
-                </div>
-              </div>
-
-              {/* Terraces */}
-              <div>
-                <Label className="mb-3 block text-sm font-medium">Terraces</Label>
-                <div className="grid grid-cols-2 gap-4">
-                  <Input
-                    type="number"
-                    placeholder="Min"
-                    value={form.minimumTerraces || ""}
-                    onChange={(e) => updateField("minimumTerraces", e.target.value)}
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Max"
-                    value={form.maximumTerraces || ""}
-                    onChange={(e) => updateField("maximumTerraces", e.target.value)}
-                  />
-                </div>
-              </div>
-
-              {/* Parking */}
-              <div>
-                <Label className="mb-3 block text-sm font-medium">Parking spots</Label>
-                <div className="grid grid-cols-2 gap-4">
-                  <Input
-                    type="number"
-                    placeholder="Min"
-                    value={form.minimumParkingSpots || ""}
-                    onChange={(e) => updateField("minimumParkingSpots", e.target.value)}
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Max"
-                    value={form.maximumParkingSpots || ""}
-                    onChange={(e) => updateField("maximumParkingSpots", e.target.value)}
-                  />
-                </div>
-              </div>
-            </div>
+          <div className="">
+            
 
             {/* RIGHT COLUMN */}
-            <div className="space-y-8">
+            <div className=" grid gap-10 lg:grid-cols-2">
               {/* Price */}
               <div>
                 <Label className="mb-3 block text-sm font-medium">Price</Label>
@@ -325,15 +274,23 @@ export default function RequestsStep() {
           </div>
 
           {/* Buttons */}
-          <div className="mt-12 flex gap-5">
-            <Button className="rounded-lg border border-primary py-5 px-8">
-              Save
+          <div className="mt-12 flex flex-wrap gap-5">
+            <Button
+              variant="outline"
+              className="rounded-lg py-5 px-8"
+              onClick={onBack}
+            >
+              Back
             </Button>
             <Button
               variant="outline"
               className="rounded-lg py-5 px-8 border-red-400 text-red-500"
+              onClick={onCancel}
             >
               Cancel
+            </Button>
+            <Button className="rounded-lg border border-primary py-5 px-8" onClick={onSave} disabled={isSubmitting}>
+              {isSubmitting ? "Saving..." : "Save Request"}
             </Button>
           </div>
         </CardContent>

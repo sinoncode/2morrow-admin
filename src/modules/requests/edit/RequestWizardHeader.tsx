@@ -1,12 +1,6 @@
 import { Button } from "@/components/ui/button"
 
-interface RequestWizardHeaderProps {
-  onSave: () => void
-  isSubmitting: boolean
-  onCancel: () => void
-}
-
-export default function RequestWizardHeader({ onSave, isSubmitting, onCancel }: RequestWizardHeaderProps) {
+export default function RequestWizardHeader() {
   return (
     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div>
@@ -24,12 +18,8 @@ export default function RequestWizardHeader({ onSave, isSubmitting, onCancel }: 
           Save Draft
         </Button> */}
 
-        <Button variant="outline" onClick={onCancel}>
-          Cancel
-        </Button>
-
-        <Button onClick={onSave} disabled={isSubmitting}>
-          {isSubmitting ? "Saving..." : "Save Request"}
+        <Button>
+          Update Request
         </Button>
       </div>
     </div>
