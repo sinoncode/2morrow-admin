@@ -1,25 +1,15 @@
 import { useState } from "react"
 
-import GeneralStep from "./steps/GeneralStep"
-import CharacteristicsStep from "./steps/CharacteristicsStep"
-import PricingStep from "./steps/PricingStep"
-import DescriptionStep from "./steps/DescriptionStep"
-import MediaStep from "./steps/MediaStep"
-import PublicationStep from "./steps/PublicationStep"
-import MatchingStep from "./steps/MatchingStep"
-import ProposedStep from "./steps/ProposedStep"
+import ContactStep from "./steps/ContactStep"
+import RequestsStep from "./steps/RequestsStep"
 
 import RequestWizardHeader from "./RequestWizardHeader"
 import RequestWizardNavigation from "./RequestWizardNavigation"
 
 // Updated to match the exact text from the screenshot
 const steps = [
-  "General",
-  "Criteria",
-  "Matching",
-  "Activities",
-  "Documents",
-  "History",
+  "Contacts",
+  "Requests & Search",
 ]
 
 export default function RequestWizard() {
@@ -27,13 +17,9 @@ export default function RequestWizard() {
 
   const renderStep = () => {
     switch (currentStep) {
-      case 0: return <GeneralStep />
-      case 1: return <CharacteristicsStep />
-      case 2: return <PricingStep />
-      case 3: return <DescriptionStep />
-      case 4: return <MediaStep />
-      case 5: return <PublicationStep />
-      default: return <GeneralStep />
+      case 0: return <ContactStep />
+      case 1: return <RequestsStep />
+      default: return <ContactStep />
     }
   }
 

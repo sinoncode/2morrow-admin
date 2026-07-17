@@ -12,11 +12,17 @@ import { DEFAULT_PROPERTY_PAYLOAD } from "@/types/property.types"
 interface PropertyCreationStore {
   form: PropertyPayload
 
-  /** Deep-merge partial updates into the form. */
+  /** Deep-merge partial updates into the form (top-level keys only). */
   updateForm: (partial: Partial<PropertyPayload>) => void
 
-  /** Shallow-update a single top-level key. */
-  updateField: <K extends keyof PropertyPayload>(
+  /**
+   * Update a single field by path.
+   * Supports dot-notation for nested fields: "location.city", "dimensions.rooms", "type_specific.land.area.total_area"
+   */
+  updateField: (path: string, value: any) => void
+
+  /** Shallow-update a single top-level key (legacy). */
+  updateTopLevelField: <K extends keyof PropertyPayload>(
     key: K,
     value: PropertyPayload[K]
   ) => void
@@ -26,10 +32,13 @@ interface PropertyCreationStore {
 
   /** Load an existing property into the form (for edit mode). */
   loadFromProperty: (data: Partial<PropertyPayload>) => void
+
+  /** Get a value by dot-notation path (for form binding). */
+  getField: (path: string) => any
 }
 
 export const usePropertyCreationStore =
-  create<PropertyCreationStore>((set) => ({
+  create<PropertyCreationStore>((set, get) => ({
     form: { ...DEFAULT_PROPERTY_PAYLOAD },
 
     updateForm: (partial) =>
@@ -37,7 +46,12 @@ export const usePropertyCreationStore =
         form: deepMerge(state.form, partial),
       })),
 
-    updateField: (key, value) =>
+    updateField: (path, value) =>
+      set((state) => ({
+        form: setByPath(state.form, path, value),
+      })),
+
+    updateTopLevelField: (key, value) =>
       set((state) => ({
         form: {
           ...state.form,
@@ -54,8 +68,9 @@ export const usePropertyCreationStore =
       set({
         form: deepMerge({ ...DEFAULT_PROPERTY_PAYLOAD }, data),
       }),
-  }))
 
+    getField: (path) => getByPath(get().form, path),
+  }))
 
 // ─── Utility: deep merge ────────────────────────────────────────────────────
 
@@ -87,4 +102,36 @@ function deepMerge<T extends Record<string, any>>(
   }
 
   return result
+}
+
+// ─── Utility: set value by dot-notation path ────────────────────────────────
+
+function setByPath(obj: any, path: string, value: any): any {
+  const keys = path.split(".")
+  const result = Array.isArray(obj) ? [...obj] : { ...obj }
+  let current = result
+
+  for (let i = 0; i < keys.length - 1; i++) {
+    const key = keys[i]
+    const nextKey = keys[i + 1]
+    const isNextIndex = /^\d+$/.test(nextKey)
+
+    if (current[key] === undefined || current[key] === null) {
+      current[key] = isNextIndex ? [] : {}
+    } else {
+      current[key] = Array.isArray(current[key])
+        ? [...current[key]]
+        : { ...current[key] }
+    }
+    current = current[key]
+  }
+
+  current[keys[keys.length - 1]] = value
+  return result
+}
+
+// ─── Utility: get value by dot-notation path ────────────────────────────────
+
+function getByPath(obj: any, path: string): any {
+  return path.split(".").reduce((o, p) => (o ? o[p] : undefined), obj)
 }

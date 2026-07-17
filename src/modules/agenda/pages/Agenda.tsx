@@ -184,7 +184,7 @@ const Agenda = () => {
                                             <Plus size={18} />
 
                                             New Event
-
+ 
                                         </button>
 
                                     </div>

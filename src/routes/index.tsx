@@ -89,6 +89,7 @@ import PropertyView from "@/modules/properties/PropertyView"
 // Requests
 import RequestLists from "@/modules/requests/RequestLists"
 import EditRequests from "@/modules/requests/EditRequests"
+import CreateRequests from "@/modules/requests/create/RequestWizard"
 
 import Permissions from "@/modules/permission/Permission"
 
@@ -169,6 +170,7 @@ export const router = createBrowserRouter(
         // Requests
         { path: "requests/list", element: <RequestLists /> },
         { path: "requests/edit-requests", element: <EditRequests /> },
+        { path: "requests/create", element: <CreateRequests /> },
 
         // Permission
         { path: "permission", element: <Permissions /> },
