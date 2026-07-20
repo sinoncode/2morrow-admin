@@ -805,7 +805,7 @@ export default function PropertyForm() {
   return (
     <div className="space-y-6 max-w-full mx-auto p-6">
       {/* 1. BASIC INFORMATION */}
-      <Card className="border-0 shadow-sm rounded-2xl">
+      {/* <Card className="border-0 shadow-sm rounded-2xl">
         <SectionHeader icon={FileText} title="Basic Information" />
         <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {renderInput("Internal Reference", "internal_reference")}
@@ -821,7 +821,7 @@ export default function PropertyForm() {
           {renderTextarea("Description", "description")}
           {renderTextarea("Internal Notes", "internal_notes")}
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* 2. PRICING */}
       <Card className="border-0 shadow-sm rounded-2xl">
@@ -843,7 +843,7 @@ export default function PropertyForm() {
       </Card>
 
       {/* 3. LOCATION */}
-      <Card className="border-0 shadow-sm rounded-2xl">
+      {/* <Card className="border-0 shadow-sm rounded-2xl">
         <SectionHeader icon={MapPin} title="Location" />
         <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {renderInput("Address Line 1", "location.address_line_1")}
@@ -861,7 +861,7 @@ export default function PropertyForm() {
         <CardContent className="pt-0">
           {renderTextarea("Neighborhood Description", "location.neighborhood_description")}
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* 4. MANDATE */}
       <Card className="border-0 shadow-sm rounded-2xl">
@@ -877,7 +877,7 @@ export default function PropertyForm() {
       </Card>
 
       {/* 5. AGENTS */}
-      <Card className="border-0 shadow-sm rounded-2xl">
+      {/* <Card className="border-0 shadow-sm rounded-2xl">
         <SectionHeader icon={User} title="Agents" />
         <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {renderInput("Assigned Agent ID", "agents.assigned_agent_id", "number")}
@@ -886,7 +886,7 @@ export default function PropertyForm() {
           {renderSelect("Commission Payer", "agents.commission_payer", COMMISSION_PAYER_OPTIONS)}
           {renderSelect("Source", "agents.source", SOURCE_OPTIONS)}
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* 6. DIMENSIONS */}
       <Card className="border-0 shadow-sm rounded-2xl">

@@ -10,6 +10,7 @@ import { useRequestCreationStore } from "./store/requestCreationStore"
 import { createRequest } from "@/services/request.service"
 import { toast } from "@/lib/toast"
 
+
 const steps = ["Contacts", "Requests & Search"]
 
 export default function RequestWizard() {
@@ -34,7 +35,7 @@ export default function RequestWizard() {
           <RequestsStep
             onSave={handleSave}
             isSubmitting={isSubmitting}
-            onCancel={handleCancel}.
+            onCancel={handleCancel}
             onBack={() => setCurrentStep(0)}
           />
         )

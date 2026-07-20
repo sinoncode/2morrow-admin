@@ -34,6 +34,16 @@ interface PropertyFormData {
   expectedROI?: string
   completionDate?: string
   additionalNotes?: string
+
+ agents: {
+  assigned_agent_id: number | null;
+  referral_agent_id: number | null;
+  commission_rate: number | null;
+  commission_payer: string | null;
+  source: string | null;
+};
+
+
 }
 
 export function usePropertyForm(initialData?: PropertyFormData) {
