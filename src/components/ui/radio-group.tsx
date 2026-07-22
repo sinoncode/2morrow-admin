@@ -28,14 +28,14 @@ const RadioGroupItem = React.forwardRef<
         `
         group
         flex
-        w-full
+        w-5
         items-center
         gap-4
         rounded-xl
         border
         border-slate-300
         bg-white
-        p-4
+        p-0
         text-left
         text-slate-900
         shadow-sm

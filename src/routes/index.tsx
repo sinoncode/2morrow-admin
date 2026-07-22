@@ -108,7 +108,7 @@ import EmailCompose from "@/modules/emails/pages/Emailcompose"
 
 // Contacts
 import ContactListing from "@/modules/contacts/pages/ContactList"
-// import ContactCreate from "@/modules/contacts/pages/ContactCreate"
+import ContactCreate from "@/modules/contacts/pages/ContactCreate"
 
 
 export const router = createBrowserRouter(
@@ -193,7 +193,7 @@ export const router = createBrowserRouter(
 
         // Contacts
         { path: "contacts/list", element: <ContactListing /> },
-        // { path: "contacts/details", element: <ContactDetails /> },
+        { path: "contacts/create", element: <ContactCreate /> },
 
         // 🛍️ E-COMMERCE
         { path: "eCommerce/product-list", element: <ProductList /> },
