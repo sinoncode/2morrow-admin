@@ -112,22 +112,22 @@ export const useRBACStore = create<RBACState>()(
           if (!selectedRole && roles.length > 0) {
             set({ selectedRole: roles[0] });
           }
-// const isAdminRole = selectedRole?.slug === "admin";
+
           return roles;
         } catch (error: any) {
-  const errorMessage =
-    error?.response?.data?.message ||
-    error.message ||
-    "Failed to fetch roles";
+          const errorMessage =
+            error?.response?.data?.message ||
+            error.message ||
+            "Failed to fetch roles";
 
-  set({
-    isLoadingRoles: false,
-    roles: [],
-    rolesError: errorMessage,
-  });
+          set({
+            isLoadingRoles: false,
+            roles: [],
+            rolesError: errorMessage,
+          });
 
-  throw error;
-}
+          throw error;
+        }
       },
 
       /**
@@ -154,19 +154,19 @@ export const useRBACStore = create<RBACState>()(
 
           return permissions;
         } catch (error: any) {
-  const errorMessage =
-    error?.response?.data?.message ||
-    error.message ||
-    "Failed to fetch permissions";
+          const errorMessage =
+            error?.response?.data?.message ||
+            error.message ||
+            "Failed to fetch permissions";
 
-  set({
-    isLoadingPermissions: false,
-    permissions: [],
-    permissionsError: errorMessage,
-  });
+          set({
+            isLoadingPermissions: false,
+            permissions: [],
+            permissionsError: errorMessage,
+          });
 
-  throw error;
-}
+          throw error;
+        }
       },
 
       /**
@@ -204,7 +204,9 @@ export const useRBACStore = create<RBACState>()(
           if (newRole) {
             // Optimistically add new role immediately so UI updates instantly
             const { roles } = get();
-            const updatedRoles = [...roles, newRole];
+            // ✅ FIX: Ensure roles is an array before spreading
+            const currentRoles = Array.isArray(roles) ? roles : [];
+            const updatedRoles = [...currentRoles, newRole];
 
             set({
               roles: updatedRoles,
@@ -242,7 +244,9 @@ export const useRBACStore = create<RBACState>()(
 
           if (updatedRole) {
             const { roles } = get();
-            const updatedRoles = roles.map((role) =>
+            // ✅ FIX: Ensure roles is an array before mapping
+            const currentRoles = Array.isArray(roles) ? roles : [];
+            const updatedRoles = currentRoles.map((role) =>
               role.id === roleId ? updatedRole : role
             );
 
@@ -276,7 +280,9 @@ export const useRBACStore = create<RBACState>()(
           await apiDeleteRole(roleId);
 
           const { roles, selectedRole } = get();
-          const updatedRoles = roles.filter((role) => role.id !== roleId);
+          // ✅ FIX: Ensure roles is an array before filtering
+          const currentRoles = Array.isArray(roles) ? roles : [];
+          const updatedRoles = currentRoles.filter((role) => role.id !== roleId);
 
           // If deleted role was selected, select first available role
           let newSelectedRole = selectedRole;
@@ -342,6 +348,24 @@ export const useRBACStore = create<RBACState>()(
       name: "rbac-store", // localStorage key
       storage: createJSONStorage(() => localStorage),
 
+      // ✅ FIX: Add migration/versioning to handle corrupted persisted data
+      version: 1,
+
+      // ✅ FIX: Sanitize persisted state on rehydration
+      migrate: (persistedState: any, version: number) => {
+        if (persistedState) {
+          // Ensure roles is always an array after rehydration
+          if (!Array.isArray(persistedState.roles)) {
+            persistedState.roles = [];
+          }
+          // Ensure permissions is always an array after rehydration
+          if (!Array.isArray(persistedState.permissions)) {
+            persistedState.permissions = [];
+          }
+        }
+        return persistedState as RBACState;
+      },
+
       // Only persist data fields — NOT loading/error states
       partialize: (state) => ({
         roles: state.roles,
@@ -352,6 +376,13 @@ export const useRBACStore = create<RBACState>()(
       // Called once localStorage data has been rehydrated into the store
       onRehydrateStorage: () => (state) => {
         if (state) {
+          // ✅ FIX: Double-check roles is array after rehydration
+          if (!Array.isArray(state.roles)) {
+            state.roles = [];
+          }
+          if (!Array.isArray(state.permissions)) {
+            state.permissions = [];
+          }
           state.setHasHydrated(true);
         }
       },

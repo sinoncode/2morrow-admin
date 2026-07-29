@@ -119,7 +119,7 @@ export default function PropertyEditWizard() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-8 pb-12">
+    <div className="mx-auto w-full max-w-full space-y-8 pb-12">
       <PropertyEditWizardHeader propertyId={propertyId} />
 
       <PropertyWizardNavigation
