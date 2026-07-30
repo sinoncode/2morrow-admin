@@ -1,112 +1,115 @@
 "use client"
 
 import React, { Suspense, lazy } from "react"
+// import Breadcrumb from "@/layouts/Breadcrumb"
 
 // Clean default-based lazy imports
-const WebsiteVisitorsCard = lazy(() =>
-  import("@/pages/widgets/data/WebsiteVisitorsCard")
+const ActiveRequestsCard = lazy(() =>
+  import("./components/ActiveRequestsCard")
 )
 
-const NewCustomersCard = lazy(() =>
-  import("@/pages/widgets/data/NewCustomersCard")
+const ActivePropertiesCard = lazy(() =>
+  import("./components/ActivePropertiesCard")
 )
 
-const TotalSessionsCard = lazy(() =>
-  import("@/pages/widgets/data/TotalSessionsCard")
+const CompletedActivitiesCard = lazy(() =>
+  import("./components/CompletedActivitiesCard")
 )
 
-const AreaStatsCard = lazy(() =>
-  import("@/pages/widgets/data/AreaStatsCard")
+const ContactsCard = lazy(() =>
+  import("./components/ContactsCard")
 )
 
-const VisitorsSalesStackedCard = lazy(() =>
-  import("@/pages/widgets/data/VisitorsSalesStackedCard")
+const PropertyTransactionsChart = lazy(() =>
+  import("./components/PropertyTransactionsChart")
 )
 
-const TopTrafficChannelsCard = lazy(() =>
-  import("@/pages/widgets/data/TopTrafficChannelsCard")
+const NewVsReturningLeads = lazy(() =>
+  import("./components/NewVsReturningLeads")
 )
 
-const NewVsOldVisitors = lazy(() =>
-  import("@/pages/widgets/data/NewVsOldVisitors")
+const ActivityCompletionRadial = lazy(() =>
+  import("./components/ActivityCompletionRadial")
 )
 
-const TicketSupport = lazy(() =>
-  import("@/pages/widgets/data/TicketSupport")
+const LeadSourcesCard = lazy(() =>
+  import("./components/LeadSourcesCard")
 )
 
-const TrafficTable = lazy(() =>
-  import("@/pages/dashboard/analytics/TrafficTable")
+const RecentActivityTable = lazy(() =>
+  import("./components/RecentActivityTable")
 )
 
 // Skeleton
 function CardSkeleton({ height = 250 }: { height?: number }) {
   return (
     <div
-      className="w-full rounded-xl bg-muted animate-pulse"
+      className="w-full rounded-xl bg-gray-100 dark:bg-neutral-800 animate-pulse"
       style={{ height }}
     />
   )
 }
 
-export default function CrmDashboard() {
+export default function RealEstateDashboard() {
   return (
-    <div className="space-y-6 crm-dashboard-wrapper">
+    <>
+      {/* <Breadcrumb title="Dashboard" text="Real Estate Management Overview" /> */}
 
-      {/* Top Stats Cards */}
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+      <div className="space-y-6 crm-dashboard-wrapper mt-6">
 
-        <Suspense fallback={<CardSkeleton height={160} />}>
-          <WebsiteVisitorsCard />
+        {/* Top Stats Cards */}
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+          <Suspense fallback={<CardSkeleton height={160} />}>
+            <ActiveRequestsCard />
+          </Suspense>
+
+          <Suspense fallback={<CardSkeleton height={160} />}>
+            <ActivePropertiesCard />
+          </Suspense>
+
+          <Suspense fallback={<CardSkeleton height={160} />}>
+            <CompletedActivitiesCard />
+          </Suspense>
+
+          <Suspense fallback={<CardSkeleton height={160} />}>
+            <ContactsCard />
+          </Suspense>
+        </div>
+
+        {/* Large Chart — Property Transactions */}
+        <Suspense fallback={<CardSkeleton height={400} />}>
+          <PropertyTransactionsChart />
         </Suspense>
 
-        <Suspense fallback={<CardSkeleton height={160} />}>
-          <NewCustomersCard />
-        </Suspense>
+        {/* Mid Section — 3 columns */}
+        <div className="grid grid-cols-12 gap-6">
 
-        <Suspense fallback={<CardSkeleton height={160} />}>
-          <TotalSessionsCard />
-        </Suspense>
+          <div className="col-span-12 lg:col-span-6 xl:col-span-4">
+            <Suspense fallback={<CardSkeleton height={280} />}>
+              <NewVsReturningLeads />
+            </Suspense>
+          </div>
 
-        <Suspense fallback={<CardSkeleton height={160} />}>
-          <AreaStatsCard />
+          <div className="col-span-12 lg:col-span-6 xl:col-span-4">
+            <Suspense fallback={<CardSkeleton height={280} />}>
+              <ActivityCompletionRadial />
+            </Suspense>
+          </div>
+
+          <div className="col-span-12 xl:col-span-4">
+            <Suspense fallback={<CardSkeleton height={280} />}>
+              <LeadSourcesCard />
+            </Suspense>
+          </div>
+
+        </div>
+
+        {/* Bottom Section — Recent Activity Table */}
+        <Suspense fallback={<CardSkeleton height={400} />}>
+          <RecentActivityTable />
         </Suspense>
 
       </div>
-
-      {/* Large Chart */}
-      <Suspense fallback={<CardSkeleton height={350} />}>
-        <VisitorsSalesStackedCard />
-      </Suspense>
-
-      {/* Mid Section */}
-      <div className="grid grid-cols-12 gap-6">
-
-        <div className="col-span-12 lg:col-span-6 xl:col-span-4">
-          <Suspense fallback={<CardSkeleton height={280} />}>
-            <NewVsOldVisitors />
-          </Suspense>
-        </div>
-
-        <div className="col-span-12 lg:col-span-6 xl:col-span-4">
-          <Suspense fallback={<CardSkeleton height={280} />}>
-            <TicketSupport />
-          </Suspense>
-        </div>
-
-        <div className="col-span-12 xl:col-span-4">
-          <Suspense fallback={<CardSkeleton height={280} />}>
-            <TopTrafficChannelsCard />
-          </Suspense>
-        </div>
-
-      </div>
-
-      {/* Table */}
-      {/* <Suspense fallback={<CardSkeleton height={400} />}>
-        <TrafficTable />
-      </Suspense> */}
-
-    </div>
+    </>
   )
 }

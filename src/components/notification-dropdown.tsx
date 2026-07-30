@@ -159,11 +159,11 @@ export function NotificationDropdown() {
           </div>
         </div>
 
-        <div className="p-2 border-t">
+        {/* <div className="p-2 border-t">
           <Button variant="ghost" className="w-full text-sm">
             View all notifications
           </Button>
-        </div>
+        </div> */}
       </DropdownMenuContent>
     </DropdownMenu>
   )

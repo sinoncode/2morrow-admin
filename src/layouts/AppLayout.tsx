@@ -97,7 +97,7 @@ export default function AppLayout() {
 
           <div className="ml-auto">
             <div className="flex items-center gap-1">
-              <GlobalSearch />
+              {/* <GlobalSearch /> */}
               <ThemeToggle />
               {/* <LanguageDropdown />
                         <AppLauncherDropdown /> */}
