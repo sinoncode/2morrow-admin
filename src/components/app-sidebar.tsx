@@ -94,7 +94,7 @@ const data = {
     },
     {
       title: "New Projects",
-      url: "docs",
+      url: "properties/add-property",
       icon: BrickWallShield,
     },
     {

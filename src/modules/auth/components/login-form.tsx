@@ -2,7 +2,7 @@ import React, { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { Eye, EyeOff, Mail, Lock, AlertCircle, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { AuthInput } from "@/components/ui/authinput"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
@@ -23,8 +23,12 @@ export function LoginForm({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const success = await login({ email, password })
-    if (success) navigate("/dashboard")
+
+    const trimmedEmail = email.trim()
+    if (!trimmedEmail || !password) return
+
+    const success = await login({ email: trimmedEmail, password })
+    if (success) navigate("/dashboard", { replace: true })
   }
 
   return (
@@ -48,10 +52,13 @@ export function LoginForm({
             </Label>
            <div className="relative group">
   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none transition-colors group-focus-within:text-blue-500" />
-  <Input
+  <AuthInput
     id="email"
     type="email"
     placeholder="name@company.com"
+    value={email}
+    onChange={(e) => setEmail(e.target.value)}
+    autoComplete="email"
     className="h-12 pl-11 pr-4 bg-white border-gray-200 rounded-lg text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-sm hover:border-gray-300 transition-all duration-200"
     required
   />
@@ -65,13 +72,14 @@ export function LoginForm({
             </Label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-              <Input
+              <AuthInput
                 id="password"
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="h-12 pl-10 pr-12 white bg-red-100"
+                autoComplete="current-password"
+                className="h-12 pl-10 pr-12 white"
                 required
               />
               <button
@@ -81,9 +89,9 @@ export function LoginForm({
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (
-                  <EyeOff className="h-5 w-5" />
+                  <EyeOff className="h-5 w-5 text-black" />
                 ) : (
-                  <Eye className="h-5 w-5" />
+                  <Eye className="h-5 w-5 text-black" />
                 )}
               </button>
             </div>
@@ -105,8 +113,8 @@ export function LoginForm({
               </Label>
             </div>
             <Link
-              to="/forgot-password"
-              className="text-sm font-medium text-primary hover:text-primary/80 underline underline-offset-4 transition-colors"
+              to="/auth/forgot-password"
+              className="text-sm font-medium text-black hover:text-blue/80 underline underline-offset-4 transition-colors"
             >
               Forgot password?
             </Link>
@@ -143,7 +151,7 @@ export function LoginForm({
             <div className="w-full border-t border-border" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-2 text-muted-foreground">
+            <span className="bg-card px-2 text-black bg-white">
               Or continue with
             </span>
           </div>
@@ -152,19 +160,20 @@ export function LoginForm({
         {/* Social Login */}
         <div className="grid grid-cols-2 gap-3">
           <Button
-            className="h-11 bg-white/20 "
+          variant="ghost"
+            className="h-11 shadow-xl"
             onClick={() => {/* Google OAuth */}}
           >
             <img src={Google} alt="Google" className="mr-2 h-5 w-5" />
-            <span className="hidden sm:inline">Google</span>
+            <span className="hidden sm:inline text-black">Google</span>
           </Button>
           <Button
-            variant="outline"
-            className="h-11"
+            variant="ghost"
+            className="h-11 shadow-xl"
             onClick={() => {/* Apple OAuth */}}
           >
             <img src={Apple} alt="Apple" className="mr-2 h-5 w-5" />
-            <span className="hidden sm:inline">Apple</span>
+            <span className="hidden sm:inline text-black">Apple</span>
           </Button>
         </div>
 
