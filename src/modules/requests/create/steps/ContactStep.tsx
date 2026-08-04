@@ -248,14 +248,14 @@ Commercial
           </div>
 
           {/* Form Actions */}
-          <div className="mt-6 flex flex-wrap gap-3">
+          {/* <div className="mt-6 flex flex-wrap gap-3">
             <Button variant="outline" className="rounded-lg py-5 px-8" onClick={onCancel}>
               Cancel
             </Button>
             <Button className="rounded-lg py-5 px-8" onClick={onNext}>
               Continue
             </Button>
-          </div>
+          </div> */}
         </CardContent>
       </Card>
     </div>

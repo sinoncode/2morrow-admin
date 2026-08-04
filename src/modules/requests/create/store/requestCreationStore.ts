@@ -50,6 +50,8 @@ interface RequestStore {
     value: RequestFormData[keyof RequestFormData]
   ) => void;
 
+  setForm: (form: Partial<RequestFormData>) => void;
+
   reset: () => void;
 }
 
@@ -106,6 +108,14 @@ export const useRequestCreationStore =
           [key]: value,
         },
       })),
+
+    setForm: (form) =>
+      set({
+        form: {
+          ...initialState,
+          ...form,
+        },
+      }),
 
     reset: () =>
       set({

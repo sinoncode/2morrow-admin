@@ -66,9 +66,9 @@ export default function EditProfile() {
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false)
 
-  useEffect(() => {
-    fetchProfile()
-  }, [fetchProfile])
+  // useEffect(() => {
+  //   fetchProfile()
+  // }, [fetchProfile])
 
   useEffect(() => {
     if (!profile) return

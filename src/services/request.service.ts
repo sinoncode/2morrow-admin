@@ -1,45 +1,26 @@
 import api from "@/api/axios";
-import type { RequestResponse } from "@/types/request.types";
+import type { RequestResponse, RequestItem } from "@/types/request.types";
+import type { RequestFormData } from "@/modules/requests/create/store/requestCreationStore";
 
-export interface CreateRequestPayload {
-  identity: {
-    first_name: string;
-    last_name: string;
-  };
-  contact: {
-    phones: string;
-    emails: string;
-    language: string;
-  };
-  requirements: {
-    transaction: string;
-    category: string;
-    budget_min: string;
-    budget_max: string;
-    currency: string;
-    rooms_min: number | null;
-    rooms_max: number | null;
-  };
-  location: {
-    zip: string;
-    city: string;
-    country: string;
-    radius: number;
-  };
-  notes: {
-    memo: string;
-    notes: string;
-  };
-  status: string;
-}
+export type RequestPayload = RequestFormData;
 
 export const getRequests = async () => {
     const response = await api.get<RequestResponse>("/requests");
     return response.data;
 };
 
-export const createRequest = async (payload: CreateRequestPayload) => {
+export const getRequestById = async (id: number | string) => {
+    const response = await api.get(`/requests/${id}`);
+    return response.data?.data ?? response.data;
+};
+
+export const createRequest = async (payload: RequestPayload) => {
     const response = await api.post("/requests", payload);
+    return response.data;
+};
+
+export const updateRequest = async (id: number | string, payload: RequestPayload) => {
+    const response = await api.put(`/requests/${id}`, payload);
     return response.data;
 };
 

@@ -205,9 +205,8 @@ if (loading) {
                           <Button variant="ghost" size="icon" className="h-7 w-7 rounded-md"><MoreVertical className="h-4 w-4" /></Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-44">
-                          <DropdownMenuItem className="text-sm gap-2 cursor-pointer"><Eye className="h-3.5 w-3.5" />View Request</DropdownMenuItem>
-                          <Link to="/requests/edit-requests">
-                            <DropdownMenuItem className="text-sm gap-2 cursor-pointer"><Pencil className="h-3.5 w-3.5" />Edit Request</DropdownMenuItem>
+                          <Link to={`/requests/edit/${r.id}`}>
+                            <DropdownMenuItem className="text-sm gap-2 cursor-pointer"><Pencil className="h-3.5 w-3.5" />View & Edit</DropdownMenuItem>
                           </Link>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem className="text-sm gap-2 text-red-600 cursor-pointer focus:text-red-600"

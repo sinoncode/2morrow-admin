@@ -3,18 +3,20 @@ import { ProfileService } from "@/services/profile.service"
 import { toast } from "@/lib/toast"
 
 import type {
-    Profile,
-    UpdateProfileData,
+    ProfileUser,
+    ProfileUpdatePayload,
 } from "@/types/profile.types"
 
 interface ProfileStore {
-    profile: Profile | null
+    profile: ProfileUser | null
     loading: boolean
     saving: boolean
     error: string | null
 
     fetchProfile: () => Promise<void>
-    updateProfile: (data: UpdateProfileData) => Promise<boolean>
+    updateProfile: (
+    data: ProfileUpdatePayload
+) => Promise<boolean>
     clearProfile: () => void
 }
 

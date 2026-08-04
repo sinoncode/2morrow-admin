@@ -274,7 +274,7 @@ export default function RequestsStep({ onSave, isSubmitting, onCancel, onBack }:
           </div>
 
           {/* Buttons */}
-          <div className="mt-12 flex flex-wrap gap-5">
+          {/* <div className="mt-12 flex flex-wrap gap-5">
             <Button
               variant="outline"
               className="rounded-lg py-5 px-8"
@@ -292,7 +292,7 @@ export default function RequestsStep({ onSave, isSubmitting, onCancel, onBack }:
             <Button className="rounded-lg border border-primary py-5 px-8" onClick={onSave} disabled={isSubmitting}>
               {isSubmitting ? "Saving..." : "Save Request"}
             </Button>
-          </div>
+          </div> */}
         </CardContent>
       </Card>
     </div>

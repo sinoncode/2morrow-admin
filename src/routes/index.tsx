@@ -169,7 +169,7 @@ export const router = createBrowserRouter(
         { path: "properties/view/:id", element: <PropertyView /> },
         // Requests
         { path: "requests/list", element: <RequestLists /> },
-        { path: "requests/edit-requests", element: <EditRequests /> },
+        { path: "requests/edit/:id", element: <EditRequests /> },
         { path: "requests/create", element: <CreateRequests /> },
 
         // Permission
