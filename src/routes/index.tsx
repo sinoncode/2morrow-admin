@@ -110,6 +110,11 @@ import EmailCompose from "@/modules/emails/pages/Emailcompose"
 import ContactListing from "@/modules/contacts/pages/ContactList"
 import ContactCreate from "@/modules/contacts/pages/ContactCreate"
 
+// Angels
+import AngelsList from "@/modules/angel/pages/RequestLists"
+import EditAngels from "@/modules/angel/pages/EditRequests"
+// import CreateAngels from "@/modules/angel/create/RequestWizard"
+
 
 export const router = createBrowserRouter(
   [
@@ -171,6 +176,11 @@ export const router = createBrowserRouter(
         { path: "requests/list", element: <RequestLists /> },
         { path: "requests/edit/:id", element: <EditRequests /> },
         { path: "requests/create", element: <CreateRequests /> },
+
+        // Angels
+        { path: "angels/list", element: <AngelsList /> },
+        { path: "angels/edit/:id", element: <EditAngels /> },
+        // { path: "angels/create", element: <CreateAngels /> },
 
         // Permission
         { path: "permission", element: <Permissions /> },

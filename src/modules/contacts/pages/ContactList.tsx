@@ -75,7 +75,7 @@ export default function ContactListing() {
                     <h1 className="text-2xl font-semibold tracking-tight">Contacts</h1>
                     <p className="text-sm text-muted-foreground mt-0.5">Manage all real estate transaction files and documentation.</p>
                 </div>
-                <Link to="contacts/create">
+                <Link to="/contacts/create">
                     <Button size="sm" className="gap-1.5 rounded-lg px-4 h-9"><Plus className="h-4 w-4" />New Contact</Button>
                 </Link>
             </div>

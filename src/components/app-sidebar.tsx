@@ -140,7 +140,7 @@ const data = {
 
     {
       title: "Angel",
-      url: "docs",
+      url: "angels/list",
       icon: GiAngelOutfit,
     },
     {
