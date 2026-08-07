@@ -113,7 +113,7 @@ import ContactCreate from "@/modules/contacts/pages/ContactCreate"
 // Angels
 import AngelsList from "@/modules/angel/pages/RequestLists"
 import EditAngels from "@/modules/angel/pages/EditRequests"
-// import CreateAngels from "@/modules/angel/create/RequestWizard"
+import CreateAngels from "@/modules/angel/components/create/RequestWizard"
 
 
 export const router = createBrowserRouter(
@@ -180,7 +180,7 @@ export const router = createBrowserRouter(
         // Angels
         { path: "angels/list", element: <AngelsList /> },
         { path: "angels/edit/:id", element: <EditAngels /> },
-        // { path: "angels/create", element: <CreateAngels /> },
+        { path: "angels/create", element: <CreateAngels /> },
 
         // Permission
         { path: "permission", element: <Permissions /> },

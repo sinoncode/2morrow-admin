@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 
-import ContactStep from "./steps/ContactStep"
-import RequestsStep from "./steps/RequestsStep"
+import IdentityStep from "./steps/IdentityStep"
+import InternationalAddressStep from "./steps/InternationalAddressesStep"
+import PartnershipAggreementStep from "./steps/PartnershipAgreementStep"
+import CRMAccess from "./steps/CRMAccessStep"
+import CRMAccessRight from "./steps/CRMAccessRights"
 import CallStep from "./steps/CallStep"
 import MailStep from "./steps/MailStep"
 
@@ -12,7 +15,8 @@ import { useRequestCreationStore, type RequestFormData } from "./store/requestCr
 import { createRequest, updateRequest } from "@/services/request.service"
 import { toast } from "@/lib/toast"
 
-const createSteps = ["Contacts", "Requests & Search"]
+
+const createSteps = ["Identity", "International Address", "Partnership Agreement", "CRM Access", "CRM Access Rights"]
 const editSteps = ["Contacts", "Requests & Search", "Calls", "Mails"]
 
 interface RequestWizardProps {
@@ -43,7 +47,7 @@ export default function RequestWizard({
     switch (currentStep) {
       case 0:
         return (
-          <ContactStep
+          <IdentityStep
             onSave={handleSave}
             isSubmitting={isSubmitting}
             onCancel={handleCancel}
@@ -52,7 +56,7 @@ export default function RequestWizard({
         )
       case 1:
         return (
-          <RequestsStep
+          <InternationalAddressStep
             onSave={handleSave}
             isSubmitting={isSubmitting}
             onCancel={handleCancel}
@@ -61,14 +65,43 @@ export default function RequestWizard({
         )
       case 2:
         return (
-          <CallStep
+          <PartnershipAggreementStep
             onSave={handleSave}
             isSubmitting={isSubmitting}
             onCancel={handleCancel}
             onNext={() => setCurrentStep(3)}
           />
         )
-      case 3:
+
+        case 3:
+        return (
+          <CRMAccess
+            onSave={handleSave}
+            isSubmitting={isSubmitting}
+            onCancel={handleCancel}
+            onNext={() => setCurrentStep(4)}
+          />
+        )
+
+         case 4:
+        return (
+          <CRMAccessRight
+            onSave={handleSave}
+            isSubmitting={isSubmitting}
+            onCancel={handleCancel}
+            onNext={() => setCurrentStep(4)}
+          />
+        )
+        case 5:
+        return (
+          <CallStep
+            onSave={handleSave}
+            isSubmitting={isSubmitting}
+            onCancel={handleCancel}
+            onNext={() => setCurrentStep(4)}
+          />
+        )
+      case 6:
         return (
           <MailStep
             emails={[]}
@@ -76,7 +109,7 @@ export default function RequestWizard({
         )
       default:
         return (
-          <ContactStep
+          <IdentityStep
             onSave={handleSave}
             isSubmitting={isSubmitting}
             onCancel={handleCancel}

@@ -121,7 +121,7 @@ if (loading) {
           <h1 className="text-2xl font-semibold tracking-tight">Requests</h1>
           <p className="text-sm text-muted-foreground mt-0.5">Manage all client property search requests.</p>
         </div>
-        <Link to="/requests/create">
+        <Link to="/angels/create">
           <Button size="sm" className="gap-1.5 rounded-lg px-4 h-9"><Plus className="h-4 w-4" />New Request</Button>
         </Link>
       </div>
