@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { usePropertyCreationStore } from "./store/propertyCreationStore"
 import { usePropertyStore } from "@/store/propertyStore"
@@ -6,69 +7,44 @@ import { toast } from "@/lib/toast"
 import type { PropertyPayload } from "@/types/property.types"
 
 export default function PropertyWizardHeader() {
-  const { form } = usePropertyCreationStore()
+  const navigate = useNavigate()
+  const { form, reset } = usePropertyCreationStore()
   const { createProperty } = usePropertyStore()
   const [isPublishing, setIsPublishing] = useState(false)
 
-  const handlePublish = async () => {
+  const handlePublish = async (statusOverride?: "draft" | "active") => {
     try {
       setIsPublishing(true)
       
-      const payload: PropertyPayload = {
-        title: form.title || "Untitled Property",
-        listing_type: (form.listingType as any) || "sale",
-        price: form.price || "0",
-        
-        description: form.description || null,
-        status: (form.publicationStatus as any) || "draft",
-        type: form.propertyType || null,
-        
-        address: form.address || null,
-        city: form.city || null,
-        state: form.state || null,
-        zip_code: form.zipCode || null,
-        latitude: form.latitude || null,
-        longitude: form.longitude || null,
-        neighborhood_description: form.locationDescription || null,
-        
-        bedrooms: form.bedrooms || 0,
-        bathrooms: form.bathrooms || 0,
-        area: form.builtUpArea || form.area || 0,
-        balconies: form.balconies || 0,
-        floor_number: Number(form.floorNumber) || 0,
-        total_floors: Number(form.totalFloors) || 0,
-        year_built: Number(form.yearBuilt) || 0,
-        furnishing_status: (form.furnishing as any) || null,
-        facing_direction: (form.facing as any) || null,
-        
-        covered_parking: Boolean(form.coveredParking),
-        open_parking: Boolean(form.openParking),
-        parking_slots: Number(form.parkingSlots) || 0,
-        
-        tax_percentage: form.taxPercentage || null,
-        maintenance_charges: form.maintenanceFee || "0",
-        discount: form.discount || null,
-        
-        indoor_amenities: form.amenities || [],
-        outdoor_features: [],
-        smart_features: [],
-        high_value_assets: [],
-        
-        video_url: null,
-        virtual_tour_url: null,
-        title_deed: null,
-        floor_plan: null,
-        id_proof: null,
-        legal_documents: null,
-        keywords: form.keywords || [],
+      const payload: any = {
+        ...form,
+        classification: {
+          ...form.classification,
+          listing_status: statusOverride ?? form.classification?.listing_status ?? "draft",
+        },
+        // Top-level duplicates expected by backend validation
+        category: form.classification?.category,
+        sub_type: form.classification?.sub_type,
+        transaction_type: form.classification?.transaction_type,
+        price: form.pricing?.price,
+        currency: form.pricing?.currency,
+        // Surface commonly-required dimension fields at top-level
+        living_area: form.dimensions?.living_area ?? null,
+        bedrooms: form.dimensions?.bedrooms ?? null,
+        bathrooms: form.dimensions?.bathrooms ?? null,
+        rooms: form.dimensions?.rooms ?? null,
+        gross_floor_area: form.dimensions?.gross_floor_area ?? null,
+        plot_area: form.dimensions?.plot_area ?? null,
       }
 
       const success = await createProperty(payload)
       if (success) {
-        // toast is already handled in createProperty
+        reset()
+        navigate("/properties/list")
       }
     } catch (error) {
-      toast.error("An unexpected error occurred.")
+      // Toast is already handled in the store, but we can have a fallback here
+      toast.error("An unexpected error occurred while saving.")
     } finally {
       setIsPublishing(false)
     }
@@ -87,11 +63,18 @@ export default function PropertyWizardHeader() {
       </div>
 
       <div className="flex gap-2">
-        <Button variant="outline">
+        <Button 
+          variant="outline" 
+          onClick={() => handlePublish("draft")} 
+          disabled={isPublishing}
+        >
           Save Draft
         </Button>
 
-        <Button onClick={handlePublish} disabled={isPublishing}>
+        <Button 
+          onClick={() => handlePublish("active")} 
+          disabled={isPublishing}
+        >
           {isPublishing ? "Publishing..." : "Publish Property"}
         </Button>
       </div>

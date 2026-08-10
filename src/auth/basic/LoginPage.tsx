@@ -23,7 +23,7 @@ shadow-[0_20px_60px_rgba(0,0,0,0.08)]" style={{
               className="w-[280px] mb-8"
             />
 
-            <LoginForm />
+        
           </div>
 
           {/* Right Side */}

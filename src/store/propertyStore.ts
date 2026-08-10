@@ -63,8 +63,12 @@ interface PropertyStore {
 
 const defaultMeta: PropertyMeta = {
   current_page: 1,
+  from: 1,
   last_page: 1,
+  links: [],
+  path: "",
   per_page: 10,
+  to: 1,
   total: 0,
 };
 
@@ -119,6 +123,14 @@ export const usePropertyStore = create<PropertyStore>(
       });
     },
 
+    /**
+     * Fetch properties list.
+     *
+     * API returns: { data: Property[], links: PropertyLinks, meta: PropertyMeta }
+     * The axios response wraps this in response.data, so:
+     *   response.data.data = Property[]
+     *   response.data.meta = PropertyMeta
+     */
     fetchProperties: async (params) => {
       set({
         loading: true,
@@ -137,18 +149,14 @@ export const usePropertyStore = create<PropertyStore>(
             requestParams
           );
 
-        if (response.data.success) {
-          set({
-            properties: response.data.data,
-            meta: response.data.meta ?? defaultMeta,
-            filters: requestParams,
-          });
-        } else {
-          toast.error(
-            response.data.message ||
-            "Unable to fetch properties."
-          );
-        }
+        // PropertyListResponse = { data: Property[], links, meta }
+        const apiData = response.data;
+
+        set({
+          properties: apiData.data ?? [],
+          meta: apiData.meta ?? defaultMeta,
+          filters: requestParams,
+        });
       } catch (error: any) {
         const message =
           error.response?.data?.message ||
@@ -166,6 +174,11 @@ export const usePropertyStore = create<PropertyStore>(
       }
     },
 
+    /**
+     * Fetch single property by ID.
+     *
+     * API returns: { success, message, data: Property }
+     */
     fetchPropertyById: async (id) => {
       set({
         detailsLoading: true,

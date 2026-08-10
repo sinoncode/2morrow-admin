@@ -12,6 +12,8 @@ import {
     UsersRound,
 } from "lucide-react"
 
+import backgroundImage from "@/assets/banners/2morrow-background.png"
+
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -91,13 +93,22 @@ export default function UserProfile() {
         >
             {/* Profile Header */}
             <Card className="overflow-hidden rounded-[28px] border border-slate-200/80 bg-white shadow-sm dark:border-white/10 dark:bg-[#15191F]">
-                <div className="relative h-36 overflow-hidden bg-gradient-to-br from-[#2780C3] via-[#1D6EA9] to-[#0D3555] sm:h-44">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_85%_20%,rgba(255,255,255,0.22),transparent_28%),radial-gradient(circle_at_15%_80%,rgba(255,255,255,0.12),transparent_30%)]" />
+              <div className="relative h-36 overflow-hidden sm:h-44">
+    {/* Background Image: Ensure it's the first child, spans the area, covers, and is fully visible */}
+    <img 
+        src={backgroundImage} 
+        alt="Real Estate Background"
+        className="absolute inset-0 h-full w-full object-cover object-center opacity-100 transition-opacity duration-500"
+    />
 
-                    <div className="absolute right-5 top-5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md">
-                        2morrow Real Estate
-                    </div>
-                </div>
+    {/* Light effects overlays (Keep these above the image, below content) */}
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_85%_20%,rgba(255,255,255,0.22),transparent_28%),radial-gradient(circle_at_15%_80%,rgba(255,255,255,0.12),transparent_30%)]" />
+
+    {/* Content badge (Keep on top) */}
+    <div className="absolute right-5 top-5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md">
+        2morrow Real Estate
+    </div>
+</div>
 
                 <CardContent className="relative px-5 pb-6 pt-0 sm:px-8">
                     <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">

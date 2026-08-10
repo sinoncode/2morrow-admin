@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
-
+import { Skeleton } from "@/components/ui/skeleton";
 // import LazyWrapper from "@/components/LazyWrapper";
 
 import { Button } from "@/components/ui/button";
@@ -342,9 +342,97 @@ const TeamsPermissions = () => {
 
           {/* LOADING STATE */}
           {isLoading ? (
-            <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
+             <div className="space-y-6 p-4 md:p-6 mt-16">
+      {/* HEADER SKELETON */}
+      {/* <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-xl">
+            <ShieldCheck className="h-6 w-6 text-primary/30" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-4 w-48" />
+          </div>
+        </div>
+
+        <div className="flex gap-2 w-full sm:w-auto">
+          <Skeleton className="h-10 w-12 rounded-md" />
+          <Skeleton className="h-10 w-36 rounded-md" />
+        </div>
+      </div> */}
+
+      <Separator />
+
+      {/* MAIN CONTENT SKELETON */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* SIDEBAR - ROLE LIST SKELETON */}
+        <div className="lg:col-span-1 space-y-3">
+          <Card>
+            <CardHeader className="pb-3">
+              <Skeleton className="h-5 w-24" />
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-4 w-4 rounded-full" />
+                    <Skeleton className="h-4 w-24" />
+                  </div>
+                  <Skeleton className="h-6 w-6 rounded-md" />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* MAIN - PERMISSIONS SKELETON */}
+        <div className="lg:col-span-3 space-y-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-6 w-40" />
+                <Skeleton className="h-4 w-20" />
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Permission category rows */}
+              {[1, 2, 3, 4].map((category) => (
+                <div key={category} className="space-y-3">
+                  <Skeleton className="h-5 w-32" />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                    {[1, 2, 3, 4, 5, 6].map((item) => (
+                      <div
+                        key={item}
+                        className="flex items-center gap-2 p-2 rounded-lg border"
+                      >
+                        <Skeleton className="h-4 w-4 rounded" />
+                        <Skeleton className="h-4 w-full" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          <Skeleton className="h-10 w-full rounded-md" />
+        </div>
+      </div>
+
+      {/* STATS SKELETON */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+        {[1, 2, 3].map((i) => (
+          <Card key={i}>
+            <CardHeader className="pb-3">
+              <Skeleton className="h-4 w-32" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-8 w-16" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
 

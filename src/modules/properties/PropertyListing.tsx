@@ -58,17 +58,21 @@ import {
   RefreshCcw,
   ChevronLeft,
   ChevronRight,
-    AlertTriangle,
+  AlertTriangle,
   X,
 } from "lucide-react"
 
 import { usePropertyStore } from "@/store/propertyStore"
-import { toast } from "@/lib/toast"
-import type { Property } from "@/types/property.types"
+import type { Property, PropertyStatus, ListingType } from "@/types/property.types"
+import {
+  PROPERTY_STATUS_OPTIONS,
+  PROPERTY_SUB_TYPE_OPTIONS,
+  LISTING_TYPE_OPTIONS,
+} from "@/types/property.types"
 
 // ─── Status badge ────────────────────────────────────────────────────────────
-function StatusBadge({ status }: { status: Property["status"] }) {
-  const configs: Record<Property["status"], { bg: string; text: string; dot: string }> = {
+function StatusBadge({ status }: { status: PropertyStatus }) {
+  const configs: Record<PropertyStatus, { bg: string; text: string; dot: string }> = {
     active: { bg: "bg-emerald-50 dark:bg-emerald-500/15", text: "text-emerald-700 dark:text-emerald-400", dot: "bg-emerald-500" },
     draft: { bg: "bg-amber-50 dark:bg-amber-500/15", text: "text-amber-700 dark:text-amber-400", dot: "bg-amber-500" },
     sold: { bg: "bg-purple-50 dark:bg-purple-500/15", text: "text-purple-700 dark:text-purple-400", dot: "bg-purple-500" },
@@ -85,7 +89,7 @@ function StatusBadge({ status }: { status: Property["status"] }) {
 }
 
 // ─── Listing type badge ───────────────────────────────────────────────────────
-function ListingBadge({ type }: { type: Property["listing_type"] }) {
+function ListingBadge({ type }: { type: ListingType }) {
   if (!type) return <span className="text-muted-foreground text-sm">—</span>
   const isSale = type === "sale"
   return (
@@ -102,7 +106,7 @@ function ListingBadge({ type }: { type: Property["listing_type"] }) {
 function SkeletonRow() {
   return (
     <TableRow className="animate-pulse">
-      {Array.from({ length: 6 }).map((_, i) => (
+      {Array.from({ length: 7 }).map((_, i) => (
         <TableCell key={i}>
           <div className="h-4 rounded-md bg-muted" style={{ width: `${60 + Math.random() * 30}%` }} />
         </TableCell>
@@ -144,6 +148,13 @@ function StatCard({
   )
 }
 
+// ─── Format label helper ──────────────────────────────────────────────────────
+function formatSubType(subType: string | undefined): string {
+  if (!subType) return "—"
+  const found = PROPERTY_SUB_TYPE_OPTIONS.find((o) => o.value === subType)
+  return found?.label ?? subType.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 export default function PropertyListing() {
   const { properties, fetchProperties, deleteProperty, loading, deleting, meta } = usePropertyStore()
@@ -169,7 +180,7 @@ export default function PropertyListing() {
       per_page: 10,
       search: debouncedSearch || undefined,
       status: statusFilter !== "all" ? statusFilter : undefined,
-      type: typeFilter !== "all" ? typeFilter : undefined,
+      sub_type: typeFilter !== "all" ? typeFilter : undefined,
       listing_type: listingFilter !== "all" ? listingFilter : undefined,
     })
   }, [pageState, debouncedSearch, statusFilter, typeFilter, listingFilter, fetchProperties])
@@ -202,9 +213,9 @@ export default function PropertyListing() {
   const hasActiveFilters = statusFilter !== "all" || typeFilter !== "all" || listingFilter !== "all" || debouncedSearch.trim().length > 0
 
   const listingCounts = useMemo(() => {
-    const sale = properties.filter((property) => property.listing_type === "sale").length
-    const rent = properties.filter((property) => property.listing_type === "rent").length
-    const sold = properties.filter((property) => property.status === "sold").length
+    const sale = properties.filter((p) => p.classification?.transaction_type === "sale").length
+    const rent = properties.filter((p) => p.classification?.transaction_type === "rent").length
+    const sold = properties.filter((p) => p.classification?.listing_status === "sold").length
 
     return {
       total: totalProps,
@@ -261,15 +272,15 @@ export default function PropertyListing() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="sold">Sold</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-                  <SelectItem value="archived">Archived</SelectItem>
+                  {PROPERTY_STATUS_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
 
-              {/* Property Type */}
+              {/* Property Sub-Type */}
               <Select
                 value={typeFilter}
                 onValueChange={(v) => { setTypeFilter(v); setPageState(1) }}
@@ -279,13 +290,11 @@ export default function PropertyListing() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="Apartment">Apartment</SelectItem>
-                  <SelectItem value="Villa">Villa</SelectItem>
-                  <SelectItem value="Penthouse">Penthouse</SelectItem>
-                  <SelectItem value="Office">Office</SelectItem>
-                  <SelectItem value="House">House</SelectItem>
-                  <SelectItem value="Studio">Studio</SelectItem>
-                  <SelectItem value="Commercial">Commercial</SelectItem>
+                  {PROPERTY_SUB_TYPE_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
 
@@ -299,8 +308,11 @@ export default function PropertyListing() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Listings</SelectItem>
-                  <SelectItem value="sale">For Sale</SelectItem>
-                  <SelectItem value="rent">For Rent</SelectItem>
+                  {LISTING_TYPE_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
 
@@ -381,37 +393,36 @@ export default function PropertyListing() {
                       {/* Title */}
                       <TableCell className="pl-5">
                         <div className="flex items-center gap-3">
-                          {/* <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted font-semibold text-sm uppercase text-muted-foreground">
-                            {property.title?.charAt(0) ?? "P"}
-                          </div> */}
                           <div>
                             <p className="font-medium leading-tight line-clamp-1 max-w-[200px]">{property.title}</p>
-                            {/* {property.type && (
-                              <p className="text-xs text-muted-foreground">{property.type}</p>
-                            )} */}
+                            {property.internal_reference && (
+                              <p className="text-xs text-muted-foreground">Ref: {property.internal_reference}</p>
+                            )}
                           </div>
                         </div>
                       </TableCell>
 
                       {/* Type */}
                       <TableCell>
-                        <span className="text-sm">{property.type ?? "—"}</span>
+                        <span className="text-sm">{formatSubType(property.classification?.sub_type)}</span>
                       </TableCell>
 
                       {/* Listing */}
                       <TableCell>
-                        <ListingBadge type={property.listing_type} />
+                        <ListingBadge type={property.classification?.transaction_type} />
                       </TableCell>
 
                       {/* Status */}
                       <TableCell>
-                        <StatusBadge status={property.status} />
+                        <StatusBadge status={property.classification?.listing_status ?? "draft"} />
                       </TableCell>
 
                       {/* Price */}
                       <TableCell>
                         <span className="text-sm font-medium">
-                          {property.price ? `${Number(property.price).toLocaleString()}` : "—"}
+                          {property.pricing?.price
+                            ? `${property.pricing.currency ?? "CHF"} ${Number(property.pricing.price).toLocaleString()}`
+                            : "—"}
                         </span>
                       </TableCell>
 
@@ -419,9 +430,9 @@ export default function PropertyListing() {
                       <TableCell>
                         <p
                           className="max-w-[180px] truncate text-sm text-muted-foreground"
-                          title={[property.city, property.state].filter(Boolean).join(", ") || property.address || "—"}
+                          title={[property.location?.city, property.location?.state].filter(Boolean).join(", ") || property.location?.address_line_1 || "—"}
                         >
-                          {[property.city, property.state].filter(Boolean).join(", ") || property.address || "—"}
+                          {[property.location?.city, property.location?.state].filter(Boolean).join(", ") || property.location?.address_line_1 || "—"}
                         </p>
                       </TableCell>
 
@@ -440,11 +451,11 @@ export default function PropertyListing() {
                           </DropdownMenuTrigger>
 
                           <DropdownMenuContent align="end" className="w-44">
-                            <DropdownMenuItem
-                              onClick={() => toast.success(`Viewing Property #${property.id}`)}
-                            >
-                              <Eye className="mr-2 h-4 w-4" />
-                              View Details
+                            <DropdownMenuItem asChild>
+                              <Link to={`/properties/view/${property.id}`} className="flex items-center">
+                                <Eye className="mr-2 h-4 w-4" />
+                                View Details
+                              </Link>
                             </DropdownMenuItem>
 
                             <DropdownMenuItem asChild>
@@ -529,123 +540,123 @@ export default function PropertyListing() {
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog
-  open={!!pendingDelete}
-  onOpenChange={(open) => {
-    if (!open && !deleting) {
-      setPendingDelete(null)
-    }
-  }}
->
-  <AlertDialogContent className="max-w-md overflow-hidden rounded-5xl border border-slate-200 bg-white p-0 shadow-2xl dark:border-slate-800 dark:bg-[#111827]">
-    <AnimatePresence mode="wait">
-      {!!pendingDelete && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.96, y: 12 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.96, y: 12 }}
-          transition={{
-            duration: 0.25,
-            ease: "easeOut",
-          }}
-        >
-          {/* Top decorative background */}
-          <div className="relative overflow-hidden bg-gradient-to-br from-red-50 via-rose-50 to-orange-50 px-6 pb-8 pt-7 dark:from-red-950/30 dark:via-rose-950/20 dark:to-orange-950/20">
-            <div className="absolute -right-10 -top-10 h-36 w-36 rounded-full bg-red-200/40 blur-2xl dark:bg-red-900/30" />
-            <div className="absolute -bottom-12 -left-10 h-32 w-32 rounded-full bg-orange-200/40 blur-2xl dark:bg-orange-900/20" />
-
-            <div className="relative flex items-start justify-between">
+        open={!!pendingDelete}
+        onOpenChange={(open) => {
+          if (!open && !deleting) {
+            setPendingDelete(null)
+          }
+        }}
+      >
+        <AlertDialogContent className="max-w-md overflow-hidden rounded-5xl border border-slate-200 bg-white p-0 shadow-2xl dark:border-slate-800 dark:bg-[#111827]">
+          <AnimatePresence mode="wait">
+            {!!pendingDelete && (
               <motion.div
-                initial={{ rotate: -10, scale: 0.8 }}
-                animate={{ rotate: 0, scale: 1 }}
+                initial={{ opacity: 0, scale: 0.96, y: 12 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.96, y: 12 }}
                 transition={{
-                  delay: 0.08,
-                  type: "spring",
-                  stiffness: 260,
-                  damping: 18,
+                  duration: 0.25,
+                  ease: "easeOut",
                 }}
-                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500 text-white shadow-lg shadow-red-500/30"
               >
-                <AlertTriangle className="h-7 w-7" />
+                {/* Top decorative background */}
+                <div className="relative overflow-hidden bg-gradient-to-br from-red-50 via-rose-50 to-orange-50 px-6 pb-8 pt-7 dark:from-red-950/30 dark:via-rose-950/20 dark:to-orange-950/20">
+                  <div className="absolute -right-10 -top-10 h-36 w-36 rounded-full bg-red-200/40 blur-2xl dark:bg-red-900/30" />
+                  <div className="absolute -bottom-12 -left-10 h-32 w-32 rounded-full bg-orange-200/40 blur-2xl dark:bg-orange-900/20" />
+
+                  <div className="relative flex items-start justify-between">
+                    <motion.div
+                      initial={{ rotate: -10, scale: 0.8 }}
+                      animate={{ rotate: 0, scale: 1 }}
+                      transition={{
+                        delay: 0.08,
+                        type: "spring",
+                        stiffness: 260,
+                        damping: 18,
+                      }}
+                      className="flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500 text-white shadow-lg shadow-red-500/30"
+                    >
+                      <AlertTriangle className="h-7 w-7" />
+                    </motion.div>
+
+                    <AlertDialogCancel
+                      disabled={deleting}
+                      className="h-9 w-9 rounded-xl border-0 bg-white/70 p-0 text-slate-500 shadow-sm transition-all hover:bg-white hover:text-slate-900 dark:bg-slate-900/70 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+                    >
+                      <X className="h-4 w-4" />
+                      <span className="sr-only">Close</span>
+                    </AlertDialogCancel>
+                  </div>
+
+                  <AlertDialogHeader className="relative mt-6 space-y-2 text-left">
+                    <AlertDialogTitle className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+                      Delete Property?
+                    </AlertDialogTitle>
+
+                    <AlertDialogDescription className="text-sm leading-6 text-slate-600 dark:text-slate-400">
+                      This property will be permanently removed from your dashboard.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                </div>
+
+                {/* Property information */}
+                <div className="px-6 py-6">
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/60">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-primary shadow-sm dark:bg-slate-800">
+                        <Building2 className="h-5 w-5" />
+                      </div>
+
+                      <div className="min-w-0">
+                        <p className="text-xs font-medium uppercase tracking-wider text-slate-400">
+                          Property selected
+                        </p>
+
+                        <p className="mt-1 truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
+                          {pendingDelete.title}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="mt-5 text-sm leading-6 text-slate-500 dark:text-slate-400">
+                    Once deleted, property details, documents, media, and related
+                    records cannot be restored.
+                  </p>
+                </div>
+
+                {/* Actions */}
+                <AlertDialogFooter className="flex flex-col-reverse gap-3 border-t border-slate-100 bg-slate-50/70 px-6 py-5 sm:flex-row sm:justify-end dark:border-slate-800 dark:bg-slate-900/40">
+                  <AlertDialogCancel
+                    disabled={deleting}
+                    className="h-11 rounded-xl border-slate-200 px-5 font-medium text-slate-700 transition-all hover:bg-white hover:text-slate-900 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+                  >
+                    Keep Property
+                  </AlertDialogCancel>
+
+                  <AlertDialogAction
+                    disabled={deleting}
+                    onClick={handleDelete}
+                    className="h-11 rounded-xl bg-red-600 px-5 font-semibold text-white shadow-lg shadow-red-500/25 transition-all duration-300 hover:-translate-y-0.5 hover:bg-red-700 hover:shadow-xl hover:shadow-red-500/30 focus-visible:ring-red-500"
+                  >
+                    {deleting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Deleting Property...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete Property
+                      </>
+                    )}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
               </motion.div>
-
-              <AlertDialogCancel
-                disabled={deleting}
-                className="h-9 w-9 rounded-xl border-0 bg-white/70 p-0 text-slate-500 shadow-sm transition-all hover:bg-white hover:text-slate-900 dark:bg-slate-900/70 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
-              >
-                <X className="h-4 w-4" />
-                <span className="sr-only">Close</span>
-              </AlertDialogCancel>
-            </div>
-
-            <AlertDialogHeader className="relative mt-6 space-y-2 text-left">
-              <AlertDialogTitle className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-                Delete Property?
-              </AlertDialogTitle>
-
-              <AlertDialogDescription className="text-sm leading-6 text-slate-600 dark:text-slate-400">
-                This property will be permanently removed from your dashboard.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-          </div>
-
-          {/* Property information */}
-          <div className="px-6 py-6">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/60">
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-primary shadow-sm dark:bg-slate-800">
-                  <Building2 className="h-5 w-5" />
-                </div>
-
-                <div className="min-w-0">
-                  <p className="text-xs font-medium uppercase tracking-wider text-slate-400">
-                    Property selected
-                  </p>
-
-                  <p className="mt-1 truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
-                    {pendingDelete.title}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <p className="mt-5 text-sm leading-6 text-slate-500 dark:text-slate-400">
-              Once deleted, property details, documents, media, and related
-              records cannot be restored.
-            </p>
-          </div>
-
-          {/* Actions */}
-          <AlertDialogFooter className="flex flex-col-reverse gap-3 border-t border-slate-100 bg-slate-50/70 px-6 py-5 sm:flex-row sm:justify-end dark:border-slate-800 dark:bg-slate-900/40">
-            <AlertDialogCancel
-              disabled={deleting}
-              className="h-11 rounded-xl border-slate-200 px-5 font-medium text-slate-700 transition-all hover:bg-white hover:text-slate-900 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
-            >
-              Keep Property
-            </AlertDialogCancel>
-
-            <AlertDialogAction
-              disabled={deleting}
-              onClick={handleDelete}
-              className="h-11 rounded-xl bg-red-600 px-5 font-semibold text-white shadow-lg shadow-red-500/25 transition-all duration-300 hover:-translate-y-0.5 hover:bg-red-700 hover:shadow-xl hover:shadow-red-500/30 focus-visible:ring-red-500"
-            >
-              {deleting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting Property...
-                </>
-              ) : (
-                <>
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete Property
-                </>
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  </AlertDialogContent>
-</AlertDialog>
+            )}
+          </AnimatePresence>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

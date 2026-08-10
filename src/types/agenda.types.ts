@@ -55,24 +55,27 @@ export interface AgendaApiEvent {
 // UI Event Model
 // ==========================================
 
+export interface AgendaAttachment {
+  id?: number | string
+  name: string
+  url: string
+  type?: string
+  size?: number
+}
+
 export interface AgendaEvent {
   id: string
-
   title: string
-
   description?: string
-
   start: Date
-
   end: Date
-
   color: string
-
   category?: string
-
   location?: string
-
-  members?: AgendaUser[]
+  latitude?: number | null
+  longitude?: number | null
+  members: AgendaUser[]
+  attachments?: AgendaAttachment[]
 }
 
 // ==========================================
@@ -97,6 +100,12 @@ export interface AgendaPayload {
   location?: string
 
   members: number[]
+
+  latitude?: number | null
+  longitude?: number | null
+
+  // New files selected in frontend
+  attachments?: File[]
 }
 
 // ==========================================

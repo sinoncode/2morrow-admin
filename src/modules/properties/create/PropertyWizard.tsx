@@ -20,7 +20,7 @@ const steps = [
   "Description",
   "Image",
   "Publication",
-  "Matching",
+  "Additional Feilds",
   "Proposed",
 ]
 

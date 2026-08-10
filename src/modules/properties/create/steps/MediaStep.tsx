@@ -15,40 +15,65 @@ import {
 } from "lucide-react"
 
 import { usePropertyCreationStore } from "../store/propertyCreationStore"
+import type { PropertyMediaData } from "@/types/property.types"
 
 export default function MediaStep() {
-  const { form, updateField } = usePropertyCreationStore()
+  const { form, updateForm } = usePropertyCreationStore()
 
-  const [galleryImages, setGalleryImages] = useState<string[]>(
-    form.images || []
+  // Ensure media objects exist
+  const formMedia = form.media || {
+    images: [],
+    videos: [],
+    virtual_tours: [],
+    documents: [],
+  }
+
+  const [galleryImages, setGalleryImages] = useState<PropertyMediaData[]>(
+    formMedia.images || []
   )
-
-  const [coverImage, setCoverImage] = useState<string>("")
+  
+  const coverImage = galleryImages.find(img => img.is_featured)?.url || ""
 
   const coverInputRef = useRef<HTMLInputElement>(null)
   const galleryInputRef = useRef<HTMLInputElement>(null)
   const floorPlanInputRef = useRef<HTMLInputElement>(null)
   const documentInputRef = useRef<HTMLInputElement>(null)
 
-  const [floorPlans, setFloorPlans] = useState<string[]>([])
-  const [documents, setDocuments] = useState<File[]>([])
-  const [videoUrl, setVideoUrl] = useState("")
-  const [virtualTourUrl, setVirtualTourUrl] = useState("")
+  const [documents, setDocuments] = useState<PropertyMediaData[]>(
+    formMedia.documents || []
+  )
+  
+  const [videoUrl, setVideoUrl] = useState(formMedia.videos?.[0]?.url || "")
+  const [virtualTourUrl, setVirtualTourUrl] = useState(formMedia.virtual_tours?.[0]?.url || "")
 
   const createPreviews = (files: FileList | null) => {
     if (!files) return []
 
-    return Array.from(files).map((file) =>
-      URL.createObjectURL(file)
-    )
+    return Array.from(files).map((file) => ({
+      url: URL.createObjectURL(file),
+      type: "image",
+      title: file.name,
+      order: 0,
+      is_featured: false,
+    } as PropertyMediaData))
   }
 
   const handleCoverUpload = (files: FileList | null) => {
     if (!files?.length) return
 
     const preview = URL.createObjectURL(files[0])
+    
+    const newImage: PropertyMediaData = {
+      url: preview,
+      type: "image",
+      title: files[0].name,
+      order: 0,
+      is_featured: true,
+    }
 
-    setCoverImage(preview)
+    const updated = [newImage, ...galleryImages.map(img => ({ ...img, is_featured: false }))]
+    setGalleryImages(updated)
+    updateForm({ media: { ...formMedia, images: updated } })
   }
 
   const handleGalleryUpload = (files: FileList | null) => {
@@ -60,29 +85,47 @@ export default function MediaStep() {
 
     setGalleryImages(updated)
 
-    updateField("images", updated)
-  }
-
-  const handleFloorPlans = (files: FileList | null) => {
-    if (!files) return
-
-    const previews = createPreviews(files)
-
-    setFloorPlans((prev) => [...prev, ...previews])
+    updateForm({ media: { ...formMedia, images: updated } })
   }
 
   const handleDocuments = (files: FileList | null) => {
     if (!files) return
 
-    setDocuments((prev) => [...prev, ...Array.from(files)])
+    const newDocs = Array.from(files).map(file => ({
+      url: URL.createObjectURL(file),
+      type: "document",
+      title: file.name,
+    } as PropertyMediaData))
+    
+    const updated = [...documents, ...newDocs]
+    setDocuments(updated)
+    updateForm({ media: { ...formMedia, documents: updated } })
   }
 
   useEffect(() => {
     return () => {
-      galleryImages.forEach(URL.revokeObjectURL)
-      floorPlans.forEach(URL.revokeObjectURL)
+      // Cleanup object URLs to avoid memory leaks
+      galleryImages.forEach(img => {
+        if (img.url.startsWith('blob:')) URL.revokeObjectURL(img.url)
+      })
+      documents.forEach(doc => {
+        if (doc.url.startsWith('blob:')) URL.revokeObjectURL(doc.url)
+      })
     }
   }, [])
+  
+  // Handlers for videos and tours
+  const handleVideoUrlChange = (url: string) => {
+    setVideoUrl(url)
+    const videos = url ? [{ url, type: "video" as const }] : []
+    updateForm({ media: { ...formMedia, videos } })
+  }
+  
+  const handleVirtualTourUrlChange = (url: string) => {
+    setVirtualTourUrl(url)
+    const virtual_tours = url ? [{ url, type: "virtual_tour" as const }] : []
+    updateForm({ media: { ...formMedia, virtual_tours } })
+  }
 
   return (
     <div className="space-y-6">
@@ -200,13 +243,13 @@ export default function MediaStep() {
 
           {galleryImages.length > 0 && (
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
-              {galleryImages.map((image, index) => (
+              {galleryImages.filter(img => !img.is_featured).map((image, index) => (
                 <div
                   key={index}
                   className="group relative"
                 >
                   <img
-                    src={image}
+                    src={image.url}
                     alt=""
                     className="
                       aspect-square
@@ -227,72 +270,15 @@ export default function MediaStep() {
                       transition-opacity
                       group-hover:opacity-100
                     "
-                    onClick={() =>
-                      setGalleryImages((prev) =>
-                        prev.filter(
-                          (_, i) => i !== index
-                        )
-                      )
-                    }
+                    onClick={() => {
+                      const newImages = galleryImages.filter(img => img !== image);
+                      setGalleryImages(newImages);
+                      updateForm({ media: { ...formMedia, images: newImages } });
+                    }}
                   >
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Floor Plans */}
-
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            Floor Plans
-          </CardTitle>
-        </CardHeader>
-
-        <CardContent>
-          <div
-            onClick={() =>
-              floorPlanInputRef.current?.click()
-            }
-            className="
-              cursor-pointer
-              rounded-xl
-              border-2
-              border-dashed
-              p-10
-              text-center
-            "
-          >
-            Upload Floor Plans
-          </div>
-
-          <input
-            ref={floorPlanInputRef}
-            type="file"
-            multiple
-            accept="image/*,.pdf"
-            className="hidden"
-            onChange={(e) =>
-              handleFloorPlans(e.target.files)
-            }
-          />
-
-          {floorPlans.length > 0 && (
-            <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
-              {floorPlans.map((plan, index) => (
-                <img
-                  key={index}
-                  src={plan}
-                  className="
-                    aspect-square
-                    rounded-lg
-                    object-cover
-                  "
-                />
               ))}
             </div>
           )}
@@ -343,18 +329,16 @@ export default function MediaStep() {
                   p-3
                 "
               >
-                <span>{doc.name}</span>
+                <span>{doc.title}</span>
 
                 <Button
                   size="icon"
                   variant="ghost"
-                  onClick={() =>
-                    setDocuments((prev) =>
-                      prev.filter(
-                        (_, i) => i !== index
-                      )
-                    )
-                  }
+                  onClick={() => {
+                    const newDocs = documents.filter((_, i) => i !== index);
+                    setDocuments(newDocs);
+                    updateForm({ media: { ...formMedia, documents: newDocs } });
+                  }}
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -381,7 +365,7 @@ export default function MediaStep() {
             placeholder="https://youtube.com/watch?v=..."
             value={videoUrl}
             onChange={(e) =>
-              setVideoUrl(e.target.value)
+              handleVideoUrlChange(e.target.value)
             }
           />
         </CardContent>
@@ -403,7 +387,7 @@ export default function MediaStep() {
             placeholder="https://matterport.com/..."
             value={virtualTourUrl}
             onChange={(e) =>
-              setVirtualTourUrl(e.target.value)
+              handleVirtualTourUrlChange(e.target.value)
             }
           />
         </CardContent>

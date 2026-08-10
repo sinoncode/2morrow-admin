@@ -3,6 +3,11 @@ import {
   ChevronRight,
   Home
 } from 'lucide-react';
+
+
+
+
+
 import { ClientHero } from '../../../../components/client/ClientHero';
 import { SummaryCards } from '../../../../components/client/SummaryCards';
 import { ClientInformation } from '../../../../components/client/ClientInformation';

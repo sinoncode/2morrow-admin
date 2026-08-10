@@ -17,11 +17,11 @@ import {
 import { usePropertyCreationStore } from "../store/propertyCreationStore"
 
 export default function PublicationStep() {
-  const { form, updateField } = usePropertyCreationStore()
+  const { form, updateForm } = usePropertyCreationStore()
 
   return (
     <div className="space-y-6">
-      {/* Publication Status */}
+      {/* Publication Settings */}
 
       <Card>
         <CardHeader>
@@ -32,41 +32,17 @@ export default function PublicationStep() {
 
         <CardContent className="grid gap-6 md:grid-cols-2">
           <div className="space-y-2">
-            <Label>Property Status</Label>
-
-            <Select
-              value={form.publicationStatus}
-              onValueChange={(value) =>
-                updateField("publicationStatus", value)
-              }
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-
-              <SelectContent>
-                <SelectItem value="draft">
-                  Draft
-                </SelectItem>
-
-                <SelectItem value="active">
-                  Active
-                </SelectItem>
-
-                <SelectItem value="sold">
-                  Sold
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
             <Label>Visibility</Label>
 
             <Select
-              value={form.visibility}
+              value={form.publication?.visibility ?? "public"}
               onValueChange={(value) =>
-                updateField("visibility", value)
+                updateForm({
+                  publication: {
+                    ...form.publication,
+                    visibility: value as any,
+                  },
+                })
               }
             >
               <SelectTrigger>
@@ -82,8 +58,46 @@ export default function PublicationStep() {
                   Private
                 </SelectItem>
 
-                <SelectItem value="agents-only">
-                  Agents Only
+                <SelectItem value="unlisted">
+                  Unlisted
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Listing Priority</Label>
+
+            <Select
+              value={form.publication?.listing_priority ?? "normal"}
+              onValueChange={(value) =>
+                updateForm({
+                  publication: {
+                    ...form.publication,
+                    listing_priority: value as any,
+                  },
+                })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select Priority" />
+              </SelectTrigger>
+
+              <SelectContent>
+                <SelectItem value="standard">
+                  Standard
+                </SelectItem>
+
+                <SelectItem value="premium">
+                  Premium
+                </SelectItem>
+
+                <SelectItem value="featured">
+                  Featured
+                </SelectItem>
+
+                <SelectItem value="urgent">
+                  Urgent
                 </SelectItem>
               </SelectContent>
             </Select>
@@ -91,115 +105,58 @@ export default function PublicationStep() {
         </CardContent>
       </Card>
 
-      {/* Featured Property */}
+      {/* Featured Property & Verification */}
 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Star className="h-5 w-5 text-primary" />
-            Featured Listing
+            Highlight & Verification
           </CardTitle>
         </CardHeader>
 
-        <CardContent className="flex items-center justify-between">
-          <div>
-            <p className="font-medium">
-              Highlight this property
-            </p>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-left gap-5">
+            <div>
+              <p className="font-medium">
+                Highlight this property
+              </p>
 
-            <p className="text-sm text-muted-foreground">
-              Featured listings appear first in search results.
-            </p>
+              <p className="text-sm text-muted-foreground">
+                Featured listings appear first in search results.
+              </p>
+            </div>
+
+            <Switch
+              checked={form.publication?.is_featured ?? false}
+              onCheckedChange={(value) =>
+                updateForm({
+                  publication: {
+                    ...form.publication,
+                    is_featured: value,
+                  },
+                })
+              }
+            />
           </div>
 
-          <Switch
-            checked={form.isFeatured}
-            onCheckedChange={(value) =>
-              updateField("isFeatured", value)
-            }
-          />
-        </CardContent>
-      </Card>
+          <div className="flex items-center justify-left gap-5">
+            <Label>
+              Verified Listing
+            </Label>
 
-      {/* Listing Priority */}
-
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            Listing Priority
-          </CardTitle>
-        </CardHeader>
-
-        <CardContent>
-          <Select
-            value={form.priority}
-            onValueChange={(value) =>
-              updateField("priority", value)
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select Priority" />
-            </SelectTrigger>
-
-            <SelectContent>
-              <SelectItem value="low">
-                Low
-              </SelectItem>
-
-              <SelectItem value="normal">
-                Normal
-              </SelectItem>
-
-              <SelectItem value="high">
-                High
-              </SelectItem>
-
-              <SelectItem value="premium">
-                Premium
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </CardContent>
-      </Card>
-
-      {/* Agent Assignment */}
-
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            Agent Assignment
-          </CardTitle>
-        </CardHeader>
-
-        <CardContent>
-          <Select
-            value={form.assignedAgent}
-            onValueChange={(value) =>
-              updateField("assignedAgent", value)
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select Agent" />
-            </SelectTrigger>
-
-            <SelectContent>
-              <SelectItem value="john-smith">
-                John Smith
-              </SelectItem>
-
-              <SelectItem value="sarah-jones">
-                Sarah Jones
-              </SelectItem>
-
-              <SelectItem value="michael-lee">
-                Michael Lee
-              </SelectItem>
-
-              <SelectItem value="emma-wilson">
-                Emma Wilson
-              </SelectItem>
-            </SelectContent>
-          </Select>
+            <Switch
+              checked={form.publication?.is_verified ?? false}
+              onCheckedChange={(value) =>
+                updateForm({
+                  publication: {
+                    ...form.publication,
+                    is_verified: value,
+                  },
+                })
+              }
+            />
+          </div>
         </CardContent>
       </Card>
 
@@ -219,12 +176,14 @@ export default function PublicationStep() {
 
             <Input
               type="date"
-              value={form.publishDate}
+              value={form.publication?.publish_date ? new Date(form.publication.publish_date).toISOString().split('T')[0] : ""}
               onChange={(e) =>
-                updateField(
-                  "publishDate",
-                  e.target.value
-                )
+                updateForm({
+                  publication: {
+                    ...form.publication,
+                    publish_date: e.target.value || null,
+                  },
+                })
               }
             />
           </div>
@@ -234,54 +193,14 @@ export default function PublicationStep() {
 
             <Input
               type="date"
-              value={form.expiryDate}
+              value={form.publication?.expiry_date ? new Date(form.publication.expiry_date).toISOString().split('T')[0] : ""}
               onChange={(e) =>
-                updateField(
-                  "expiryDate",
-                  e.target.value
-                )
-              }
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Verification */}
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ShieldCheck className="h-5 w-5 text-primary" />
-            Verification
-          </CardTitle>
-        </CardHeader>
-
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <Label>
-              Verified Listing
-            </Label>
-
-            <Switch
-              checked={form.isVerified}
-              onCheckedChange={(value) =>
-                updateField("isVerified", value)
-              }
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <Label>
-              Requires Approval
-            </Label>
-
-            <Switch
-              checked={form.requiresApproval}
-              onCheckedChange={(value) =>
-                updateField(
-                  "requiresApproval",
-                  value
-                )
+                updateForm({
+                  publication: {
+                    ...form.publication,
+                    expiry_date: e.target.value || null,
+                  },
+                })
               }
             />
           </div>
@@ -303,12 +222,14 @@ export default function PublicationStep() {
             <Label>SEO Title</Label>
 
             <Input
-              value={form.seoTitle}
+              value={form.seo?.title ?? ""}
               onChange={(e) =>
-                updateField(
-                  "seoTitle",
-                  e.target.value
-                )
+                updateForm({
+                  seo: {
+                    ...form.seo,
+                    title: e.target.value,
+                  },
+                })
               }
               placeholder="Luxury Villa For Sale In Palm Jumeirah"
             />
@@ -319,27 +240,31 @@ export default function PublicationStep() {
 
             <Textarea
               rows={4}
-              value={form.metaDescription}
+              value={form.seo?.meta_description ?? ""}
               onChange={(e) =>
-                updateField(
-                  "metaDescription",
-                  e.target.value
-                )
+                updateForm({
+                  seo: {
+                    ...form.seo,
+                    meta_description: e.target.value,
+                  },
+                })
               }
               placeholder="SEO description for search engines..."
             />
           </div>
 
           <div className="space-y-2">
-            <Label>SEO Keywords</Label>
+            <Label>SEO Keywords (comma separated)</Label>
 
             <Input
-              value={form.seoKeywords}
+              value={form.seo?.keywords?.join(", ") ?? ""}
               onChange={(e) =>
-                updateField(
-                  "seoKeywords",
-                  e.target.value
-                )
+                updateForm({
+                  seo: {
+                    ...form.seo,
+                    keywords: e.target.value.split(",").map(k => k.trim()).filter(Boolean),
+                  },
+                })
               }
               placeholder="villa, dubai, luxury property, beachfront"
             />

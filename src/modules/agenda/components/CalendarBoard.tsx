@@ -79,11 +79,11 @@ const CalendarBoard = ({
     };
 
     return (
-        <div className="p-8">
+        <div className="p-3 sm:p-6 lg:p-8">
 
             {/* Week Days */}
 
-            <div className={clsx("mb-4 grid gap-4", activeView === "Day" ? "grid-cols-1" : "grid-cols-7")}>
+            <div className={clsx("mb-4 grid gap-2 sm:gap-4", activeView === "Day" ? "grid-cols-1" : "grid-cols-2 sm:grid-cols-3 md:grid-cols-7")}>
                 {activeView === "Day" ? (
                     <div className="pb-3 text-center text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                         {WEEK_DAYS[selectedDate.getDay()]}
@@ -102,7 +102,7 @@ const CalendarBoard = ({
 
             {/* Calendar Grid */}
 
-            <div className={clsx("grid gap-4", activeView === "Day" ? "grid-cols-1" : "grid-cols-7")}>
+            <div className={clsx("grid gap-3 sm:gap-4", activeView === "Day" ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 xl:grid-cols-7")}>
 
                 {calendarDays.map((day, index) => {
 
@@ -135,7 +135,7 @@ const CalendarBoard = ({
                                 y: -3,
                             }}
                             className={clsx(
-                                "group relative min-h-[180px] rounded-3xl border bg-white dark:bg-[#141414] p-4 transition-all duration-300",
+                                "group relative min-h-[140px] rounded-3xl border bg-white p-3 transition-all duration-300 dark:bg-[#141414] sm:min-h-[180px] sm:p-4",
                                 isCurrentMonth
                                     ? "border-slate-200 dark:border-slate-800"
                                     : "border-slate-100 dark:border-slate-800/50 bg-slate-50 dark:bg-[#1A1A1A] opacity-60",
@@ -162,7 +162,7 @@ const CalendarBoard = ({
 
                                 <button
                                     onClick={onCreateEvent}
-                                    className="opacity-0 transition group-hover:opacity-100"
+                                    className="opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100"
                                 >
 
                                     <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-sky-500 hover:text-white">

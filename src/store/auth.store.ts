@@ -35,31 +35,35 @@ export const useAuthStore = create<AuthStore>((set) => ({
     })
 
     try {
-     const response = await AuthService.login(data);
+      const response = await AuthService.login(data)
+      const payload = response?.data ?? response
+      const token =
+        payload?.data?.token ??
+        payload?.token ??
+        payload?.access_token ??
+        payload?.data?.access_token
+      const user = payload?.data?.user ?? payload?.user ?? null
 
-localStorage.setItem(
-  "access_token",
-  response.data.data.token
-);
+      if (!token) {
+        throw new Error("No authentication token received from the server")
+      }
 
-set({
-  user: response.data.data.user,
-});
+      localStorage.setItem("access_token", token)
+      set({ user })
 
       toast.success("Login successful")
 
       return true
     } catch (error: any) {
       const message =
-        error.response?.data?.message || "Login failed"
+        error?.response?.data?.message ||
+        error?.message ||
+        "Login failed"
 
       set({
         error: message,
+        user: null,
       })
-
-      set({
-  user: null,
-});
 
       toast.error(message)
 

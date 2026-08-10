@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react"
-import { useParams, useNavigate } from "react-router-dom"
+import { useParams } from "react-router-dom"
+import { motion, AnimatePresence } from "framer-motion"
+
+import { usePropertyCreationStore } from "../create/store/propertyCreationStore"
+import { usePropertyStore } from "@/store/propertyStore"
+
+import PropertyEditWizardHeader from "./PropertyEditWizardHeader"
+import PropertyWizardNavigation from "../create/PropertyWizardNavigation"
 
 import GeneralStep from "../create/steps/GeneralStep"
 import CharacteristicsStep from "../create/steps/CharacteristicsStep"
@@ -10,168 +17,135 @@ import PublicationStep from "../create/steps/PublicationStep"
 import MatchingStep from "../create/steps/MatchingStep"
 import ProposedStep from "../create/steps/ProposedStep"
 
-import PropertyWizardNavigation from "../create/PropertyWizardNavigation"
-import PropertyEditWizardHeader from "./PropertyEditWizardHeader"
-
-import { usePropertyCreationStore } from "../create/store/propertyCreationStore"
-import { usePropertyStore } from "@/store/propertyStore"
-
-import { Skeleton } from "@/components/ui/skeleton"
-import { AlertCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-
-const STEPS = [
-  "General",
+const WIZARD_STEPS = [
+  "General Information",
   "Characteristics",
-  "Price",
+  "Pricing & Strategy",
   "Description",
-  "Image",
+  "Media & Documents",
   "Publication",
-  "Matching",
-  "Proposed",
+  "AI Matching",
+  "Proposed Buyers",
 ]
 
-function renderStep(step: number) {
-  switch (step) {
-    case 0: return <GeneralStep />
-    case 1: return <CharacteristicsStep />
-    case 2: return <PricingStep />
-    case 3: return <DescriptionStep />
-    case 4: return <MediaStep />
-    case 5: return <PublicationStep />
-    case 6: return <MatchingStep />
-    case 7: return <ProposedStep />
-    default: return <GeneralStep />
-  }
+const variants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? 30 : -30,
+    opacity: 0,
+    scale: 0.98,
+  }),
+  center: {
+    zIndex: 1,
+    x: 0,
+    opacity: 1,
+    scale: 1,
+  },
+  exit: (direction: number) => ({
+    zIndex: 0,
+    x: direction < 0 ? 30 : -30,
+    opacity: 0,
+    scale: 0.98,
+  }),
 }
 
 export default function PropertyEditWizard() {
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
+  const propertyId = Number(id)
+
+  const { fetchPropertyById, selectedProperty, detailsLoading } = usePropertyStore()
+  const { loadFromProperty, reset } = usePropertyCreationStore()
 
   const [currentStep, setCurrentStep] = useState(0)
-  const [fetchError, setFetchError] = useState(false)
+  const [direction, setDirection] = useState(0)
+  const [isHydrated, setIsHydrated] = useState(false)
 
-  const { fetchPropertyById, detailsLoading } = usePropertyStore()
-  const { updateField, reset } = usePropertyCreationStore()
-
-  // ─── Hydrate the store with the existing property data ─────────────────────
+  // 1. Fetch property details on mount
   useEffect(() => {
-    if (!id) return
-
-    reset()
-    setFetchError(false)
-
-    fetchPropertyById(Number(id)).then((property) => {
-      if (!property) {
-        setFetchError(true)
-        return
-      }
-
-      // Map Property → PropertyFormData field by field
-      updateField("title", property.title ?? "")
-      updateField("propertyType", property.type ?? "")
-      updateField("listingType", property.listing_type ?? "sale")
-      updateField("description", property.description ?? "")
-      updateField("publicationStatus", (property.status as any) ?? "draft")
-
-      // Location
-      updateField("address", property.address ?? "")
-      updateField("city", property.city ?? "")
-      updateField("state", property.state ?? "")
-      updateField("zipCode", property.zip_code ?? "")
-      updateField("latitude", property.latitude ?? "")
-      updateField("longitude", property.longitude ?? "")
-      updateField("locationDescription", property.neighborhood_description ?? "")
-
-      // Specs
-      updateField("bedrooms", property.bedrooms ?? 0)
-      updateField("bathrooms", property.bathrooms ?? 0)
-      updateField("balconies", property.balconies ?? 0)
-      updateField("builtUpArea", property.area ?? "")
-      updateField("floorNumber", property.floor_number ? String(property.floor_number) : "")
-      updateField("totalFloors", property.total_floors ? String(property.total_floors) : "")
-      updateField("yearBuilt", property.year_built ? String(property.year_built) : "")
-      updateField("furnishing", property.furnishing_status ?? "")
-      updateField("facing", property.facing_direction ?? "")
-
-      // Parking
-      updateField("coveredParking", property.covered_parking ?? false)
-      updateField("openParking", property.open_parking ?? false)
-      updateField("parkingSlots", property.parking_slots ? String(property.parking_slots) : "")
-
-      // Pricing
-      updateField("price", property.price ?? "")
-      updateField("taxPercentage", property.tax_percentage ?? "")
-      updateField("maintenanceFee", property.maintenance_charges ?? "")
-      updateField("discount", property.discount ?? "")
-
-      // Amenities / Keywords
-      updateField("amenities", property.indoor_amenities ?? [])
-      updateField("keywords", property.keywords ?? [])
-
-      // Media
-      updateField("images", [])
-    })
-
+    if (propertyId) {
+      fetchPropertyById(propertyId)
+    }
+    // Cleanup on unmount
     return () => {
       reset()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id])
+  }, [propertyId, fetchPropertyById, reset])
 
-  // ─── Loading skeleton ───────────────────────────────────────────────────────
-  if (detailsLoading) {
+  // 2. Hydrate the creation store once the property is loaded
+  useEffect(() => {
+    if (selectedProperty && selectedProperty.id === propertyId) {
+      loadFromProperty(selectedProperty as any)
+      setIsHydrated(true)
+    }
+  }, [selectedProperty, propertyId, loadFromProperty])
+
+  // Navigation handlers
+  const handleStepChange = (newStep: number) => {
+    setDirection(newStep > currentStep ? 1 : -1)
+    setCurrentStep(newStep)
+  }
+
+  // Render current step component
+  const renderStep = () => {
+    switch (currentStep) {
+      case 0:
+        return <GeneralStep />
+      case 1:
+        return <CharacteristicsStep />
+      case 2:
+        return <PricingStep />
+      case 3:
+        return <DescriptionStep />
+      case 4:
+        return <MediaStep />
+      case 5:
+        return <PublicationStep />
+      case 6:
+        return <MatchingStep />
+      case 7:
+        return <ProposedStep />
+      default:
+        return null
+    }
+  }
+
+  // Loading state
+  if (detailsLoading || !isHydrated) {
     return (
-      <div className="space-y-6">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="space-y-2">
-            <Skeleton className="h-8 w-56" />
-            <Skeleton className="h-4 w-72" />
-          </div>
-          <div className="flex gap-2">
-            <Skeleton className="h-9 w-28" />
-            <Skeleton className="h-9 w-36" />
-          </div>
-        </div>
-        <Skeleton className="h-14 w-full rounded-full" />
-        <Skeleton className="h-[400px] w-full rounded-xl" />
+      <div className="flex h-[60vh] flex-col items-center justify-center gap-4 text-muted-foreground">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+        <p className="text-sm font-medium">Loading property details...</p>
       </div>
     )
   }
 
-  // ─── Error state ────────────────────────────────────────────────────────────
-  if (fetchError) {
-    return (
-      <div className="flex min-h-[400px] flex-col items-center justify-center gap-4 rounded-xl border bg-card p-10 text-center">
-        <AlertCircle className="h-12 w-12 text-destructive" />
-        <div>
-          <h2 className="text-xl font-semibold">Property Not Found</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            We couldn't load the property with ID&nbsp;<strong>{id}</strong>.
-            It may have been deleted or you may not have permission to view it.
-          </p>
-        </div>
-        <Button variant="outline" onClick={() => navigate("/properties/list")}>
-          Back to Properties
-        </Button>
-      </div>
-    )
-  }
-
-  // ─── Wizard ─────────────────────────────────────────────────────────────────
   return (
-    <div className="space-y-6">
-      <PropertyEditWizardHeader propertyId={Number(id)} />
+    <div className="mx-auto w-full max-w-full space-y-8 pb-12">
+      <PropertyEditWizardHeader propertyId={propertyId} />
 
       <PropertyWizardNavigation
-        steps={STEPS}
+        steps={WIZARD_STEPS}
         currentStep={currentStep}
-        onStepChange={setCurrentStep}
+        onStepChange={handleStepChange}
       />
 
-      <div className="rounded-xl border bg-card p-6 shadow-sm">
-        {renderStep(currentStep)}
+      <div className="relative mt-8 min-h-[600px] overflow-visible">
+        <AnimatePresence initial={false} custom={direction} mode="wait">
+          <motion.div
+            key={currentStep}
+            custom={direction}
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{
+              x: { type: "spring", stiffness: 300, damping: 30 },
+              opacity: { duration: 0.2 },
+            }}
+            className="w-full"
+          >
+            {renderStep()}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   )

@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { usePropertyStore } from "@/store/propertyStore";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     IconMapPin,
@@ -13,19 +15,15 @@ import {
     IconFile,
     IconChevronLeft,
     IconChevronRight,
-    IconShare,
-    IconHeart,
     IconEdit,
     IconCompass,
     IconCalendar,
-    IconCurrencyDollar,
     IconShield,
     IconBulb,
     IconDeviceLaptop,
     IconDiamond,
     IconCheck,
     IconExternalLink,
-    Icon,
     IconArmchair,
 } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
@@ -34,81 +32,13 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
-// ─── Mock Property Data ─────────────────────────────────────────────────────
-const MOCK_PROPERTY = {
-    id: 1,
-    title: "Luxury Penthouse with Panoramic City Views",
-    description:
-        "An extraordinary penthouse residence that redefines urban luxury. Spanning the entire top floor, this architectural masterpiece offers unobstructed 360-degree views of the city skyline. The interiors feature Italian marble flooring, custom-designed cabinetry, and floor-to-ceiling windows that flood every room with natural light. The open-plan living area flows seamlessly to a private wraparound terrace — perfect for entertaining or quiet evenings above the city.",
-    price: "12500000",
-    status: "active" as const,
-    type: "Penthouse",
-    listing_type: "sale" as const,
-    address: "2901 Skyline Boulevard",
-    city: "San Francisco",
-    state: "CA",
-    zip_code: "94105",
-    latitude: "37.7749",
-    longitude: "-122.4194",
-    neighborhood_description:
-        "Nestled in the heart of SoMa, steps away from world-class dining, the Ferry Building, and the Embarcadero waterfront promenade.",
-    bedrooms: 4,
-    bathrooms: 5,
-    area: "6200",
-    balconies: 3,
-    floor_number: 42,
-    total_floors: 42,
-    year_built: 2021,
-    furnishing_status: "fully_furnished" as const,
-    facing_direction: "north_east" as const,
-    covered_parking: true,
-    open_parking: false,
-    parking_slots: 3,
-    tax_percentage: "1.2",
-    maintenance_charges: "4500",
-    discount: "500000",
-    indoor_amenities: [
-        "Home Theatre",
-        "Wine Cellar",
-        "Chef's Kitchen",
-        "Walk-in Closets",
-        "Private Elevator",
-        "Gym Room",
-        "Library",
-        "Sauna",
-    ],
-    outdoor_features: [
-        "Wraparound Terrace",
-        "Rooftop Pool",
-        "BBQ Station",
-        "Landscaped Garden",
-        "Outdoor Kitchen",
-        "Fire Pit",
-    ],
-    smart_features: [
-        "Automated Lighting",
-        "Smart Climate Control",
-        "Voice Assistants",
-        "Security AI",
-        "Smart Locks",
-        "Home Automation Hub",
-    ],
-    high_value_assets: [
-        "Designer Furniture",
-        "Art Collection",
-        "Custom Chandeliers",
-        "Italian Marble Floors",
-    ],
-    video_url: "https://youtube.com/watch?v=example",
-    virtual_tour_url: "https://matterport.com/example",
-    title_deed: "/docs/title-deed.pdf",
-    floor_plan: "/docs/floor-plan.pdf",
-    id_proof: "/docs/id-proof.pdf",
-    legal_documents: "/docs/legal.pdf",
-    keywords: ["luxury", "penthouse", "san francisco", "skyline", "panoramic"],
-    created_at: "2024-11-01T10:00:00Z",
-    updated_at: "2025-06-20T14:30:00Z",
-};
+import {
+    PROPERTY_STATUS_OPTIONS,
+    PROPERTY_SUB_TYPE_OPTIONS,
+    LISTING_TYPE_OPTIONS,
+    FURNISHING_STATUS_OPTIONS,
+    FACING_DIRECTION_OPTIONS,
+} from "@/types/property.types";
 
 // Placeholder images
 const IMAGES = [
@@ -120,64 +50,25 @@ const IMAGES = [
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-const formatPrice = (price: string) =>
+const formatPrice = (price: number | string, currency: string = 'CHF') =>
     new Intl.NumberFormat("en-US", {
         style: "currency",
-        currency: "USD",
+        currency: currency,
         maximumFractionDigits: 0,
     }).format(Number(price));
 
-const formatDate = (iso: string) =>
-    new Intl.DateTimeFormat("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-    }).format(new Date(iso));
-
-const STATUS_MAP: Record<string, { label: string; className: string }> = {
-    active: {
-        label: "Active",
-        className:
-            "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
-    },
-    draft: {
-        label: "Draft",
-        className:
-            "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/20",
-    },
-    sold: {
-        label: "Sold",
-        className:
-            "bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/20",
-    },
-    inactive: {
-        label: "Inactive",
-        className:
-            "bg-zinc-500/15 text-zinc-600 dark:text-zinc-400 border-zinc-500/20",
-    },
-    archived: {
-        label: "Archived",
-        className:
-            "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/20",
-    },
+const getStatusConfig = (status: string) => {
+    switch (status) {
+        case "active": return { label: "Active", className: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/20" };
+        case "draft": return { label: "Draft", className: "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/20" };
+        case "sold": return { label: "Sold", className: "bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/20" };
+        case "archived": return { label: "Archived", className: "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/20" };
+        default: return { label: "Inactive", className: "bg-zinc-500/15 text-zinc-600 dark:text-zinc-400 border-zinc-500/20" };
+    }
 };
 
-const FACING_LABELS: Record<string, string> = {
-    north: "North",
-    south: "South",
-    east: "East",
-    west: "West",
-    north_east: "North East",
-    north_west: "North West",
-    south_east: "South East",
-    south_west: "South West",
-};
-
-const FURNISHING_LABELS: Record<string, string> = {
-    fully_furnished: "Fully Furnished",
-    semi_furnished: "Semi Furnished",
-    unfurnished: "Unfurnished",
-};
+const getLabel = (options: {label: string, value: string}[], value?: string) => 
+    options.find(o => o.value === value)?.label ?? value ?? "—";
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
@@ -238,6 +129,7 @@ function DocumentCard({
                     ? "border-border/60 bg-muted/30 hover:border-primary/40 hover:bg-muted/60 cursor-pointer"
                     : "border-border/30 bg-muted/10 opacity-50"
             )}
+            onClick={() => href && window.open(href, '_blank')}
         >
             <div className="flex items-center gap-3">
                 <div
@@ -275,6 +167,8 @@ function Gallery({ images }: { images: string[] }) {
 
     const prev = () => setActive((i) => (i - 1 + images.length) % images.length);
     const next = () => setActive((i) => (i + 1) % images.length);
+
+    if (!images || images.length === 0) return null;
 
     return (
         <div className="w-full space-y-3">
@@ -360,15 +254,47 @@ function Section({
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function PropertyViewPage() {
-    const p = MOCK_PROPERTY;
-    const status = STATUS_MAP[p.status];
-    const originalPrice = Number(p.price);
-    const discount = p.discount ? Number(p.discount) : 0;
+    const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
+    const { fetchPropertyById, selectedProperty: p, detailsLoading } = usePropertyStore();
+
+    useEffect(() => {
+        if (id) {
+            fetchPropertyById(id);
+        }
+    }, [id, fetchPropertyById]);
+
+    if (detailsLoading) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-muted-foreground gap-4">
+                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-sm font-medium">Loading property details...</p>
+            </div>
+        );
+    }
+
+    if (!p) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-muted-foreground gap-4">
+                <p className="text-sm font-medium">Property not found.</p>
+                <Button onClick={() => navigate("/properties/list")} variant="outline">
+                    Back to Properties
+                </Button>
+            </div>
+        );
+    }
+
+    const status = getStatusConfig(p.classification?.listing_status ?? "draft");
+    const originalPrice = Number(p.pricing?.price || 0);
+    const discount = p.pricing?.discount ? Number(p.pricing.discount) : 0;
     const finalPrice = originalPrice - discount;
+    
+    // Extract actual images or use placeholders if none
+    const propertyImages = p.media?.images?.length ? p.media.images.map(img => img.url) : IMAGES;
 
     return (
         <div className="min-h-screen bg-background text-foreground">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
                 {/* ── Header bar ── */}
                 <motion.div
@@ -391,16 +317,14 @@ export default function PropertyViewPage() {
                                 variant="outline"
                                 className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-primary/8 border-primary/20 text-primary"
                             >
-                                {p.listing_type === "sale"
-                                    ? "For Sale"
-                                    : "For Rent"}
+                                {p.classification?.transaction_type === "sale" ? "For Sale" : "For Rent"}
                             </Badge>
-                            {p.type && (
+                            {p.classification?.sub_type && (
                                 <Badge
                                     variant="outline"
                                     className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-muted border-border/60 text-muted-foreground"
                                 >
-                                    {p.type}
+                                    {getLabel(PROPERTY_SUB_TYPE_OPTIONS, p.classification.sub_type)}
                                 </Badge>
                             )}
                         </div>
@@ -410,7 +334,7 @@ export default function PropertyViewPage() {
                         <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
                             <IconMapPin size={14} className="text-primary shrink-0" />
                             <span>
-                                {[p.address, p.city, p.state, p.zip_code]
+                                {[p.location?.address_line_1, p.location?.city, p.location?.state, p.location?.country, p.location?.zip_code]
                                     .filter(Boolean)
                                     .join(", ")}
                             </span>
@@ -419,15 +343,7 @@ export default function PropertyViewPage() {
 
                     {/* Action buttons */}
                     <div className="flex items-center gap-2 shrink-0">
-                        <Button variant="outline" size="sm" className="gap-1.5 rounded-full">
-                            <IconShare size={15} />
-                            Share
-                        </Button>
-                        <Button variant="outline" size="sm" className="gap-1.5 rounded-full">
-                            <IconHeart size={15} />
-                            Save
-                        </Button>
-                        <Button size="sm" className="gap-1.5 rounded-full">
+                        <Button onClick={() => navigate(`/properties/edit/${p.id}`)} size="sm" className="gap-1.5 rounded-full">
                             <IconEdit size={15} />
                             Edit
                         </Button>
@@ -445,31 +361,31 @@ export default function PropertyViewPage() {
                         className="lg:col-span-2 space-y-8"
                     >
                         {/* Gallery */}
-                        <Gallery images={IMAGES} />
+                        <Gallery images={propertyImages} />
 
                         {/* Quick stats bar */}
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                             <StatCard
                                 icon={IconBed}
                                 label="Bedrooms"
-                                value={p.bedrooms ?? "—"}
+                                value={p.dimensions?.bedrooms ?? "—"}
                             />
                             <StatCard
                                 icon={IconBath}
                                 label="Bathrooms"
-                                value={p.bathrooms ?? "—"}
+                                value={p.dimensions?.bathrooms ?? "—"}
                             />
                             <StatCard
                                 icon={IconRuler}
-                                label="Area"
-                                value={p.area ? `${Number(p.area).toLocaleString()} ft²` : "—"}
+                                label="Living Area"
+                                value={p.dimensions?.living_area ? `${Number(p.dimensions.living_area).toLocaleString()} m²` : "—"}
                             />
                             <StatCard
                                 icon={IconBuilding}
                                 label="Floor"
                                 value={
-                                    p.floor_number && p.total_floors
-                                        ? `${p.floor_number} / ${p.total_floors}`
+                                    p.dimensions?.floor_number && p.dimensions?.total_floors
+                                        ? `${p.dimensions.floor_number} / ${p.dimensions.total_floors}`
                                         : "—"
                                 }
                             />
@@ -481,7 +397,7 @@ export default function PropertyViewPage() {
                                 {[
                                     { value: "details", label: "Details" },
                                     { value: "amenities", label: "Amenities" },
-                                    { value: "documents", label: "Documents" },
+                                    { value: "documents", label: "Media & Docs" },
                                     { value: "financial", label: "Financial" },
                                 ].map((tab) => (
                                     <TabsTrigger
@@ -497,8 +413,8 @@ export default function PropertyViewPage() {
                             {/* ── Details ── */}
                             <TabsContent value="details" className="mt-6 space-y-6">
                                 <Section title="About this property">
-                                    <p className="text-sm text-muted-foreground leading-relaxed">
-                                        {p.description}
+                                    <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+                                        {p.description || "No description provided."}
                                     </p>
                                 </Section>
 
@@ -510,36 +426,32 @@ export default function PropertyViewPage() {
                                             {
                                                 icon: IconArmchair,
                                                 label: "Furnishing",
-                                                value: FURNISHING_LABELS[
-                                                    p.furnishing_status ?? ""
-                                                ] ?? "—",
+                                                value: getLabel(FURNISHING_STATUS_OPTIONS, p.equipment?.furnishing_status),
                                             },
                                             {
                                                 icon: IconCompass,
                                                 label: "Facing",
-                                                value: FACING_LABELS[
-                                                    p.facing_direction ?? ""
-                                                ] ?? "—",
+                                                value: getLabel(FACING_DIRECTION_OPTIONS, p.orientation?.facing_direction),
                                             },
                                             {
                                                 icon: IconCalendar,
                                                 label: "Year Built",
-                                                value: p.year_built ?? "—",
+                                                value: p.construction?.year_built ?? "—",
                                             },
                                             {
-                                                icon: IconCalendar,
+                                                icon: IconLeaf,
                                                 label: "Balconies",
-                                                value: p.balconies ?? "—",
+                                                value: p.dimensions?.balconies ?? "—",
                                             },
                                             {
                                                 icon: IconParking,
                                                 label: "Parking Slots",
-                                                value: p.parking_slots ?? "—",
+                                                value: p.parking?.parking_slots ?? "—",
                                             },
                                             {
                                                 icon: IconBuilding,
                                                 label: "Property Type",
-                                                value: p.type ?? "—",
+                                                value: getLabel(PROPERTY_SUB_TYPE_OPTIONS, p.classification?.sub_type),
                                             },
                                         ].map(({ icon: Icon, label, value }) => (
                                             <div
@@ -569,28 +481,28 @@ export default function PropertyViewPage() {
                                         <div
                                             className={cn(
                                                 "flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium",
-                                                p.covered_parking
+                                                p.parking?.covered_parking
                                                     ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400"
                                                     : "bg-muted/40 border-border/40 text-muted-foreground"
                                             )}
                                         >
                                             <IconParking size={15} />
                                             Covered Parking
-                                            {p.covered_parking ? (
+                                            {p.parking?.covered_parking ? (
                                                 <IconCheck size={13} />
                                             ) : null}
                                         </div>
                                         <div
                                             className={cn(
                                                 "flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium",
-                                                p.open_parking
+                                                p.parking?.open_parking
                                                     ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400"
                                                     : "bg-muted/40 border-border/40 text-muted-foreground"
                                             )}
                                         >
                                             <IconParking size={15} />
                                             Open Parking
-                                            {p.open_parking ? (
+                                            {p.parking?.open_parking ? (
                                                 <IconCheck size={13} />
                                             ) : null}
                                         </div>
@@ -601,24 +513,24 @@ export default function PropertyViewPage() {
 
                                 <Section title="Neighborhood">
                                     <p className="text-sm text-muted-foreground leading-relaxed">
-                                        {p.neighborhood_description}
+                                        {p.location?.neighborhood_description || "No neighborhood details provided."}
                                     </p>
-                                    {p.latitude && p.longitude && (
+                                    {p.location?.coordinates?.latitude && p.location?.coordinates?.longitude && (
                                         <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
                                             <IconMapPin size={13} className="text-primary" />
                                             <span>
-                                                {p.latitude}, {p.longitude}
+                                                {p.location.coordinates.latitude}, {p.location.coordinates.longitude}
                                             </span>
                                         </div>
                                     )}
                                 </Section>
 
-                                {p.keywords && p.keywords.length > 0 && (
+                                {p.seo?.keywords && p.seo.keywords.length > 0 && (
                                     <>
                                         <Separator />
                                         <Section title="Tags">
                                             <div className="flex flex-wrap gap-2">
-                                                {p.keywords.map((kw) => (
+                                                {p.seo.keywords.map((kw) => (
                                                     <span
                                                         key={kw}
                                                         className="px-2.5 py-1 rounded-full bg-muted border border-border/60 text-xs text-muted-foreground capitalize"
@@ -636,28 +548,34 @@ export default function PropertyViewPage() {
                             <TabsContent value="amenities" className="mt-6 space-y-6">
                                 {[
                                     {
-                                        title: "Indoor amenities",
+                                        title: "Interior Amenities",
                                         icon: IconBulb,
-                                        items: p.indoor_amenities ?? [],
+                                        items: p.equipment?.interior_amenities ?? [],
                                         color: "text-violet-500",
                                     },
                                     {
-                                        title: "Outdoor features",
+                                        title: "Exterior Features",
                                         icon: IconLeaf,
-                                        items: p.outdoor_features ?? [],
+                                        items: p.equipment?.exterior_amenities ?? [],
                                         color: "text-emerald-500",
                                     },
                                     {
-                                        title: "Smart features",
-                                        icon: IconDeviceLaptop,
-                                        items: p.smart_features ?? [],
-                                        color: "text-blue-500",
+                                        title: "Wellness & Recreation",
+                                        icon: IconDiamond,
+                                        items: p.equipment?.wellness_amenities ?? [],
+                                        color: "text-amber-500",
                                     },
                                     {
-                                        title: "High-value assets",
-                                        icon: IconDiamond,
-                                        items: p.high_value_assets ?? [],
-                                        color: "text-amber-500",
+                                        title: "Security & Safety",
+                                        icon: IconShield,
+                                        items: p.equipment?.security_amenities ?? [],
+                                        color: "text-red-500",
+                                    },
+                                    {
+                                        title: "Smart Home",
+                                        icon: IconDeviceLaptop,
+                                        items: p.equipment?.smart_home_features ?? [],
+                                        color: "text-blue-500",
                                     },
                                 ].map(
                                     ({ title, icon: Icon, items, color }) =>
@@ -683,76 +601,66 @@ export default function PropertyViewPage() {
                                             </Section>
                                         )
                                 )}
+                            </TabsContent>
 
-                                {/* Media links */}
-                                <Separator />
-                                <Section title="Media">
+                            {/* ── Media & Documents ── */}
+                            <TabsContent value="documents" className="mt-6 space-y-6">
+                                <Section title="Virtual Tours & Video">
                                     <div className="flex flex-wrap gap-3">
-                                        {p.video_url && (
+                                        {p.media?.videos?.map((vid, idx) => (
                                             <a
-                                                href={p.video_url}
+                                                key={idx}
+                                                href={vid.url}
                                                 target="_blank"
                                                 rel="noreferrer"
                                                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border/60 bg-muted/40 hover:border-primary/40 hover:bg-muted/60 text-sm font-medium text-foreground transition-all"
                                             >
-                                                <IconVideo
-                                                    size={15}
-                                                    className="text-red-500"
-                                                />
-                                                Watch Video Tour
-                                                <IconExternalLink
-                                                    size={12}
-                                                    className="text-muted-foreground"
-                                                />
+                                                <IconVideo size={15} className="text-red-500" />
+                                                Watch Video Tour {idx + 1}
+                                                <IconExternalLink size={12} className="text-muted-foreground" />
                                             </a>
-                                        )}
-                                        {p.virtual_tour_url && (
+                                        ))}
+                                        
+                                        {p.media?.virtual_tours?.map((tour, idx) => (
                                             <a
-                                                href={p.virtual_tour_url}
+                                                key={idx}
+                                                href={tour.url}
                                                 target="_blank"
                                                 rel="noreferrer"
                                                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border/60 bg-muted/40 hover:border-primary/40 hover:bg-muted/60 text-sm font-medium text-foreground transition-all"
                                             >
-                                                <IconStar
-                                                    size={15}
-                                                    className="text-amber-500"
-                                                />
-                                                Virtual 3D Tour
-                                                <IconExternalLink
-                                                    size={12}
-                                                    className="text-muted-foreground"
-                                                />
+                                                <IconStar size={15} className="text-amber-500" />
+                                                Virtual 3D Tour {idx + 1}
+                                                <IconExternalLink size={12} className="text-muted-foreground" />
                                             </a>
+                                        ))}
+
+                                        {(!p.media?.videos?.length && !p.media?.virtual_tours?.length) && (
+                                            <p className="text-sm text-muted-foreground">No virtual tours available.</p>
                                         )}
                                     </div>
                                 </Section>
-                            </TabsContent>
+                                
+                                <Separator />
 
-                            {/* ── Documents ── */}
-                            <TabsContent value="documents" className="mt-6">
                                 <Section title="Property documents">
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        <DocumentCard
-                                            label="Title Deed"
-                                            href={p.title_deed}
-                                        />
-                                        <DocumentCard
-                                            label="Floor Plan"
-                                            href={p.floor_plan}
-                                        />
-                                        <DocumentCard
-                                            label="ID Proof"
-                                            href={p.id_proof}
-                                        />
-                                        <DocumentCard
-                                            label="Legal Documents"
-                                            href={p.legal_documents}
-                                        />
-                                    </div>
+                                    {p.media?.documents?.length ? (
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            {p.media.documents.map((doc, idx) => (
+                                                <DocumentCard
+                                                    key={idx}
+                                                    label={doc.title || `Document ${idx+1}`}
+                                                    href={doc.url}
+                                                />
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm text-muted-foreground">No documents uploaded.</p>
+                                    )}
+                                    
                                     <p className="text-xs text-muted-foreground mt-4 flex items-center gap-1.5">
                                         <IconShield size={13} className="text-emerald-500" />
-                                        All documents are securely stored and
-                                        encrypted.
+                                        All documents are securely stored and encrypted.
                                     </p>
                                 </Section>
                             </TabsContent>
@@ -764,13 +672,13 @@ export default function PropertyViewPage() {
                                         {[
                                             {
                                                 label: "Listed price",
-                                                value: formatPrice(p.price),
+                                                value: formatPrice(p.pricing?.price || 0, p.pricing?.currency),
                                                 highlight: false,
                                             },
                                             {
                                                 label: "Discount",
                                                 value: discount
-                                                    ? `− ${formatPrice(String(discount))}`
+                                                    ? `− ${formatPrice(String(discount), p.pricing?.currency)}`
                                                     : "None",
                                                 highlight: false,
                                                 accent: "text-emerald-500",
@@ -778,7 +686,7 @@ export default function PropertyViewPage() {
                                             {
                                                 label: "Final price",
                                                 value: formatPrice(
-                                                    String(finalPrice)
+                                                    String(finalPrice), p.pricing?.currency
                                                 ),
                                                 highlight: true,
                                             },
@@ -831,26 +739,37 @@ export default function PropertyViewPage() {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <div className="p-4 rounded-xl bg-muted/40 border border-border/50 space-y-1">
                                             <p className="text-xs text-muted-foreground uppercase tracking-wide">
-                                                Property Tax
+                                                Annual Property Tax
                                             </p>
                                             <p className="text-lg font-semibold text-foreground">
-                                                {p.tax_percentage
-                                                    ? `${p.tax_percentage}%`
+                                                {p.financials?.annual_property_tax
+                                                    ? formatPrice(p.financials.annual_property_tax, p.pricing?.currency)
                                                     : "—"}
                                             </p>
                                             <p className="text-xs text-muted-foreground">
-                                                Annually
+                                                Per year
                                             </p>
                                         </div>
                                         <div className="p-4 rounded-xl bg-muted/40 border border-border/50 space-y-1">
                                             <p className="text-xs text-muted-foreground uppercase tracking-wide">
-                                                Maintenance
+                                                Maintenance Charges
                                             </p>
                                             <p className="text-lg font-semibold text-foreground">
-                                                {p.maintenance_charges
-                                                    ? formatPrice(
-                                                        p.maintenance_charges
-                                                    )
+                                                {p.financials?.maintenance_charges
+                                                    ? formatPrice(p.financials.maintenance_charges, p.pricing?.currency)
+                                                    : "—"}
+                                            </p>
+                                            <p className="text-xs text-muted-foreground">
+                                                Periodical
+                                            </p>
+                                        </div>
+                                        <div className="p-4 rounded-xl bg-muted/40 border border-border/50 space-y-1">
+                                            <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                                                Monthly HOA
+                                            </p>
+                                            <p className="text-lg font-semibold text-foreground">
+                                                {p.financials?.monthly_hoa_charges
+                                                    ? formatPrice(p.financials.monthly_hoa_charges, p.pricing?.currency)
                                                     : "—"}
                                             </p>
                                             <p className="text-xs text-muted-foreground">
@@ -863,146 +782,49 @@ export default function PropertyViewPage() {
                         </Tabs>
                     </motion.div>
 
-                    {/* ── Right column (sticky sidebar) ── */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 16 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="lg:col-span-1"
-                    >
-                        <div className="sticky top-6 space-y-4">
-                            {/* Price card */}
-                            <div className="rounded-2xl border border-border/60 bg-card p-5 space-y-4">
-                                <div>
-                                    {discount > 0 && (
-                                        <p className="text-sm text-muted-foreground line-through mb-0.5">
-                                            {formatPrice(p.price)}
-                                        </p>
-                                    )}
-                                    <div className="flex items-end gap-2">
-                                        <span className="text-3xl font-bold text-foreground tracking-tight">
-                                            {formatPrice(String(finalPrice))}
-                                        </span>
-                                    </div>
-                                    {discount > 0 && (
-                                        <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full bg-emerald-500/12 text-emerald-600 dark:text-emerald-400 text-xs font-semibold border border-emerald-500/20">
-                                            Save{" "}
-                                            {formatPrice(String(discount))}
-                                        </span>
-                                    )}
-                                </div>
-
-                                <Separator />
-
-                                <div className="space-y-2">
-                                    <Button className="w-full rounded-xl h-10 font-semibold">
-                                        <IconCurrencyDollar size={16} />
-                                        Make an Offer
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        className="w-full rounded-xl h-10"
-                                    >
-                                        Schedule Viewing
-                                    </Button>
-                                </div>
-                            </div>
-
-                            {/* Property summary card */}
-                            <div className="rounded-2xl border border-border/60 bg-card p-5 space-y-3">
-                                <h3 className="text-sm font-semibold text-foreground">
-                                    At a glance
-                                </h3>
-                                {[
-                                    {
-                                        label: "Type",
-                                        value: p.type ?? "—",
-                                    },
-                                    {
-                                        label: "Bedrooms",
-                                        value: `${p.bedrooms} beds`,
-                                    },
-                                    {
-                                        label: "Bathrooms",
-                                        value: `${p.bathrooms} baths`,
-                                    },
-                                    {
-                                        label: "Area",
-                                        value: `${Number(p.area).toLocaleString()} ft²`,
-                                    },
-                                    {
-                                        label: "Floor",
-                                        value: `${p.floor_number} of ${p.total_floors}`,
-                                    },
-                                    {
-                                        label: "Balconies",
-                                        value: `${p.balconies}`,
-                                    },
-                                    {
-                                        label: "Year Built",
-                                        value: `${p.year_built}`,
-                                    },
-                                    {
-                                        label: "Furnishing",
-                                        value: FURNISHING_LABELS[
-                                            p.furnishing_status ?? ""
-                                        ] ?? "—",
-                                    },
-                                    {
-                                        label: "Facing",
-                                        value: FACING_LABELS[
-                                            p.facing_direction ?? ""
-                                        ] ?? "—",
-                                    },
-                                ].map(({ label, value }) => (
-                                    <div
-                                        key={label}
-                                        className="flex items-center justify-between"
-                                    >
-                                        <span className="text-xs text-muted-foreground">
-                                            {label}
-                                        </span>
-                                        <span className="text-xs font-medium text-foreground">
-                                            {value}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Timestamps */}
-                            <div className="rounded-2xl border border-border/60 bg-card p-5 space-y-2">
-                                <h3 className="text-sm font-semibold text-foreground mb-3">
-                                    Listing info
-                                </h3>
-                                <div className="space-y-2">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-xs text-muted-foreground">
-                                            Listed on
-                                        </span>
-                                        <span className="text-xs font-medium text-foreground">
-                                            {formatDate(p.created_at)}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-xs text-muted-foreground">
-                                            Last updated
-                                        </span>
-                                        <span className="text-xs font-medium text-foreground">
-                                            {formatDate(p.updated_at)}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-xs text-muted-foreground">
-                                            Property ID
-                                        </span>
-                                        <span className="text-xs font-medium text-foreground font-mono">
-                                            #{p.id}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
+                    {/* ── Right column (1/3) ── */}
+                    <div className="space-y-6">
+                        <div className="p-5 rounded-2xl border border-border/60 bg-muted/20 shadow-sm sticky top-24">
+                            <h3 className="text-sm font-bold text-foreground mb-4 uppercase tracking-wider">
+                                At a Glance
+                            </h3>
+                            <ul className="space-y-3">
+                                <li className="flex items-center justify-between text-sm">
+                                    <span className="text-muted-foreground">Ref</span>
+                                    <span className="font-semibold text-foreground">#{p.internal_reference || "N/A"}</span>
+                                </li>
+                                <li className="flex items-center justify-between text-sm">
+                                    <span className="text-muted-foreground">Condition</span>
+                                    <span className="font-semibold text-foreground capitalize">
+                                        {p.construction?.condition ? p.construction.condition.replace(/_/g, " ") : "—"}
+                                    </span>
+                                </li>
+                                <li className="flex items-center justify-between text-sm">
+                                    <span className="text-muted-foreground">Price Type</span>
+                                    <span className="font-semibold text-foreground capitalize">
+                                        {p.pricing?.price_type ? p.pricing.price_type.replace(/_/g, " ") : "—"}
+                                    </span>
+                                </li>
+                                <li className="flex items-center justify-between text-sm">
+                                    <span className="text-muted-foreground">VAT</span>
+                                    <span className="font-semibold text-foreground">
+                                        {p.pricing?.vat_applicable ? `${p.pricing.vat_rate || 0}% Applicable` : "Not Applicable"}
+                                    </span>
+                                </li>
+                                <li className="flex items-center justify-between text-sm">
+                                    <span className="text-muted-foreground">Confidentiality</span>
+                                    <span className="font-semibold text-foreground capitalize">
+                                        {p.location?.confidentiality_level || "—"}
+                                    </span>
+                                </li>
+                            </ul>
+                            
+                            <Button className="w-full mt-6" onClick={() => navigate(`/properties/edit/${p.id}`)}>
+                                Edit Property Details
+                            </Button>
                         </div>
-                    </motion.div>
+                    </div>
+
                 </div>
             </div>
         </div>
