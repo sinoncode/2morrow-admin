@@ -150,12 +150,12 @@ const data = {
     },
     {
       title: "Partners",
-      url: "docs",
+      url: "partners/list",
       icon: Gavel,
     },
     {
       title: "Agency",
-      url: "docs",
+      url: "agency/list",
       icon: Store,
     },
 

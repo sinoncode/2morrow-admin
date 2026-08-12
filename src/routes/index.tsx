@@ -115,6 +115,16 @@ import AngelsList from "@/modules/angel/pages/RequestLists"
 import EditAngels from "@/modules/angel/pages/EditRequests"
 import CreateAngels from "@/modules/angel/components/create/RequestWizard"
 
+// Partners
+import PartnersList from "@/modules/partners/pages/RequestLists"
+import EditPartners from "@/modules/partners/pages/EditRequests"
+import CreatePartners from "@/modules/partners/components/create/RequestWizard"
+
+// Agency
+import AgencyList from "@/modules/agency/pages/RequestLists"
+import EditAgency from "@/modules/agency/pages/EditRequests"
+import CreateAgency from "@/modules/agency/components/create/RequestWizard"
+
 
 export const router = createBrowserRouter(
   [
@@ -181,6 +191,16 @@ export const router = createBrowserRouter(
         { path: "angels/list", element: <AngelsList /> },
         { path: "angels/edit/:id", element: <EditAngels /> },
         { path: "angels/create", element: <CreateAngels /> },
+
+         // Partners
+        { path: "partners/list", element: <PartnersList /> },
+        { path: "partners/edit/:id", element: <EditPartners /> },
+        { path: "partners/create", element: <CreatePartners /> },
+
+           // Partners
+        { path: "agency/list", element: <AgencyList /> },
+        { path: "agency/edit/:id", element: <EditAgency /> },
+        { path: "agency/create", element: <CreateAgency /> },
 
         // Permission
         { path: "permission", element: <Permissions /> },
