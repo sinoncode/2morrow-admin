@@ -125,6 +125,13 @@ import AgencyList from "@/modules/agency/pages/RequestLists"
 import EditAgency from "@/modules/agency/pages/EditRequests"
 import CreateAgency from "@/modules/agency/components/create/RequestWizard"
 
+// Agent
+import AgentList from "@/modules/agents/pages/RequestLists"
+import EditAgent from "@/modules/agents/pages/EditRequests"
+import CreateAgent from "@/modules/agents/components/create/RequestWizard"
+
+
+
 
 export const router = createBrowserRouter(
   [
@@ -197,10 +204,15 @@ export const router = createBrowserRouter(
         { path: "partners/edit/:id", element: <EditPartners /> },
         { path: "partners/create", element: <CreatePartners /> },
 
-           // Partners
+           // Agency
         { path: "agency/list", element: <AgencyList /> },
         { path: "agency/edit/:id", element: <EditAgency /> },
         { path: "agency/create", element: <CreateAgency /> },
+
+         // Agency
+        { path: "agents/list", element: <AgentList /> },
+        { path: "agents/edit/:id", element: <EditAgent /> },
+        { path: "agents/create", element: <CreateAgent /> },
 
         // Permission
         { path: "permission", element: <Permissions /> },

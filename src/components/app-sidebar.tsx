@@ -145,7 +145,7 @@ const data = {
     },
     {
       title: "Agent",
-      url: "docs",
+      url: "agents/list",
       icon: MdOutlineRealEstateAgent,
     },
     {
