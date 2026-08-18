@@ -47,6 +47,8 @@ export interface AgendaApiEvent {
   end_time: string;
   category: string;
   location: string;
+  latitude?: number | string | null;
+  longitude?: number | string | null;
 
   members: AgendaApiMember[];
 }

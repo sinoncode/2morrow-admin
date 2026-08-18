@@ -33,6 +33,8 @@ import type {
 
 import { useAgendaStore } from "@/store/agendaStore"
 
+const GOOGLE_MAPS_LIBRARIES: ("places" | "drawing" | "geometry" | "localContext" | "visualization")[] = ["places"];
+
 interface EventDialogProps {
     open: boolean;
     event: AgendaEvent | null;
@@ -203,9 +205,9 @@ const EventDialog = ({
     const [mapLoading, setMapLoading] = useState(false)
 
     const { isLoaded: isMapLoaded } = useJsApiLoader({
-        id: "2morrow-agenda-map",
-        googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-        libraries: ["places"],
+        id: "google-map-script",
+        googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "",
+        libraries: GOOGLE_MAPS_LIBRARIES,
     })
     const resetForm = () => {
         const today = formatDateInput(selectedDate);

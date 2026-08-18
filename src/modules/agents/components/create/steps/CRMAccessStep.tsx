@@ -15,43 +15,43 @@ import {
   SelectValue 
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Textarea } from "@/components/ui/textarea"
 import { 
-  Users, 
-  Heart, 
-  FileText, 
-  Calendar,
-  AlertTriangle,
-  Sparkles,
-  Gift,
-  Star,
+  DollarSign, 
+  ShieldAlert, 
+  Landmark,
+  Car,
+  Clock,
+  Landmark as BankIcon,
+  Pencil,
   CheckCircle2,
-  Plus
+  Sparkles,
+  History
 } from "lucide-react"
 
 /* ─────────────────────────────────────────────────────────────
    TYPES
    ───────────────────────────────────────────────────────────── */
-interface EngagementForm {
-  referralsReceived: string
-  referralsSent: string
-  totalFeesPaid: string
-  totalFeesReceived: string
-  transactionsInvolving: string
-  transactionsSupported: string
-  lastInteractionDate: string
-  nextPlannedMeeting: string
-  exclusiveAgreement: boolean
-  linkedInConnected: string
-  feedbackNotes: string
+interface CompensationForm {
+  baseSalary: string
+  commissionStructure: string
+  salesCommission: string
+  rentalsCommission: string
+  commissionTiers: string
+  coAgentSplit: string
+  socialSecurityNumber: string
+  pensionFund: string
+  healthInsurance: string
+  paymentFrequency: "monthly" | "bi-weekly"
+  carAllowance: string
+  expenseAccount: string
+  thirteenthMonthEligible: boolean
+  annualBonusStructure: string
 }
 
 /* ─────────────────────────────────────────────────────────────
    ANIMATION VARIANTS
    ───────────────────────────────────────────────────────────── */
-const containerVariants = {
+const containerVariants: any = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -62,7 +62,7 @@ const containerVariants = {
   }
 }
 
-const cardVariants = {
+const cardVariants: any = {
   hidden: { opacity: 0, y: 24, scale: 0.98 },
   visible: {
     opacity: 1,
@@ -75,7 +75,7 @@ const cardVariants = {
   }
 }
 
-const itemVariants = {
+const itemVariants: any = {
   hidden: { opacity: 0, x: -12 },
   visible: {
     opacity: 1,
@@ -90,27 +90,30 @@ const itemVariants = {
 /* ─────────────────────────────────────────────────────────────
    MAIN COMPONENT
    ───────────────────────────────────────────────────────────── */
-export default function PartnerEngagementDetails() {
+export default function CompensationOverview() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [savedSuccess, setSavedSuccess] = useState(false)
 
-  const [form, setForm] = useState<EngagementForm>({
-    referralsReceived: "",
-    referralsSent: "Home",
-    totalFeesPaid: "",
-    totalFeesReceived: "",
-    transactionsInvolving: "",
-    transactionsSupported: "",
-    lastInteractionDate: "",
-    nextPlannedMeeting: "",
-    exclusiveAgreement: false,
-    linkedInConnected: "not-connected",
-    feedbackNotes: ""
+  const [form, setForm] = useState<CompensationForm>({
+    baseSalary: "CHF 5,500.00 / mo",
+    commissionStructure: "standard-corporate",
+    salesCommission: "3.50",
+    rentalsCommission: "1.00",
+    commissionTiers: "accelerated",
+    coAgentSplit: "50 / 50",
+    socialSecurityNumber: "756.1234.5678.90",
+    pensionFund: "allianz-swiss",
+    healthInsurance: "CHF 150.00 / mo",
+    paymentFrequency: "monthly",
+    carAllowance: "CHF 800.00 - Business Usage",
+    expenseAccount: "uncapped",
+    thirteenthMonthEligible: true,
+    annualBonusStructure: "Performance Linked (Up to 15%)"
   })
 
-  const updateField = useCallback(<K extends keyof EngagementForm>(
+  const updateField = useCallback(<K extends keyof CompensationForm>(
     field: K, 
-    value: EngagementForm[K]
+    value: CompensationForm[K]
   ) => {
     setForm(prev => ({ ...prev, [field]: value }))
     setSavedSuccess(false)
@@ -141,416 +144,387 @@ export default function PartnerEngagementDetails() {
         <motion.div variants={cardVariants} className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2.5 bg-blue-600 rounded-xl shadow-lg shadow-blue-600/20">
-              <Users className="w-6 h-6 text-white" />
+              <DollarSign className="w-6 h-6 text-white" />
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
-                Partner Engagement Details
+                Compensation Overview
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                Track partner interactions, sentiment, and engagement history.
+                Manage salary structures, commissions, benefits, and compliance details.
               </p>
             </div>
           </div>
         </motion.div>
 
-        {/* ─── MAIN GRID ─── */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        {/* ─── TOP ROW: Compensation (left) + Compliance (right) ─── */}
+        <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
           
-          {/* LEFT COLUMN (2/3) */}
-          <div className="xl:col-span-2 space-y-6">
-            
-            {/* ─── PARTNER ENGAGEMENT DETAILS ─── */}
-            <motion.div variants={cardVariants}>
-              <Card className="border-0 shadow-sm dark:shadow-none dark:bg-gray-900/60 dark:border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm bg-white/80">
-                <CardContent className="p-0">
-                  
-                  {/* Card Header */}
-                  <div className="flex items-center justify-between px-6 sm:px-8 pt-6 sm:pt-8 pb-6 border-b border-gray-100 dark:border-gray-800">
-                    <div className="flex items-center gap-2.5">
-                      <Users className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                      <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                        Partner Engagement Details
-                      </h3>
-                    </div>
-                    <Badge 
-                      variant="secondary" 
-                      className="bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-0 font-semibold text-[10px] uppercase tracking-wider px-3 py-1"
-                    >
-                      Updated 2h ago
-                    </Badge>
+          {/* LEFT: Compensation Overview (3/5) */}
+          <motion.div variants={cardVariants} className="xl:col-span-3">
+            <Card className="border-0 shadow-sm dark:shadow-none dark:bg-gray-900/60 dark:border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm bg-white/80 h-full">
+              <CardContent className="p-6 sm:p-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center shrink-0">
+                    <DollarSign className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   </div>
+                  <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                    Compensation Overview
+                  </h3>
+                </div>
 
-                  {/* Form Body */}
-                  <div className="px-6 sm:px-8 py-6 space-y-5">
-                    
-                    {/* Row 1 */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                      <motion.div variants={itemVariants} className="space-y-2">
-                        <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          Referrals Received from Partner
-                        </label>
-                        <Input
-                          value={form.referralsReceived}
-                          onChange={(e) => updateField("referralsReceived", e.target.value)}
-                          placeholder="Enter company name"
-                          className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
-                        />
-                      </motion.div>
-
-                      <motion.div variants={itemVariants} className="space-y-2">
-                        <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          Referrals Sent to Partner
-                        </label>
-                        <Input
-                          value={form.referralsSent}
-                          onChange={(e) => updateField("referralsSent", e.target.value)}
-                          placeholder="Home"
-                          className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
-                        />
-                      </motion.div>
-                    </div>
-
-                    {/* Row 2 */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                      <motion.div variants={itemVariants} className="space-y-2">
-                        <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          Total Referral Fees Paid
-                        </label>
-                        <Input
-                          value={form.totalFeesPaid}
-                          onChange={(e) => updateField("totalFeesPaid", e.target.value)}
-                          placeholder="Select range"
-                          className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
-                        />
-                      </motion.div>
-
-                      <motion.div variants={itemVariants} className="space-y-2">
-                        <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          Total Referral Fees Received
-                        </label>
-                        <Input
-                          value={form.totalFeesReceived}
-                          onChange={(e) => updateField("totalFeesReceived", e.target.value)}
-                          placeholder="Select range"
-                          className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
-                        />
-                      </motion.div>
-                    </div>
-
-                    {/* Row 3 */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                      <motion.div variants={itemVariants} className="space-y-2">
-                        <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          Transactions Involving
-                        </label>
-                        <Input
-                          value={form.transactionsInvolving}
-                          onChange={(e) => updateField("transactionsInvolving", e.target.value)}
-                          placeholder="Project name or ID"
-                          className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
-                        />
-                      </motion.div>
-
-                      <motion.div variants={itemVariants} className="space-y-2">
-                        <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          Transactions Supported
-                        </label>
-                        <Input
-                          value={form.transactionsSupported}
-                          onChange={(e) => updateField("transactionsSupported", e.target.value)}
-                          placeholder="Role or assistance type"
-                          className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
-                        />
-                      </motion.div>
-                    </div>
-
-                    {/* Row 4: Dates */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                      <motion.div variants={itemVariants} className="space-y-2">
-                        <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          Last Interaction Date
-                        </label>
-                        <div className="relative">
-                          <Input
-                            type="text"
-                            value={form.lastInteractionDate}
-                            onChange={(e) => updateField("lastInteractionDate", e.target.value)}
-                            placeholder="mm/dd/yyyy"
-                            className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 pr-10"
-                          />
-                          <Calendar className="w-4 h-4 text-gray-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
-                        </div>
-                      </motion.div>
-
-                      <motion.div variants={itemVariants} className="space-y-2">
-                        <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          Next Planned Meeting
-                        </label>
-                        <div className="relative">
-                          <Input
-                            type="text"
-                            value={form.nextPlannedMeeting}
-                            onChange={(e) => updateField("nextPlannedMeeting", e.target.value)}
-                            placeholder="mm/dd/yyyy"
-                            className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 pr-10"
-                          />
-                          <Calendar className="w-4 h-4 text-gray-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
-                        </div>
-                      </motion.div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* ─── AGREEMENTS & LEGAL ─── */}
-            <motion.div variants={cardVariants}>
-              <Card className="border-0 shadow-sm dark:shadow-none dark:bg-gray-900/60 dark:border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm bg-white/80">
-                <CardContent className="p-6 sm:p-8">
-                  <div className="flex items-center gap-2.5 mb-6">
-                    <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                    <h3 className="text-sm font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
-                      Agreements & Legal
-                    </h3>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    {/* Exclusive Referral Agreement */}
-                    <motion.div variants={itemVariants}>
-                      <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 block">
-                        Exclusive Referral Agreement
-                      </label>
-                      <label className="flex items-center gap-3 p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-gray-800/20 hover:bg-gray-50 dark:hover:bg-gray-800/40 cursor-pointer transition-colors duration-200">
-                        <Checkbox 
-                          checked={form.exclusiveAgreement}
-                          onCheckedChange={(checked) => updateField("exclusiveAgreement", checked === true)}
-                          className="rounded-md border-gray-300 dark:border-gray-600 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
-                        />
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-200 select-none">
-                          Active agreement in place
-                        </span>
-                      </label>
-                    </motion.div>
-
-                    {/* LinkedIn Connected */}
-                    <motion.div variants={itemVariants} className="space-y-2">
-                      <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        LinkedIn Connected
-                      </label>
-                      <Select 
-                        value={form.linkedInConnected} 
-                        onValueChange={(v) => updateField("linkedInConnected", v)}
-                      >
-                        <SelectTrigger className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200">
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                        <SelectContent className="rounded-xl">
-                          <SelectItem value="not-connected">Not Connected</SelectItem>
-                          <SelectItem value="connected">Connected</SelectItem>
-                          <SelectItem value="pending">Pending Request</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </motion.div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
-
-          {/* RIGHT COLUMN (1/3) */}
-          <div className="xl:col-span-1 space-y-6">
-            
-            {/* ─── SENTIMENT ANALYSIS ─── */}
-            <motion.div variants={cardVariants}>
-              <Card className="border-0 shadow-lg shadow-blue-900/20 rounded-2xl overflow-hidden bg-gradient-to-br from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-900">
-                <CardContent className="p-6 text-white">
-                  <div className="flex items-start justify-between mb-6">
-                    <div className="flex items-center gap-2">
-                      <Heart className="w-5 h-5 text-blue-100" />
-                      <h3 className="text-sm font-bold text-blue-50">
-                        Sentiment Analysis
-                      </h3>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xl font-bold text-white">Excellent</p>
-                    </div>
-                  </div>
-
-                  {/* Relationship Quality */}
-                  <div className="mb-5">
-                    <p className="text-xs text-blue-100 font-medium mb-2">Relationship Quality</p>
-                    <div className="h-2 rounded-full bg-blue-800/40 overflow-hidden">
-                      <motion.div 
-                        className="h-full rounded-full bg-white/90"
-                        initial={{ width: 0 }}
-                        animate={{ width: "92%" }}
-                        transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Net Promoter Score */}
-                  <div>
-                    <p className="text-xs text-blue-100 font-medium mb-2">Net Promoter Score</p>
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 flex gap-1">
-                        {[...Array(10)].map((_, i) => (
-                          <motion.div
-                            key={i}
-                            initial={{ opacity: 0, scaleY: 0 }}
-                            animate={{ opacity: 1, scaleY: 1 }}
-                            transition={{ delay: 0.7 + i * 0.05, duration: 0.3 }}
-                            className={`
-                              flex-1 h-2 rounded-full origin-bottom
-                              ${i < 9 ? "bg-white/30" : "bg-white"}
-                            `}
-                          />
-                        ))}
-                      </div>
-                      <span className="text-lg font-bold text-white ml-2">9/10</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* ─── FEEDBACK & ISSUES ─── */}
-            <motion.div variants={cardVariants}>
-              <Card className="border-0 shadow-sm dark:shadow-none dark:bg-gray-900/60 dark:border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm bg-white/80">
-                <CardContent className="p-6 space-y-5">
-                  
-                  {/* Feedback / Review Notes */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  {/* Base Salary */}
                   <motion.div variants={itemVariants} className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-gray-400" />
-                      <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Feedback / Review Notes
-                      </label>
-                    </div>
-                    <Textarea
-                      value={form.feedbackNotes}
-                      onChange={(e) => updateField("feedbackNotes", e.target.value)}
-                      placeholder="Add summary of latest feedback..."
-                      rows={3}
-                      className="rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 resize-none text-sm"
+                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                      Base Salary
+                    </label>
+                    <Input
+                      value={form.baseSalary}
+                      onChange={(e) => updateField("baseSalary", e.target.value)}
+                      placeholder="CHF 0.00 / mo"
+                      className="h-11 rounded-xl border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                     />
                   </motion.div>
 
-                  <div className="h-px bg-gray-100 dark:bg-gray-800" />
-
-                  {/* Issues Log */}
-                  <motion.div variants={itemVariants} className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4 text-red-500" />
-                      <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Issues Log
-                      </label>
-                    </div>
-
-                    {/* Issue Item */}
-                    <div className="p-3.5 rounded-xl border border-red-100 dark:border-red-900/30 bg-red-50/50 dark:bg-red-900/10">
-                      <p className="text-sm font-semibold text-red-600 dark:text-red-400">
-                        Payment delay on Project X
-                      </p>
-                      <p className="text-xs text-red-400 dark:text-red-500 mt-1">
-                        Opened Mar 12, 2024
-                      </p>
-                    </div>
-
-                    {/* Log New Issue */}
-                    <button className="w-full flex items-center justify-center gap-2 p-3 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:border-blue-400 dark:hover:border-blue-700 hover:bg-blue-50/30 dark:hover:bg-blue-900/20 transition-all duration-200">
-                      <Plus className="w-4 h-4" />
-                      LOG NEW ISSUE
-                    </button>
+                  {/* Commission Structure */}
+                  <motion.div variants={itemVariants} className="space-y-2">
+                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                      Commission Structure
+                    </label>
+                    <Select 
+                      value={form.commissionStructure} 
+                      onValueChange={(v) => updateField("commissionStructure", v)}
+                    >
+                      <SelectTrigger className="h-11 rounded-xl border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200">
+                        <SelectValue placeholder="Select structure" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl">
+                        <SelectItem value="standard-corporate">Standard Corporate Plan</SelectItem>
+                        <SelectItem value="premium">Premium Plan</SelectItem>
+                        <SelectItem value="executive">Executive Plan</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </motion.div>
-                </CardContent>
-              </Card>
-            </motion.div>
 
-            {/* ─── ENGAGEMENT HISTORY ─── */}
-            <motion.div variants={cardVariants}>
-              <Card className="border-0 shadow-sm dark:shadow-none dark:bg-gray-900/60 dark:border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm bg-white/80">
-                <CardContent className="p-6">
-                  <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-5">
-                    Engagement History
-                  </h3>
+                  {/* Sales Commission (%) */}
+                  <motion.div variants={itemVariants} className="space-y-2">
+                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                      Sales Commission (%)
+                    </label>
+                    <Input
+                      value={form.salesCommission}
+                      onChange={(e) => updateField("salesCommission", e.target.value)}
+                      placeholder="0.00"
+                      className="h-11 rounded-xl border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    />
+                  </motion.div>
 
-                  <div className="space-y-4">
-                    {/* Event 1 */}
-                    <motion.div 
-                      variants={itemVariants}
-                      className="flex items-start gap-3"
+                  {/* Rentals Commission (%) */}
+                  <motion.div variants={itemVariants} className="space-y-2">
+                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                      Rentals Commission (%)
+                    </label>
+                    <Input
+                      value={form.rentalsCommission}
+                      onChange={(e) => updateField("rentalsCommission", e.target.value)}
+                      placeholder="0.00"
+                      className="h-11 rounded-xl border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    />
+                  </motion.div>
+
+                  {/* Commission Tiers */}
+                  <motion.div variants={itemVariants} className="space-y-2">
+                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                      Commission Tiers
+                    </label>
+                    <Select 
+                      value={form.commissionTiers} 
+                      onValueChange={(v) => updateField("commissionTiers", v)}
                     >
-                      <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center shrink-0 mt-0.5">
-                        <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                          Events Attended Together
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                          Annual Real Estate Gala 2023
-                        </p>
-                      </div>
-                    </motion.div>
+                      <SelectTrigger className="h-11 rounded-xl border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200">
+                        <SelectValue placeholder="Select tier" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl">
+                        <SelectItem value="accelerated">Accelerated (Volume Based)</SelectItem>
+                        <SelectItem value="flat">Flat Rate</SelectItem>
+                        <SelectItem value="tiered">Tiered Structure</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </motion.div>
 
-                    {/* Event 2 */}
-                    <motion.div 
-                      variants={itemVariants}
-                      className="flex items-start gap-3"
-                    >
-                      <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center shrink-0 mt-0.5">
-                        <Gift className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                          Christmas / VIP Gift Sent
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                          Premium Wine Set - Dec 15
-                        </p>
-                      </div>
-                    </motion.div>
+                  {/* Co-agent Split (%) */}
+                  <motion.div variants={itemVariants} className="space-y-2">
+                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                      Co-agent Split (%)
+                    </label>
+                    <Input
+                      value={form.coAgentSplit}
+                      onChange={(e) => updateField("coAgentSplit", e.target.value)}
+                      placeholder="50 / 50"
+                      className="h-11 rounded-xl border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    />
+                  </motion.div>
+ </div>
+               
+              </CardContent>
+            </Card>
+            
+          </motion.div>
+
+          {/* RIGHT: Compliance (2/5) */}
+          <motion.div variants={cardVariants} className="xl:col-span-2">
+            <Card className="border-0 shadow-sm dark:shadow-none dark:bg-gray-900/60 dark:border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm bg-white/80 h-full">
+              <CardContent className="p-6 sm:p-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center shrink-0">
+                    <ShieldAlert className="w-5 h-5 text-orange-600 dark:text-orange-400" />
                   </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
+                  <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                    Compliance
+                  </h3>
+                </div>
+
+                <div className="space-y-5">
+                  {/* Social Security / AVS Number */}
+                  <motion.div variants={itemVariants} className="space-y-2">
+                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                      Social Security / AVS Number
+                    </label>
+                    <Input
+                      value={form.socialSecurityNumber}
+                      onChange={(e) => updateField("socialSecurityNumber", e.target.value)}
+                      placeholder="000.0000.0000.00"
+                      className="h-11 rounded-xl border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    />
+                  </motion.div>
+
+                  {/* Pension Fund (LPP) */}
+                  <motion.div variants={itemVariants} className="space-y-2">
+                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                      Pension Fund (LPP)
+                    </label>
+                    <Select 
+                      value={form.pensionFund} 
+                      onValueChange={(v) => updateField("pensionFund", v)}
+                    >
+                      <SelectTrigger className="h-11 rounded-xl border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200">
+                        <SelectValue placeholder="Select fund" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl">
+                        <SelectItem value="allianz-swiss">Allianz Swiss (Classic)</SelectItem>
+                        <SelectItem value="zurich">Zurich Insurance</SelectItem>
+                        <SelectItem value="axa">AXA</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </motion.div>
+
+                  {/* Health Insurance Contribution */}
+                  <motion.div variants={itemVariants} className="space-y-2">
+                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                      Health Insurance Contribution
+                    </label>
+                    <Input
+                      value={form.healthInsurance}
+                      onChange={(e) => updateField("healthInsurance", e.target.value)}
+                      placeholder="CHF 0.00 / mo"
+                      className="h-11 rounded-xl border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    />
+                  </motion.div>
+
+                  {/* Payment Frequency */}
+                  <motion.div variants={itemVariants} className="space-y-2">
+                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                      Payment Frequency
+                    </label>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => updateField("paymentFrequency", "monthly")}
+                        className={`
+                          h-9 px-6 rounded-lg text-xs font-bold transition-all duration-200
+                          ${form.paymentFrequency === "monthly"
+                            ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
+                            : "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                          }
+                        `}
+                      >
+                        Monthly
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => updateField("paymentFrequency", "bi-weekly")}
+                        className={`
+                          h-9 px-6 rounded-lg text-xs font-bold transition-all duration-200
+                          ${form.paymentFrequency === "bi-weekly"
+                            ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
+                            : "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                          }
+                        `}
+                      >
+                        Bi-Weekly
+                      </button>
+                    </div>
+                  </motion.div>
+
+                  {/* Primary Bank Account */}
+                  <motion.div variants={itemVariants} className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                        Primary Bank Account
+                      </label>
+                      <button className="flex items-center gap-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
+                        <Pencil className="w-3 h-3" />
+                        Edit
+                      </button>
+                    </div>
+                    <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/30">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                          <BankIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                            UBS Switzerland AG
+                          </p>
+                          <p className="text-[10px] text-gray-400 dark:text-gray-500 font-mono mt-0.5">
+                            CH93 8080 8000 8012 3456 7
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
 
+        {/* ─── ADDITIONAL BENEFITS (Full Width) ─── */}
+        <motion.div variants={cardVariants}>
+          <Card className="border-0 shadow-sm dark:shadow-none dark:bg-gray-900/60 dark:border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm bg-white/80">
+            <CardContent className="p-6 sm:p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center shrink-0">
+                  <Car className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                </div>
+                <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                  Additional Benefits
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {/* Car Allowance / Vehicle */}
+                <motion.div variants={itemVariants} className="space-y-2">
+                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                    Car Allowance / Vehicle
+                  </label>
+                  <Input
+                    value={form.carAllowance}
+                    onChange={(e) => updateField("carAllowance", e.target.value)}
+                    placeholder="Enter allowance"
+                    className="h-11 rounded-xl border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                  />
+                </motion.div>
+
+                {/* Expense Account */}
+                <motion.div variants={itemVariants} className="space-y-2">
+                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                    Expense Account
+                  </label>
+                  <Select 
+                    value={form.expenseAccount} 
+                    onValueChange={(v) => updateField("expenseAccount", v)}
+                  >
+                    <SelectTrigger className="h-11 rounded-xl border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200">
+                      <SelectValue placeholder="Select account type" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      <SelectItem value="uncapped">Uncapped (Approval required)</SelectItem>
+                      <SelectItem value="capped-1k">Capped at CHF 1,000</SelectItem>
+                      <SelectItem value="capped-5k">Capped at CHF 5,000</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </motion.div>
+
+                {/* 13th Month Salary */}
+                <motion.div variants={itemVariants} className="space-y-2">
+                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                    13th Month Salary
+                  </label>
+                  <div className="flex items-center justify-between p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/30">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                      Eligibility Status
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-green-500" />
+                      <span className="text-sm font-semibold text-green-600 dark:text-green-400">
+                        Eligible
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Annual Bonus Structure */}
+                <motion.div variants={itemVariants} className="space-y-2">
+                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                    Annual Bonus Structure
+                  </label>
+                  <Input
+                    value={form.annualBonusStructure}
+                    onChange={(e) => updateField("annualBonusStructure", e.target.value)}
+                    placeholder="Enter bonus structure"
+                    className="h-11 rounded-xl border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                  />
+                </motion.div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
         {/* ─── ACTION BUTTONS ─── */}
-        {/* <motion.div 
+        <motion.div 
           variants={cardVariants}
-          className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-2 pb-8"
+          className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 pb-8"
         >
-          <AnimatePresence>
-            {savedSuccess && (
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                className="flex items-center gap-2 text-sm font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-4 py-2.5 rounded-xl"
-              >
-                <CheckCircle2 className="w-4 h-4" />
-                Engagement details saved
-              </motion.div>
-            )}
-          </AnimatePresence>
-          
           <div className="flex gap-3 w-full sm:w-auto">
             <Button
               type="button"
               variant="outline"
-              className="flex-1 sm:flex-none rounded-xl h-11 px-8 font-medium border-gray-300 dark:border-gray-600 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
+              className="flex-1 sm:flex-none rounded-xl h-11 px-6 font-medium border-gray-300 dark:border-gray-600 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
             >
-              Discard
+              Discard Changes
             </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1 sm:flex-none rounded-xl h-11 px-6 font-medium border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
+            >
+              <History className="w-4 h-4 mr-2" />
+              View Revision History
+            </Button>
+          </div>
+
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <AnimatePresence>
+              {savedSuccess && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="flex items-center gap-2 text-sm font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-4 py-2 rounded-xl"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  Plan saved successfully
+                </motion.div>
+              )}
+            </AnimatePresence>
+            
             <Button
               type="button"
               onClick={handleSave}
               disabled={isSubmitting}
-              className="flex-1 sm:flex-none rounded-xl h-11 px-8 font-medium bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 transition-all duration-200 disabled:opacity-70"
+              className="flex-1 sm:flex-none rounded-xl h-11 px-6 font-medium bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 transition-all duration-200 disabled:opacity-70"
             >
               {isSubmitting ? (
                 <span className="flex items-center gap-2">
@@ -563,11 +537,14 @@ export default function PartnerEngagementDetails() {
                   Saving...
                 </span>
               ) : (
-                "Save Details"
+                <span className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4" />
+                  Save Compensation Plan
+                </span>
               )}
             </Button>
           </div>
-        </motion.div> */}
+        </motion.div>
 
       </div>
     </motion.div>

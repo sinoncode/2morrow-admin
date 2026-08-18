@@ -34,7 +34,7 @@ const Agenda = () => {
     }, [fetchEvents]);
 
     const [selectedDate, setSelectedDate] =
-        useState(new Date(2026, 0, 12)); // Consider using current date or keep as is
+        useState(new Date());
 
     const [activeView, setActiveView] =
         useState("Month");

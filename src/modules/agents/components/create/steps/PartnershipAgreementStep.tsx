@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useRef, useCallback } from "react"
+import React, { useState, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { 
   Card, 
@@ -15,12 +15,13 @@ import {
   SelectValue 
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { 
-  FileText, 
-  Calendar,
-  Clock,
-  Link2,
+  Globe, 
+  MapPin,
+  DollarSign,
   X,
+  Plus,
   CheckCircle2,
   Sparkles
 } from "lucide-react"
@@ -28,17 +29,16 @@ import {
 /* ─────────────────────────────────────────────────────────────
    TYPES
    ───────────────────────────────────────────────────────────── */
-interface PartnershipTermsForm {
-  partnershipType: string
-  partnershipStatus: string
-  agreementDocument: File | null
-  agreementStartDate: string
-  agreementEndDate: string
-  exclusivity: "exclusive" | "shared"
-  exclusiveGeographicZone: string
-  commissionSplitMethod: string
-  paymentTerms: string
-  primaryTransactionType: "sale" | "rent"
+interface SpecialisationForm {
+  propertyType: string
+  transactionType: string
+  geographicPrimary: string
+  geographicSecondary: string
+  internationalMarkets: string
+  clientSegment: string
+  languages: string[]
+  languageInput: string
+  averageTransactionValue: string
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -80,45 +80,66 @@ const itemVariants = {
   }
 }
 
+const tagVariants = {
+  hidden: { opacity: 0, scale: 0.6, y: 8 },
+  visible: { 
+    opacity: 1, 
+    scale: 1, 
+    y: 0,
+    transition: { type: "spring", stiffness: 500, damping: 25 }
+  },
+  exit: { 
+    opacity: 0, 
+    scale: 0.6, 
+    transition: { duration: 0.2 } 
+  }
+}
+
 /* ─────────────────────────────────────────────────────────────
    MAIN COMPONENT
    ───────────────────────────────────────────────────────────── */
-export default function PartnershipTerms() {
-  const fileInputRef = useRef<HTMLInputElement>(null)
+export default function SpecialisationTerritory() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [savedSuccess, setSavedSuccess] = useState(false)
 
-  const [form, setForm] = useState<PartnershipTermsForm>({
-    partnershipType: "franchise",
-    partnershipStatus: "active",
-    agreementDocument: null,
-    agreementStartDate: "01/01/2024",
-    agreementEndDate: "12/31/2026",
-    exclusivity: "exclusive",
-    exclusiveGeographicZone: "Metropolitan Area North",
-    commissionSplitMethod: "Fixed Percentage (80/20)",
-    paymentTerms: "net-30",
-    primaryTransactionType: "sale"
+  const [form, setForm] = useState<SpecialisationForm>({
+    propertyType: "Residential Luxury",
+    transactionType: "Sales & Resale",
+    geographicPrimary: "Central Business District",
+    geographicSecondary: "West Coast Marina",
+    internationalMarkets: "",
+    clientSegment: "Ultra High Net Worth",
+    languages: ["English", "Spanish", "Mandarin"],
+    languageInput: "",
+    averageTransactionValue: "2,500,000+"
   })
 
-  const updateField = useCallback(<K extends keyof PartnershipTermsForm>(
+  const updateField = useCallback(<K extends keyof SpecialisationForm>(
     field: K, 
-    value: PartnershipTermsForm[K]
+    value: SpecialisationForm[K]
   ) => {
     setForm(prev => ({ ...prev, [field]: value }))
     setSavedSuccess(false)
   }, [])
 
-  /* ── File Upload ── */
-  const handleFileSelect = (files: FileList | null) => {
-    if (files && files[0]) {
-      updateField("agreementDocument", files[0])
+  /* ── Language Tags ── */
+  const addLanguage = () => {
+    const trimmed = form.languageInput.trim()
+    if (trimmed && !form.languages.includes(trimmed)) {
+      updateField("languages", [...form.languages, trimmed])
+      updateField("languageInput", "")
     }
   }
 
-  const removeFile = () => {
-    updateField("agreementDocument", null)
-    if (fileInputRef.current) fileInputRef.current.value = ""
+  const removeLanguage = (lang: string) => {
+    updateField("languages", form.languages.filter(l => l !== lang))
+  }
+
+  const handleLanguageKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault()
+      addLanguage()
+    }
   }
 
   /* ── Submit ── */
@@ -146,419 +167,244 @@ export default function PartnershipTerms() {
         <motion.div variants={cardVariants} className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2.5 bg-blue-600 rounded-xl shadow-lg shadow-blue-600/20">
-              <FileText className="w-6 h-6 text-white" />
+              <Globe className="w-6 h-6 text-white" />
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
-                Partnership Terms
+                Specialisation & Territory
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                Define partnership governance, duration, and transaction structures.
+                Configure agent's regional coverage and market expertise parameters.
               </p>
             </div>
           </div>
         </motion.div>
 
-        {/* ─── TOP ROW: Partnership Terms (left) + Duration (right) ─── */}
-        <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
-          
-          {/* LEFT: Partnership Terms (3/5) */}
-          <motion.div variants={cardVariants} className="xl:col-span-3">
-            <Card className="border-0 shadow-sm dark:shadow-none dark:bg-gray-900/60 dark:border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm bg-white/80 h-full">
-              <CardContent className="p-6 sm:p-8">
-                <div className="flex items-center gap-3 mb-1">
-                  <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center shrink-0">
-                    <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                      Partnership Terms
-                    </h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                      Define the core governance and operational status
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-6 space-y-5">
-                  {/* Row 1: Type + Status */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <motion.div variants={itemVariants} className="space-y-2">
-                      <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                        Partnership Type
-                      </label>
-                      <Select 
-                        value={form.partnershipType} 
-                        onValueChange={(v) => updateField("partnershipType", v)}
-                      >
-                        <SelectTrigger className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200">
-                          <SelectValue placeholder="Select type" />
-                        </SelectTrigger>
-                        <SelectContent className="rounded-xl">
-                          <SelectItem value="franchise">Franchise</SelectItem>
-                          <SelectItem value="affiliate">Affiliate</SelectItem>
-                          <SelectItem value="strategic">Strategic Alliance</SelectItem>
-                          <SelectItem value="referral">Referral Partner</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </motion.div>
-
-                    <motion.div variants={itemVariants} className="space-y-2">
-                      <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                        Partnership Status
-                      </label>
-                      <Select 
-                        value={form.partnershipStatus} 
-                        onValueChange={(v) => updateField("partnershipStatus", v)}
-                      >
-                        <SelectTrigger className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200">
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                        <SelectContent className="rounded-xl">
-                          <SelectItem value="active">Active</SelectItem>
-                          <SelectItem value="pending">Pending</SelectItem>
-                          <SelectItem value="suspended">Suspended</SelectItem>
-                          <SelectItem value="terminated">Terminated</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </motion.div>
-                  </div>
-
-                  {/* Partnership Agreement Signed - File Upload */}
-                  <motion.div variants={itemVariants} className="space-y-2">
-                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                      Partnership Agreement Signed
-                    </label>
-                    
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept=".pdf"
-                      onChange={(e) => handleFileSelect(e.target.files)}
-                      className="hidden"
-                    />
-
-                    <AnimatePresence mode="wait">
-                      {form.agreementDocument ? (
-                        <motion.div
-                          key="file-selected"
-                          initial={{ opacity: 0, scale: 0.98 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.98 }}
-                          className="flex items-center justify-between p-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                              <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                            </div>
-                            <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                              {form.agreementDocument.name}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <button
-                              onClick={() => fileInputRef.current?.click()}
-                              className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
-                            >
-                              Change File
-                            </button>
-                            <button
-                              onClick={removeFile}
-                              className="p-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
-                            >
-                              <X className="w-4 h-4 text-gray-400 hover:text-red-500" />
-                            </button>
-                          </div>
-                        </motion.div>
-                      ) : (
-                        <motion.button
-                          key="upload-zone"
-                          initial={{ opacity: 0, scale: 0.98 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.98 }}
-                          onClick={() => fileInputRef.current?.click()}
-                          className="w-full flex items-center justify-center gap-2 p-3.5 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30 hover:border-blue-400 dark:hover:border-blue-700 hover:bg-blue-50/30 dark:hover:bg-blue-900/20 transition-all duration-200 cursor-pointer"
-                        >
-                          <FileText className="w-4 h-4 text-gray-400" />
-                          <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                            Upload Partnership Agreement
-                          </span>
-                        </motion.button>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* RIGHT: Duration (2/5) */}
-          <motion.div variants={cardVariants} className="xl:col-span-2">
-            <Card className="border-0 shadow-sm dark:shadow-none dark:bg-gray-900/60 dark:border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm bg-white/80 h-full">
-              <CardContent className="p-6 sm:p-8">
-                <div className="flex items-center gap-3 mb-1">
-                  <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center shrink-0">
-                    <Calendar className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                      Duration
-                    </h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                      Lifecycle timeline
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-6 space-y-5">
-                  {/* Agreement Start Date */}
-                  <motion.div variants={itemVariants} className="space-y-2">
-                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                      Agreement Start Date
-                    </label>
-                    <div className="relative">
-                      <Input
-                        type="text"
-                        value={form.agreementStartDate}
-                        onChange={(e) => updateField("agreementStartDate", e.target.value)}
-                        placeholder="mm/dd/yyyy"
-                        className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 pr-10"
-                      />
-                      <Calendar className="w-4 h-4 text-gray-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
-                    </div>
-                  </motion.div>
-
-                  {/* Agreement End Date */}
-                  <motion.div variants={itemVariants} className="space-y-2">
-                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                      Agreement End Date
-                    </label>
-                    <div className="relative">
-                      <Input
-                        type="text"
-                        value={form.agreementEndDate}
-                        onChange={(e) => updateField("agreementEndDate", e.target.value)}
-                        placeholder="mm/dd/yyyy"
-                        className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 pr-10"
-                      />
-                      <Calendar className="w-4 h-4 text-gray-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
-                    </div>
-                  </motion.div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-
-        {/* ─── AGREEMENT SPECIFICS (Full Width) ─── */}
+        {/* ─── MAIN CARD ─── */}
         <motion.div variants={cardVariants}>
           <Card className="border-0 shadow-sm dark:shadow-none dark:bg-gray-900/60 dark:border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm bg-white/80">
-            <CardContent className="p-6 sm:p-8">
-              <div className="flex items-center gap-3 mb-1">
-                <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center shrink-0">
-                  <Clock className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                    Agreement Specifics
-                  </h3>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                    Detailed contractual obligations and financial splits
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                {/* Exclusivity */}
-                <motion.div variants={itemVariants} className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 text-center block">
-                    Exclusivity
-                  </label>
-                  <div className="flex rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-                    <button
-                      type="button"
-                      onClick={() => updateField("exclusivity", "exclusive")}
-                      className={`
-                        flex-1 h-10 text-sm font-semibold transition-all duration-200
-                        ${form.exclusivity === "exclusive"
-                          ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
-                          : "bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
-                        }
-                      `}
-                    >
-                      Exclusive
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => updateField("exclusivity", "shared")}
-                      className={`
-                        flex-1 h-10 text-sm font-semibold transition-all duration-200 border-l border-gray-200 dark:border-gray-700
-                        ${form.exclusivity === "shared"
-                          ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
-                          : "bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
-                        }
-                      `}
-                    >
-                      Shared
-                    </button>
-                  </div>
-                </motion.div>
-
-                {/* Exclusive Geographic Zone */}
-                <motion.div variants={itemVariants} className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 text-center block">
-                    Exclusive Geographic Zone
-                  </label>
-                  <Input
-                    value={form.exclusiveGeographicZone}
-                    onChange={(e) => updateField("exclusiveGeographicZone", e.target.value)}
-                    placeholder="Enter zone"
-                    className="h-10 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 text-center text-sm"
-                  />
-                </motion.div>
-
-                {/* Commission Split Method */}
-                <motion.div variants={itemVariants} className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 text-center block">
-                    Commission Split Method
-                  </label>
-                  <div className="relative">
+            <CardContent className="p-0">
+              
+              {/* Form Body */}
+              <div className="px-6 sm:px-8 py-8 space-y-6">
+                
+                {/* Row 1 */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {/* Property Type Specialisation */}
+                  <motion.div variants={itemVariants} className="space-y-2">
+                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                      Property Type Specialisation
+                    </label>
                     <Input
-                      value={form.commissionSplitMethod}
-                      onChange={(e) => updateField("commissionSplitMethod", e.target.value)}
-                      placeholder="Enter split"
-                      className="h-10 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 text-center text-sm pr-8"
+                      value={form.propertyType}
+                      onChange={(e) => updateField("propertyType", e.target.value)}
+                      placeholder="Residential Luxury"
+                      className="h-11 rounded-xl border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                     />
-                    <Link2 className="w-3.5 h-3.5 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
-                  </div>
-                </motion.div>
-
-                {/* Payment Terms */}
-                <motion.div variants={itemVariants} className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 text-center block">
-                    Payment Terms
-                  </label>
-                  <Select 
-                    value={form.paymentTerms} 
-                    onValueChange={(v) => updateField("paymentTerms", v)}
-                  >
-                    <SelectTrigger className="h-10 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200">
-                      <SelectValue placeholder="Select terms" />
-                    </SelectTrigger>
-                    <SelectContent className="rounded-xl">
-                      <SelectItem value="net-15">Net 15</SelectItem>
-                      <SelectItem value="net-30">Net 30</SelectItem>
-                      <SelectItem value="net-45">Net 45</SelectItem>
-                      <SelectItem value="net-60">Net 60</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </motion.div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* ─── PRIMARY TRANSACTION TYPE (Full Width) ─── */}
-        <motion.div variants={cardVariants}>
-          <Card className="border-0 shadow-sm dark:shadow-none dark:bg-gray-900/60 dark:border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm bg-white/80">
-            <CardContent className="p-6 sm:p-8">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shrink-0">
-                    <FileText className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                      Primary Transaction Type
-                    </h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                      This determines the fee structure applied across the portal.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex rounded-full border border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-50 dark:bg-gray-800/50 p-1">
-                  <button
-                    type="button"
-                    onClick={() => updateField("primaryTransactionType", "sale")}
-                    className={`
-                      h-9 px-8 rounded-full text-sm font-semibold transition-all duration-200
-                      ${form.primaryTransactionType === "sale"
-                        ? "bg-blue-600 text-white shadow-md"
-                        : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-                      }
-                    `}
-                  >
-                    Sale
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => updateField("primaryTransactionType", "rent")}
-                    className={`
-                      h-9 px-8 rounded-full text-sm font-semibold transition-all duration-200
-                      ${form.primaryTransactionType === "rent"
-                        ? "bg-blue-600 text-white shadow-md"
-                        : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-                      }
-                    `}
-                  >
-                    Rent
-                  </button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* ─── ACTION BUTTONS ─── */}
-        {/* <motion.div 
-          variants={cardVariants}
-          className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-2 pb-8"
-        >
-          <AnimatePresence>
-            {savedSuccess && (
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                className="flex items-center gap-2 text-sm font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-4 py-2.5 rounded-xl"
-              >
-                <CheckCircle2 className="w-4 h-4" />
-                Partnership terms saved
-              </motion.div>
-            )}
-          </AnimatePresence>
-          
-          <div className="flex gap-3 w-full sm:w-auto">
-            <Button
-              type="button"
-              variant="outline"
-              className="flex-1 sm:flex-none rounded-xl h-11 px-8 font-medium border-gray-300 dark:border-gray-600 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
-            >
-              Discard
-            </Button>
-            <Button
-              type="button"
-              onClick={handleSave}
-              disabled={isSubmitting}
-              className="flex-1 sm:flex-none rounded-xl h-11 px-8 font-medium bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 transition-all duration-200 disabled:opacity-70"
-            >
-              {isSubmitting ? (
-                <span className="flex items-center gap-2">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                  >
-                    <Sparkles className="w-4 h-4" />
                   </motion.div>
-                  Saving...
-                </span>
-              ) : (
-                "Save Terms"
-              )}
-            </Button>
-          </div>
-        </motion.div> */}
+
+                  {/* Transaction Type Specialisation */}
+                  <motion.div variants={itemVariants} className="space-y-2">
+                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                      Transaction Type Specialisation
+                    </label>
+                    <Input
+                      value={form.transactionType}
+                      onChange={(e) => updateField("transactionType", e.target.value)}
+                      placeholder="Sales & Resale"
+                      className="h-11 rounded-xl border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    />
+                  </motion.div>
+
+                  {/* Geographic Territory — Primary */}
+                  <motion.div variants={itemVariants} className="space-y-2">
+                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                      Geographic Territory — Primary
+                    </label>
+                    <div className="relative">
+                      <Input
+                        value={form.geographicPrimary}
+                        onChange={(e) => updateField("geographicPrimary", e.target.value)}
+                        placeholder="Central Business District"
+                        className="h-11 rounded-xl border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 pr-10"
+                      />
+                      <MapPin className="w-4 h-4 text-gray-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
+                    </div>
+                  </motion.div>
+                </div>
+
+                {/* Row 2 */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {/* Secondary Geographic Territory */}
+                  <motion.div variants={itemVariants} className="space-y-2">
+                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                      Secondary Geographic Territory
+                    </label>
+                    <Input
+                      value={form.geographicSecondary}
+                      onChange={(e) => updateField("geographicSecondary", e.target.value)}
+                      placeholder="West Coast Marina"
+                      className="h-11 rounded-xl border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    />
+                  </motion.div>
+
+                  {/* International Markets */}
+                  <motion.div variants={itemVariants} className="space-y-2">
+                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                      International Markets
+                    </label>
+                    <div className="relative">
+                      <Select 
+                        value={form.internationalMarkets} 
+                        onValueChange={(v) => updateField("internationalMarkets", v)}
+                      >
+                        <SelectTrigger className="h-11 rounded-xl border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 pr-10">
+                          <SelectValue placeholder="Select International" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl">
+                          <SelectItem value="emea">EMEA</SelectItem>
+                          <SelectItem value="apac">APAC</SelectItem>
+                          <SelectItem value="americas">Americas</SelectItem>
+                          <SelectItem value="global">Global</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Globe className="w-4 h-4 text-gray-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
+                  </motion.div>
+
+                  {/* Client Segment Focus */}
+                  <motion.div variants={itemVariants} className="space-y-2">
+                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                      Client Segment Focus
+                    </label>
+                    <Input
+                      value={form.clientSegment}
+                      onChange={(e) => updateField("clientSegment", e.target.value)}
+                      placeholder="Ultra High Net Worth"
+                      className="h-11 rounded-xl border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    />
+                  </motion.div>
+                </div>
+
+                {/* Row 3: Languages + Transaction Value */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                  {/* Language Markets Covered */}
+                  <motion.div variants={itemVariants} className="space-y-2">
+                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                      Language Markets Covered
+                    </label>
+                    <div className="flex flex-wrap items-center gap-2 min-h-[44px] p-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/30">
+                      <AnimatePresence mode="popLayout">
+                        {form.languages.map((lang) => (
+                          <motion.div
+                            key={lang}
+                            layout
+                            variants={tagVariants}
+                            initial="hidden"
+                            animate="visible"
+                            exit="exit"
+                          >
+                            <Badge 
+                              className="bg-blue-600 hover:bg-blue-700 text-white border-0 pl-3 pr-2 py-1.5 text-xs font-medium rounded-lg flex items-center gap-1.5 cursor-default"
+                            >
+                              {lang}
+                              <button
+                                onClick={() => removeLanguage(lang)}
+                                className="ml-0.5 hover:bg-white/20 rounded-md p-0.5 transition-colors"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </Badge>
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                      <div className="flex items-center gap-2 flex-1 min-w-[120px]">
+                        <Input
+                          value={form.languageInput}
+                          onChange={(e) => updateField("languageInput", e.target.value)}
+                          onKeyDown={handleLanguageKeyDown}
+                          placeholder="Type and press Enter..."
+                          className="h-8 border-0 bg-transparent shadow-none focus-visible:ring-0 p-0 text-xs placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-200"
+                        />
+                        <button
+                          onClick={addLanguage}
+                          disabled={!form.languageInput.trim()}
+                          className="flex items-center gap-1 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-40 transition-colors shrink-0"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          Add Language
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Average Transaction Value */}
+                  <motion.div variants={itemVariants} className="space-y-2">
+                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                      Average Transaction Value
+                    </label>
+                    <div className="relative">
+                      <div className="absolute left-3.5 top-1/2 -translate-y-1/2">
+                        <DollarSign className="w-4 h-4 text-gray-400" />
+                      </div>
+                      <Input
+                        value={form.averageTransactionValue}
+                        onChange={(e) => updateField("averageTransactionValue", e.target.value)}
+                        placeholder="0"
+                        className="h-11 rounded-xl border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 pl-10"
+                      />
+                    </div>
+                  </motion.div>
+                </div>
+              </div>
+
+              {/* Card Footer */}
+              <div className="px-6 sm:px-8 py-5 border-t border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row items-center justify-end gap-3">
+                <AnimatePresence>
+                  {savedSuccess && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      className="flex items-center gap-2 text-sm font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-4 py-2 rounded-xl"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      Changes saved successfully
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="h-10 px-6 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={isSubmitting}
+                  className="h-10 px-6 rounded-xl text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 transition-all duration-200 disabled:opacity-70"
+                >
+                  {isSubmitting ? (
+                    <span className="flex items-center gap-2">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                      >
+                        <Sparkles className="w-4 h-4" />
+                      </motion.div>
+                      Saving...
+                    </span>
+                  ) : (
+                    "Save Changes"
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
       </div>
     </motion.div>

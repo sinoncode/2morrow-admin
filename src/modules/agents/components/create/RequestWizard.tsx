@@ -6,7 +6,7 @@ import InternationalAddressStep from "./steps/InternationalAddressesStep"
 import PartnershipAggreementStep from "./steps/PartnershipAgreementStep"
 import CRMAccess from "./steps/CRMAccessStep"
 import CRMAccessRight from "./steps/CRMAccessRights"
-import CallStep from "./steps/CallStep"
+import PerformanceStep from "./steps/PerformanceStep"
 import MailStep from "./steps/MailStep"
 
 import RequestWizardHeader from "./RequestWizardHeader"
@@ -16,7 +16,7 @@ import { createRequest, updateRequest } from "@/services/request.service"
 import { toast } from "@/lib/toast"
 
 
-const createSteps = ["Employment", "Qualifications", "Specialisation & Territory", "Commission", "Activity & Performance"]
+const createSteps = ["Employment", "Qualifications", "Specialisation & Territory", "Commission", "Activity & Performance", "Performance"]
 const editSteps = ["Contacts", "Requests & Search", "Calls", "Mails"]
 
 interface RequestWizardProps {
@@ -94,7 +94,7 @@ export default function RequestWizard({
 
         case 5:
         return (
-          <CallStep
+          <PerformanceStep
             onSave={handleSave}
             isSubmitting={isSubmitting}
             onCancel={handleCancel}

@@ -37,6 +37,8 @@ const mapApiEventToUI = (apiEvent: AgendaApiEvent): AgendaEvent => {
     color: getCategoryColor(apiEvent.category),
     category: apiEvent.category,
     location: apiEvent.location,
+    latitude: apiEvent.latitude !== undefined && apiEvent.latitude !== null ? Number(apiEvent.latitude) : null,
+    longitude: apiEvent.longitude !== undefined && apiEvent.longitude !== null ? Number(apiEvent.longitude) : null,
 
     members: apiEvent.members
       ? apiEvent.members.map((member) => ({
