@@ -1,112 +1,124 @@
-export interface CompanyIdentity {
-  agency_legal_name: string;
-  trading_name_brand: string;
-  agency_type: string;
-  franchise_name: string;
-  company_registration_no: string;
-  vat_number: string;
-  incorporation_date: string;
-  founding_year: number;
-  staff_size_bracket: string;
-  total_agents: number;
-  offices_count: number;
-  countries_of_operation: string[];
-  cantons_of_operation: string[];
-  primary_market: string;
-  specialisation: string[];
-  portals_used: string[];
-  agency_website: string;
-  social_media: {
-    instagram: string;
-    facebook: string;
-    linkedin: string;
-  };
-}
+import { create } from "zustand";
 
-export interface Address {
-  line_1: string;
-  line_2: string;
-  zip_code: string;
+export interface RequestFormData {
+  first_name: string;
+  last_name: string;
+
+  phones: string;
+  emails: string;
+  language: string;
+
+  memo: string;
+  notes: string;
+
+  status: string;
+
+  transaction: string;
+  category: string;
+
+  budget_min: number | string;
+  budget_max: number | string;
+  currency: string;
+
+  zip: string;
   city: string;
   country: string;
+  radius: number;
+
+  rooms_min: number | string;
+  rooms_max: number | string;
+
+  livable_space_min: number | string;
+  livable_space_max: number | string;
+
+  surface_land_min: number | string;
+  surface_land_max: number | string;
+
+  minimumPrice: number | string;
+  maximumPrice: number | string;
+  minimumBalconies: number | string;
+  maximumBalconies: number | string;
+  minimumBuiltYear: number | string;
+  maximumBuiltYear: number | string;
 }
 
-export interface AddressContact {
-  registered_address: Address;
-  office_address: Address;
-  general_phone: string;
-  general_email: string;
-  primary_contact_person_id: number;
-  secondary_contact_person_id: number;
-  director_owner_name: string;
-  director_owner_email: string;
-  director_owner_phone: string;
-  after_hours_emergency_contact: string;
+interface RequestStore {
+  form: RequestFormData;
+
+  updateField: (
+    key: keyof RequestFormData,
+    value: RequestFormData[keyof RequestFormData]
+  ) => void;
+
+  setForm: (form: Partial<RequestFormData>) => void;
+
+  reset: () => void;
 }
 
-export interface Partnership {
-  type: string;
-  status: string;
-  agreement_signed: boolean;
-  start_date: string;
-  end_date: string;
-  agreement_file: string;
-  exclusivity: string;
-  exclusive_geographic_zones: string[];
-  commission_structure_sale: string;
-  commission_structure_rental: string;
-  commission_split: string;
-  commission_split_method: string;
-  who_bears_advertising_costs: string;
-  nda_signed: boolean;
-  nda_file: string;
-  data_sharing_agreement_gdpr: boolean;
-  data_sharing_agreement_date: string;
-  iban: string;
-  bank_name: string;
-  payment_terms: string;
-  dispute_resolution_clause: string;
-  notice_period_terminate: string;
-}
+const initialState: RequestFormData = {
+  first_name: "",
+  last_name: "",
 
-export interface PortalAccess {
-  granted: boolean;
-  login_email: string;
-  permission_level: string;
-  listings_they_can_publish: string;
-  can_view_our_listings: string;
-  can_see_client_data: string;
-  can_access_reports: boolean;
-  max_active_listings: number;
-  activation_date: string;
-  last_login_at: string;
-  api_integration: boolean;
-  api_key: string;
-  listing_feed_format: string;
-  auto_sync_frequency: string;
-  mls_access: string[];
-}
+  phones: "",
+  emails: "",
+  language: "",
 
-export interface Activity {
-  comandated_properties_active: number;
-  referrals_sent_to_us: number;
-  referrals_we_sent: number;
-  transactions_closed_together: number;
-  total_cotransaction_volume: string;
-  total_commission_paid: string;
-  total_commission_received: string;
-  last_joint_transaction_date: string;
-  relationship_score: string;
-  relationship_notes: string;
-  issues_complaints_log: string[];
-  annual_review_date: string;
-}
+  memo: "",
+  notes: "",
 
-export interface AgencyPayload {
-  person_id: number;
-  company_identity: CompanyIdentity;
-  address_contact: AddressContact;
-  partnership: Partnership;
-  portal_access: PortalAccess;
-  activity: Activity;
-}
+  status: "NEW",
+
+  transaction: "BUY",
+  category: "",
+
+  budget_min: 0,
+  budget_max: 0,
+  currency: "CHF",
+
+  zip: "",
+  city: "",
+  country: "",
+  radius: 0,
+
+  rooms_min: 0,
+  rooms_max: 0,
+
+  livable_space_min: 0,
+  livable_space_max: 0,
+
+  surface_land_min: 0,
+  surface_land_max: 0,
+
+  minimumPrice: "",
+  maximumPrice: "",
+  minimumBalconies: "",
+  maximumBalconies: "",
+  minimumBuiltYear: "",
+  maximumBuiltYear: "",
+};
+
+export const useRequestCreationStore =
+  create<RequestStore>((set) => ({
+    form: initialState,
+
+    updateField: (key, value) =>
+      set((state) => ({
+        form: {
+          ...state.form,
+          [key]: value,
+        },
+      })),
+
+    setForm: (form) =>
+      set({
+        form: {
+          ...initialState,
+          ...form,
+        },
+      }),
+
+    reset: () =>
+      set({
+        form: initialState,
+      }),
+  }));
