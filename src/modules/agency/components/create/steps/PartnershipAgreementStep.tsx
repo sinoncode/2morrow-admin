@@ -1,566 +1,611 @@
 "use client"
 
-import React, { useState, useRef, useCallback } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { 
-  Card, 
-  CardContent 
-} from "@/components/ui/card"
+import React, { useState, useRef } from "react"
+import { motion, type Variants } from "framer-motion"
+import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import { AnimatePresence } from "framer-motion"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { 
-  FileText, 
+import { Badge } from "@/components/ui/badge"
+import { Checkbox } from "@/components/ui/checkbox"
+import {
+  FileText,
   Calendar,
   Clock,
   Link2,
   X,
-  CheckCircle2,
-  Sparkles
+  CreditCard,
+  Building,
+  ShieldCheck,
+  Plus,
+  FileCheck2,
 } from "lucide-react"
+import { useAgencyStore } from "@/store/useAgencyStore"
 
-/* ─────────────────────────────────────────────────────────────
-   TYPES
-   ───────────────────────────────────────────────────────────── */
-interface PartnershipTermsForm {
-  partnershipType: string
-  partnershipStatus: string
-  agreementDocument: File | null
-  agreementStartDate: string
-  agreementEndDate: string
-  exclusivity: "exclusive" | "shared"
-  exclusiveGeographicZone: string
-  commissionSplitMethod: string
-  paymentTerms: string
-  primaryTransactionType: "sale" | "rent"
+interface PartnershipStepProps {
+  onSave?: () => void
+  isSubmitting?: boolean
+  onCancel?: () => void
+  onNext?: () => void
+  onBack?: () => void
 }
 
-/* ─────────────────────────────────────────────────────────────
-   ANIMATION VARIANTS
-   ───────────────────────────────────────────────────────────── */
-const containerVariants = {
+const COMMON_ZONES = [
+  "Geneva Central & Left Bank",
+  "Geneva Right Bank",
+  "Canton Vaud / Lausanne",
+  "Montreux Riviera",
+  "Nyon / La Côte",
+  "Valais Ski Resorts",
+  "Zurich Metropolitan",
+]
+
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
       staggerChildren: 0.08,
-      delayChildren: 0.05
-    }
-  }
+      delayChildren: 0.05,
+    },
+  },
 }
 
-const cardVariants = {
-  hidden: { opacity: 0, y: 24, scale: 0.98 },
+const cardVariants: Variants = {
+  hidden: { opacity: 0, y: 16 },
   visible: {
     opacity: 1,
     y: 0,
-    scale: 1,
     transition: {
-      duration: 0.55,
-      ease: [0.22, 1, 0.36, 1]
-    }
-  }
+      duration: 0.45,
+      ease: "easeOut",
+    },
+  },
 }
 
-const itemVariants = {
-  hidden: { opacity: 0, x: -12 },
+const itemVariants: Variants = {
+  hidden: { opacity: 0, x: -8 },
   visible: {
     opacity: 1,
     x: 0,
     transition: {
-      duration: 0.4,
-      ease: "easeOut"
-    }
-  }
+      duration: 0.3,
+      ease: "easeOut",
+    },
+  },
 }
 
-/* ─────────────────────────────────────────────────────────────
-   MAIN COMPONENT
-   ───────────────────────────────────────────────────────────── */
-export default function PartnershipTerms() {
+export default function PartnershipAgreementStep({
+  onSave,
+  isSubmitting = false,
+  onCancel,
+  onNext,
+  onBack,
+}: PartnershipStepProps) {
+  const {
+    formData,
+    updatePartnership,
+    toggleArrayItem,
+    setArrayField,
+  } = useAgencyStore()
+
+  const partnership = formData.partnership
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [savedSuccess, setSavedSuccess] = useState(false)
+  const [newZone, setNewZone] = useState("")
 
-  const [form, setForm] = useState<PartnershipTermsForm>({
-    partnershipType: "franchise",
-    partnershipStatus: "active",
-    agreementDocument: null,
-    agreementStartDate: "01/01/2024",
-    agreementEndDate: "12/31/2026",
-    exclusivity: "exclusive",
-    exclusiveGeographicZone: "Metropolitan Area North",
-    commissionSplitMethod: "Fixed Percentage (80/20)",
-    paymentTerms: "net-30",
-    primaryTransactionType: "sale"
-  })
-
-  const updateField = useCallback(<K extends keyof PartnershipTermsForm>(
-    field: K, 
-    value: PartnershipTermsForm[K]
-  ) => {
-    setForm(prev => ({ ...prev, [field]: value }))
-    setSavedSuccess(false)
-  }, [])
-
-  /* ── File Upload ── */
-  const handleFileSelect = (files: FileList | null) => {
-    if (files && files[0]) {
-      updateField("agreementDocument", files[0])
+  const handleAddZone = (e: React.KeyboardEvent | React.MouseEvent) => {
+    if ("key" in e && e.key !== "Enter") return
+    e.preventDefault()
+    if (newZone.trim() && !partnership.exclusive_geographic_zones.includes(newZone.trim())) {
+      setArrayField("partnership", "exclusive_geographic_zones", [
+        ...partnership.exclusive_geographic_zones,
+        newZone.trim(),
+      ])
+      setNewZone("")
     }
   }
 
-  const removeFile = () => {
-    updateField("agreementDocument", null)
-    if (fileInputRef.current) fileInputRef.current.value = ""
+  const handleRemoveZone = (zone: string) => {
+    setArrayField(
+      "partnership",
+      "exclusive_geographic_zones",
+      partnership.exclusive_geographic_zones.filter((z) => z !== zone)
+    )
   }
 
-  /* ── Submit ── */
-  const handleSave = async () => {
-    setIsSubmitting(true)
-    await new Promise(resolve => setTimeout(resolve, 1200))
-    setIsSubmitting(false)
-    setSavedSuccess(true)
-    setTimeout(() => setSavedSuccess(false), 3000)
+  const handleFileMockUpload = (files: FileList | null) => {
+    if (files && files[0]) {
+      updatePartnership("agreement_file", files[0].name)
+      updatePartnership("agreement_signed", true)
+    }
   }
 
-  /* ─────────────────────────────────────────────────────────────
-   RENDER
-   ───────────────────────────────────────────────────────────── */
   return (
-    <motion.div 
-      className="min-h-screen bg-gray-50/80 dark:bg-gray-950/80 p-4 sm:p-6 lg:p-8"
+    <motion.div
+      className="space-y-6"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
     >
-      <div className="mx-auto max-w-full space-y-6">
-        
-        {/* Page Header */}
-        <motion.div variants={cardVariants} className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2.5 bg-blue-600 rounded-xl shadow-lg shadow-blue-600/20">
-              <FileText className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
-                Partnership Terms
-              </h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                Define partnership governance, duration, and transaction structures.
-              </p>
-            </div>
+      {/* Header Banner */}
+      <motion.div variants={cardVariants}>
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-blue-600 rounded-xl shadow-lg shadow-blue-600/20">
+            <FileText className="w-6 h-6 text-white" />
           </div>
-        </motion.div>
-
-        {/* ─── TOP ROW: Partnership Terms (left) + Duration (right) ─── */}
-        <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
-          
-          {/* LEFT: Partnership Terms (3/5) */}
-          <motion.div variants={cardVariants} className="xl:col-span-3">
-            <Card className="border-0 shadow-sm dark:shadow-none dark:bg-gray-900/60 dark:border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm bg-white/80 h-full">
-              <CardContent className="p-6 sm:p-8">
-                <div className="flex items-center gap-3 mb-1">
-                  <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center shrink-0">
-                    <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                      Partnership Terms
-                    </h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                      Define the core governance and operational status
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-6 space-y-5">
-                  {/* Row 1: Type + Status */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <motion.div variants={itemVariants} className="space-y-2">
-                      <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                        Partnership Type
-                      </label>
-                      <Select 
-                        value={form.partnershipType} 
-                        onValueChange={(v) => updateField("partnershipType", v)}
-                      >
-                        <SelectTrigger className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200">
-                          <SelectValue placeholder="Select type" />
-                        </SelectTrigger>
-                        <SelectContent className="rounded-xl">
-                          <SelectItem value="franchise">Franchise</SelectItem>
-                          <SelectItem value="affiliate">Affiliate</SelectItem>
-                          <SelectItem value="strategic">Strategic Alliance</SelectItem>
-                          <SelectItem value="referral">Referral Partner</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </motion.div>
-
-                    <motion.div variants={itemVariants} className="space-y-2">
-                      <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                        Partnership Status
-                      </label>
-                      <Select 
-                        value={form.partnershipStatus} 
-                        onValueChange={(v) => updateField("partnershipStatus", v)}
-                      >
-                        <SelectTrigger className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200">
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                        <SelectContent className="rounded-xl">
-                          <SelectItem value="active">Active</SelectItem>
-                          <SelectItem value="pending">Pending</SelectItem>
-                          <SelectItem value="suspended">Suspended</SelectItem>
-                          <SelectItem value="terminated">Terminated</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </motion.div>
-                  </div>
-
-                  {/* Partnership Agreement Signed - File Upload */}
-                  <motion.div variants={itemVariants} className="space-y-2">
-                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                      Partnership Agreement Signed
-                    </label>
-                    
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept=".pdf"
-                      onChange={(e) => handleFileSelect(e.target.files)}
-                      className="hidden"
-                    />
-
-                    <AnimatePresence mode="wait">
-                      {form.agreementDocument ? (
-                        <motion.div
-                          key="file-selected"
-                          initial={{ opacity: 0, scale: 0.98 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.98 }}
-                          className="flex items-center justify-between p-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                              <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                            </div>
-                            <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                              {form.agreementDocument.name}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <button
-                              onClick={() => fileInputRef.current?.click()}
-                              className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
-                            >
-                              Change File
-                            </button>
-                            <button
-                              onClick={removeFile}
-                              className="p-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
-                            >
-                              <X className="w-4 h-4 text-gray-400 hover:text-red-500" />
-                            </button>
-                          </div>
-                        </motion.div>
-                      ) : (
-                        <motion.button
-                          key="upload-zone"
-                          initial={{ opacity: 0, scale: 0.98 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.98 }}
-                          onClick={() => fileInputRef.current?.click()}
-                          className="w-full flex items-center justify-center gap-2 p-3.5 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30 hover:border-blue-400 dark:hover:border-blue-700 hover:bg-blue-50/30 dark:hover:bg-blue-900/20 transition-all duration-200 cursor-pointer"
-                        >
-                          <FileText className="w-4 h-4 text-gray-400" />
-                          <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                            Upload Partnership Agreement
-                          </span>
-                        </motion.button>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* RIGHT: Duration (2/5) */}
-          <motion.div variants={cardVariants} className="xl:col-span-2">
-            <Card className="border-0 shadow-sm dark:shadow-none dark:bg-gray-900/60 dark:border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm bg-white/80 h-full">
-              <CardContent className="p-6 sm:p-8">
-                <div className="flex items-center gap-3 mb-1">
-                  <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center shrink-0">
-                    <Calendar className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                      Duration
-                    </h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                      Lifecycle timeline
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-6 space-y-5">
-                  {/* Agreement Start Date */}
-                  <motion.div variants={itemVariants} className="space-y-2">
-                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                      Agreement Start Date
-                    </label>
-                    <div className="relative">
-                      <Input
-                        type="text"
-                        value={form.agreementStartDate}
-                        onChange={(e) => updateField("agreementStartDate", e.target.value)}
-                        placeholder="mm/dd/yyyy"
-                        className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 pr-10"
-                      />
-                      <Calendar className="w-4 h-4 text-gray-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
-                    </div>
-                  </motion.div>
-
-                  {/* Agreement End Date */}
-                  <motion.div variants={itemVariants} className="space-y-2">
-                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                      Agreement End Date
-                    </label>
-                    <div className="relative">
-                      <Input
-                        type="text"
-                        value={form.agreementEndDate}
-                        onChange={(e) => updateField("agreementEndDate", e.target.value)}
-                        placeholder="mm/dd/yyyy"
-                        className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 pr-10"
-                      />
-                      <Calendar className="w-4 h-4 text-gray-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
-                    </div>
-                  </motion.div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+              Partnership Terms & Agreement
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+              Define partnership classification, contractual duration, commission splits, and banking terms.
+            </p>
+          </div>
         </div>
+      </motion.div>
 
-        {/* ─── AGREEMENT SPECIFICS (Full Width) ─── */}
-        <motion.div variants={cardVariants}>
-          <Card className="border-0 shadow-sm dark:shadow-none dark:bg-gray-900/60 dark:border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm bg-white/80">
-            <CardContent className="p-6 sm:p-8">
-              <div className="flex items-center gap-3 mb-1">
-                <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center shrink-0">
-                  <Clock className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                    Agreement Specifics
-                  </h3>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                    Detailed contractual obligations and financial splits
-                  </p>
-                </div>
+      {/* TOP ROW: Governance (3/5) + Duration (2/5) */}
+      <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
+        {/* LEFT: Governance & Classification */}
+        <motion.div variants={cardVariants} className="xl:col-span-3">
+          <Card className="border border-gray-100 dark:border-gray-800 shadow-sm rounded-2xl overflow-hidden bg-card h-full">
+            <CardContent className="p-6 sm:p-7 space-y-5">
+              <div className="flex items-center gap-2.5 pb-4 border-b border-gray-100 dark:border-gray-800">
+                <FileCheck2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <h3 className="text-sm font-bold uppercase tracking-wider text-gray-900 dark:text-white">
+                  Governance & Operational Status
+                </h3>
               </div>
 
-              <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                {/* Exclusivity */}
-                <motion.div variants={itemVariants} className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 text-center block">
-                    Exclusivity
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <motion.div variants={itemVariants} className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Partnership Type
                   </label>
-                  <div className="flex rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-                    <button
-                      type="button"
-                      onClick={() => updateField("exclusivity", "exclusive")}
-                      className={`
-                        flex-1 h-10 text-sm font-semibold transition-all duration-200
-                        ${form.exclusivity === "exclusive"
-                          ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
-                          : "bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
-                        }
-                      `}
-                    >
-                      Exclusive
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => updateField("exclusivity", "shared")}
-                      className={`
-                        flex-1 h-10 text-sm font-semibold transition-all duration-200 border-l border-gray-200 dark:border-gray-700
-                        ${form.exclusivity === "shared"
-                          ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
-                          : "bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
-                        }
-                      `}
-                    >
-                      Shared
-                    </button>
-                  </div>
-                </motion.div>
-
-                {/* Exclusive Geographic Zone */}
-                <motion.div variants={itemVariants} className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 text-center block">
-                    Exclusive Geographic Zone
-                  </label>
-                  <Input
-                    value={form.exclusiveGeographicZone}
-                    onChange={(e) => updateField("exclusiveGeographicZone", e.target.value)}
-                    placeholder="Enter zone"
-                    className="h-10 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 text-center text-sm"
-                  />
-                </motion.div>
-
-                {/* Commission Split Method */}
-                <motion.div variants={itemVariants} className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 text-center block">
-                    Commission Split Method
-                  </label>
-                  <div className="relative">
-                    <Input
-                      value={form.commissionSplitMethod}
-                      onChange={(e) => updateField("commissionSplitMethod", e.target.value)}
-                      placeholder="Enter split"
-                      className="h-10 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 text-center text-sm pr-8"
-                    />
-                    <Link2 className="w-3.5 h-3.5 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
-                  </div>
-                </motion.div>
-
-                {/* Payment Terms */}
-                <motion.div variants={itemVariants} className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 text-center block">
-                    Payment Terms
-                  </label>
-                  <Select 
-                    value={form.paymentTerms} 
-                    onValueChange={(v) => updateField("paymentTerms", v)}
+                  <Select
+                    value={partnership.type || "franchise"}
+                    onValueChange={(v) => updatePartnership("type", v)}
                   >
-                    <SelectTrigger className="h-10 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200">
-                      <SelectValue placeholder="Select terms" />
+                    <SelectTrigger className="h-11 rounded-xl">
+                      <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl">
-                      <SelectItem value="net-15">Net 15</SelectItem>
-                      <SelectItem value="net-30">Net 30</SelectItem>
-                      <SelectItem value="net-45">Net 45</SelectItem>
-                      <SelectItem value="net-60">Net 60</SelectItem>
+                      <SelectItem value="franchise">Franchise</SelectItem>
+                      <SelectItem value="affiliate">Affiliate Partner</SelectItem>
+                      <SelectItem value="strategic">Strategic Alliance</SelectItem>
+                      <SelectItem value="referral">Referral Partner</SelectItem>
+                      <SelectItem value="mandate_broker">Mandate Broker</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </motion.div>
+
+                <motion.div variants={itemVariants} className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Partnership Status
+                  </label>
+                  <Select
+                    value={partnership.status || "active"}
+                    onValueChange={(v) => updatePartnership("status", v)}
+                  >
+                    <SelectTrigger className="h-11 rounded-xl">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="pending">Pending Approval</SelectItem>
+                      <SelectItem value="under_review">Under Review</SelectItem>
+                      <SelectItem value="suspended">Suspended</SelectItem>
+                      <SelectItem value="terminated">Terminated</SelectItem>
                     </SelectContent>
                   </Select>
                 </motion.div>
               </div>
+
+              {/* Agreement Document & Signing */}
+              <motion.div variants={itemVariants} className="space-y-2 pt-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Partnership Agreement Document
+                  </label>
+                  <label className="flex items-center gap-2 text-xs font-medium cursor-pointer text-muted-foreground">
+                    <Checkbox
+                      checked={partnership.agreement_signed}
+                      onCheckedChange={(checked) =>
+                        updatePartnership("agreement_signed", checked === true)
+                      }
+                      className="rounded-md"
+                    />
+                    Agreement Officially Signed
+                  </label>
+                </div>
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={(e) => handleFileMockUpload(e.target.files)}
+                  className="hidden"
+                />
+
+                <AnimatePresence mode="wait">
+                  {partnership.agreement_file ? (
+                    <motion.div
+                      key="file"
+                      initial={{ opacity: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="flex items-center justify-between p-3.5 rounded-xl border border-blue-200 dark:border-blue-900 bg-blue-50/40 dark:bg-blue-950/20"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
+                          <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-gray-900 dark:text-white">
+                            {partnership.agreement_file}
+                          </p>
+                          <p className="text-[10px] text-emerald-600 dark:text-emerald-400">
+                            ✓ Document attached
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="h-8 text-xs text-blue-600"
+                        >
+                          Change
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => updatePartnership("agreement_file", "")}
+                          className="h-8 text-xs text-red-600 hover:text-red-700"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full flex items-center justify-center gap-2.5 p-4 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-800 hover:border-blue-400 dark:hover:border-blue-600 bg-muted/20 transition-all cursor-pointer text-xs font-medium text-muted-foreground hover:text-foreground"
+                    >
+                      <FileText className="w-4 h-4 text-blue-500" />
+                      Upload Signed Partnership Agreement (.PDF, .DOCX)
+                    </button>
+                  )}
+                </AnimatePresence>
+              </motion.div>
             </CardContent>
           </Card>
         </motion.div>
 
-        {/* ─── PRIMARY TRANSACTION TYPE (Full Width) ─── */}
-        <motion.div variants={cardVariants}>
-          <Card className="border-0 shadow-sm dark:shadow-none dark:bg-gray-900/60 dark:border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm bg-white/80">
-            <CardContent className="p-6 sm:p-8">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shrink-0">
-                    <FileText className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                      Primary Transaction Type
-                    </h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                      This determines the fee structure applied across the portal.
-                    </p>
-                  </div>
-                </div>
+        {/* RIGHT: Agreement Duration & Notice */}
+        <motion.div variants={cardVariants} className="xl:col-span-2">
+          <Card className="border border-gray-100 dark:border-gray-800 shadow-sm rounded-2xl overflow-hidden bg-card h-full">
+            <CardContent className="p-6 sm:p-7 space-y-4">
+              <div className="flex items-center gap-2.5 pb-4 border-b border-gray-100 dark:border-gray-800">
+                <Calendar className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                <h3 className="text-sm font-bold uppercase tracking-wider text-gray-900 dark:text-white">
+                  Contract Duration
+                </h3>
+              </div>
 
-                <div className="flex rounded-full border border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-50 dark:bg-gray-800/50 p-1">
+              <motion.div variants={itemVariants} className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Agreement Start Date
+                </label>
+                <div className="relative">
+                  <Input
+                    type="date"
+                    value={partnership.start_date ? partnership.start_date.split("T")[0] : ""}
+                    onChange={(e) => updatePartnership("start_date", e.target.value)}
+                    className="h-11 rounded-xl pr-10"
+                  />
+                  <Calendar className="w-4 h-4 text-gray-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+              </motion.div>
+
+              <motion.div variants={itemVariants} className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Agreement End Date
+                </label>
+                <div className="relative">
+                  <Input
+                    type="date"
+                    value={partnership.end_date ? partnership.end_date.split("T")[0] : ""}
+                    onChange={(e) => updatePartnership("end_date", e.target.value)}
+                    className="h-11 rounded-xl pr-10"
+                  />
+                  <Calendar className="w-4 h-4 text-gray-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+              </motion.div>
+
+              <motion.div variants={itemVariants} className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Termination Notice Period
+                </label>
+                <Input
+                  value={partnership.notice_period_terminate}
+                  onChange={(e) => updatePartnership("notice_period_terminate", e.target.value)}
+                  placeholder="e.g. 3 months written notice"
+                  className="h-11 rounded-xl"
+                />
+              </motion.div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
+      {/* FULL WIDTH: Commercial Split & Banking Details */}
+      <motion.div variants={cardVariants}>
+        <Card className="border border-gray-100 dark:border-gray-800 shadow-sm rounded-2xl overflow-hidden bg-card">
+          <CardContent className="p-6 sm:p-7 space-y-6">
+            <div className="flex items-center gap-2.5 pb-4 border-b border-gray-100 dark:border-gray-800">
+              <Clock className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+              <h3 className="text-sm font-bold uppercase tracking-wider text-gray-900 dark:text-white">
+                Commercial Splits & Financial Settlement
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {/* Exclusivity */}
+              <motion.div variants={itemVariants} className="space-y-2">
+                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Exclusivity
+                </label>
+                <div className="flex rounded-xl border border-input overflow-hidden p-0.5 bg-muted/30">
                   <button
                     type="button"
-                    onClick={() => updateField("primaryTransactionType", "sale")}
-                    className={`
-                      h-9 px-8 rounded-full text-sm font-semibold transition-all duration-200
-                      ${form.primaryTransactionType === "sale"
-                        ? "bg-blue-600 text-white shadow-md"
-                        : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-                      }
-                    `}
+                    onClick={() => updatePartnership("exclusivity", "exclusive")}
+                    className={`flex-1 h-9 rounded-lg text-xs font-semibold transition-all ${partnership.exclusivity === "exclusive"
+                      ? "bg-blue-600 text-white shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                      }`}
                   >
-                    Sale
+                    Exclusive
                   </button>
                   <button
                     type="button"
-                    onClick={() => updateField("primaryTransactionType", "rent")}
-                    className={`
-                      h-9 px-8 rounded-full text-sm font-semibold transition-all duration-200
-                      ${form.primaryTransactionType === "rent"
-                        ? "bg-blue-600 text-white shadow-md"
-                        : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-                      }
-                    `}
+                    onClick={() => updatePartnership("exclusivity", "shared")}
+                    className={`flex-1 h-9 rounded-lg text-xs font-semibold transition-all ${partnership.exclusivity === "shared"
+                      ? "bg-blue-600 text-white shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                      }`}
                   >
-                    Rent
+                    Shared / Open
                   </button>
+                </div>
+              </motion.div>
+
+              {/* Commission Split */}
+              <motion.div variants={itemVariants} className="space-y-2">
+                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Commission Split
+                </label>
+                <Input
+                  value={partnership.commission_split}
+                  onChange={(e) => updatePartnership("commission_split", e.target.value)}
+                  placeholder="e.g. 80/20 or 50/50"
+                  className="h-11 rounded-xl"
+                />
+              </motion.div>
+
+              {/* Split Method */}
+              <motion.div variants={itemVariants} className="space-y-2">
+                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Commission Split Method
+                </label>
+                <Input
+                  value={partnership.commission_split_method}
+                  onChange={(e) => updatePartnership("commission_split_method", e.target.value)}
+                  placeholder="Fixed Percentage on Net"
+                  className="h-11 rounded-xl"
+                />
+              </motion.div>
+
+              {/* Payment Terms */}
+              <motion.div variants={itemVariants} className="space-y-2">
+                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Payment Terms
+                </label>
+                <Select
+                  value={partnership.payment_terms || "net-30"}
+                  onValueChange={(v) => updatePartnership("payment_terms", v)}
+                >
+                  <SelectTrigger className="h-11 rounded-xl">
+                    <SelectValue placeholder="Select terms" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl">
+                    <SelectItem value="immediate">Immediate upon Closing</SelectItem>
+                    <SelectItem value="net-15">Net 15 Days</SelectItem>
+                    <SelectItem value="net-30">Net 30 Days</SelectItem>
+                    <SelectItem value="net-60">Net 60 Days</SelectItem>
+                  </SelectContent>
+                </Select>
+              </motion.div>
+            </div>
+
+            {/* Geographic Zones Multi-Selector */}
+            <motion.div variants={itemVariants} className="space-y-2 pt-1">
+              <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Exclusive Geographic Zones
+              </label>
+              <div className="flex flex-wrap gap-2 items-center p-3 rounded-xl border border-input bg-background/50 min-h-[46px]">
+                {partnership.exclusive_geographic_zones.map((zone) => (
+                  <Badge
+                    key={zone}
+                    variant="secondary"
+                    className="gap-1.5 px-3 py-1 text-xs font-medium rounded-lg bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300"
+                  >
+                    {zone}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveZone(zone)}
+                      className="text-orange-400 hover:text-orange-700 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </Badge>
+                ))}
+                <div className="flex items-center gap-1.5">
+                  <Input
+                    value={newZone}
+                    onChange={(e) => setNewZone(e.target.value)}
+                    onKeyDown={handleAddZone}
+                    placeholder="Type custom zone & Enter..."
+                    className="h-7 text-xs border-0 bg-transparent shadow-none focus-visible:ring-0 w-48 px-1"
+                  />
+                  {newZone && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={handleAddZone}
+                      className="h-7 px-2 text-xs"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </Button>
+                  )}
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
 
-        {/* ─── ACTION BUTTONS ─── */}
-        {/* <motion.div 
-          variants={cardVariants}
-          className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-2 pb-8"
-        >
-          <AnimatePresence>
-            {savedSuccess && (
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                className="flex items-center gap-2 text-sm font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-4 py-2.5 rounded-xl"
-              >
-                <CheckCircle2 className="w-4 h-4" />
-                Partnership terms saved
+              {/* Quick suggestions */}
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {COMMON_ZONES.map((zone) => {
+                  const isSelected = partnership.exclusive_geographic_zones.includes(zone)
+                  return (
+                    <button
+                      key={zone}
+                      type="button"
+                      onClick={() => toggleArrayItem("partnership", "exclusive_geographic_zones", zone)}
+                      className={`px-2.5 py-1 rounded-md text-[11px] font-medium border transition-all ${isSelected
+                        ? "bg-orange-600 text-white border-orange-600"
+                        : "bg-muted/30 text-muted-foreground border-transparent hover:bg-muted"
+                        }`}
+                    >
+                      {zone}
+                    </button>
+                  )
+                })}
+              </div>
+            </motion.div>
+
+            {/* Banking & Compliance Group */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 pt-3 border-t border-gray-100 dark:border-gray-800">
+              <motion.div variants={itemVariants} className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <CreditCard className="w-3.5 h-3.5 text-blue-600" />
+                  IBAN Number
+                </label>
+                <Input
+                  value={partnership.iban}
+                  onChange={(e) => updatePartnership("iban", e.target.value)}
+                  placeholder="CH93 0000 0000 0000 0000 0"
+                  className="h-11 rounded-xl font-mono text-sm"
+                />
               </motion.div>
-            )}
-          </AnimatePresence>
-          
-          <div className="flex gap-3 w-full sm:w-auto">
+
+              <motion.div variants={itemVariants} className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <Building className="w-3.5 h-3.5 text-blue-600" />
+                  Bank Name
+                </label>
+                <Input
+                  value={partnership.bank_name}
+                  onChange={(e) => updatePartnership("bank_name", e.target.value)}
+                  placeholder="UBS Switzerland AG"
+                  className="h-11 rounded-xl"
+                />
+              </motion.div>
+
+              <motion.div variants={itemVariants} className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Dispute Resolution Clause
+                </label>
+                <Input
+                  value={partnership.dispute_resolution_clause}
+                  onChange={(e) => updatePartnership("dispute_resolution_clause", e.target.value)}
+                  placeholder="Courts of Geneva, Swiss Law"
+                  className="h-11 rounded-xl"
+                />
+              </motion.div>
+            </div>
+
+            {/* Legal compliance flags */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              <label className="flex items-center gap-3 p-3.5 rounded-xl border border-input bg-muted/20 cursor-pointer">
+                <Checkbox
+                  checked={partnership.nda_signed}
+                  onCheckedChange={(checked) => updatePartnership("nda_signed", checked === true)}
+                  className="rounded-md"
+                />
+                <span className="text-xs font-semibold text-gray-700 dark:text-gray-200">
+                  NDA (Non-Disclosure Agreement) Executed
+                </span>
+              </label>
+
+              <label className="flex items-center gap-3 p-3.5 rounded-xl border border-input bg-muted/20 cursor-pointer">
+                <Checkbox
+                  checked={partnership.data_sharing_agreement_gdpr}
+                  onCheckedChange={(checked) =>
+                    updatePartnership("data_sharing_agreement_gdpr", checked === true)
+                  }
+                  className="rounded-md"
+                />
+                <span className="text-xs font-semibold text-gray-700 dark:text-gray-200">
+                  GDPR / FADP Data Sharing Agreement Signed
+                </span>
+              </label>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Navigation Actions */}
+      {/* <motion.div variants={cardVariants} className="flex items-center justify-between pt-4">
+        {onBack ? (
+          <Button type="button" variant="outline" onClick={onBack} className="rounded-xl h-11 px-6">
+            Back: Address
+          </Button>
+        ) : <div />}
+
+        <div className="flex items-center gap-3">
+          {onSave && (
             <Button
               type="button"
               variant="outline"
-              className="flex-1 sm:flex-none rounded-xl h-11 px-8 font-medium border-gray-300 dark:border-gray-600 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
+              onClick={onSave}
+              disabled={isSubmitting}
+              className="rounded-xl h-11 px-6"
             >
-              Discard
+              {isSubmitting ? "Saving..." : "Save Progress"}
             </Button>
+          )}
+
+          {onNext && (
             <Button
               type="button"
-              onClick={handleSave}
-              disabled={isSubmitting}
-              className="flex-1 sm:flex-none rounded-xl h-11 px-8 font-medium bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 transition-all duration-200 disabled:opacity-70"
+              onClick={onNext}
+              className="rounded-xl h-11 px-8 bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20"
             >
-              {isSubmitting ? (
-                <span className="flex items-center gap-2">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                  >
-                    <Sparkles className="w-4 h-4" />
-                  </motion.div>
-                  Saving...
-                </span>
-              ) : (
-                "Save Terms"
-              )}
+              Continue to CRM Access
             </Button>
-          </div>
-        </motion.div> */}
-
-      </div>
+          )}
+        </div>
+      </motion.div> */}
     </motion.div>
   )
 }

@@ -1,47 +1,107 @@
+"use client"
+
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 
 import IdentityStep from "./steps/IdentityStep"
-import InternationalAddressStep from "./steps/InternationalAddressesStep"
-import PartnershipAggreementStep from "./steps/PartnershipAgreementStep"
-import CRMAccess from "./steps/CRMAccessStep"
-import CRMAccessRight from "./steps/CRMAccessRights"
+import InternationalAddressesStep from "./steps/InternationalAddressesStep"
+import PartnershipAgreementStep from "./steps/PartnershipAgreementStep"
+import CRMAccessStep from "./steps/CRMAccessStep"
+import CRMAccessRights from "./steps/CRMAccessRights"
 import CallStep from "./steps/CallStep"
 import MailStep from "./steps/MailStep"
 
 import RequestWizardHeader from "./RequestWizardHeader"
 import RequestWizardNavigation from "./RequestWizardNavigation"
-// import { useRequestCreationStore, type RequestFormData } from "./store/requestCreationStore"
-import { createRequest, updateRequest } from "@/services/request.service"
+import { useAgencyStore } from "@/store/useAgencyStore"
 import { toast } from "@/lib/toast"
 
+const createSteps = [
+  "Company Identity",
+  "Address & Contact",
+  "Partnership",
+  "CRM Portal Access",
+  "Activity & Performance",
+]
 
-const createSteps = ["Company Identity", "Address & Contact Details", "Partnership", "CRM Portal Access", "Activity & Performance"]
-const editSteps = ["Contacts", "Requests & Search", "Calls", "Mails"]
+const editSteps = [
+  "Company Identity",
+  "Address & Contact",
+  "Partnership",
+  "CRM Portal Access",
+  "Activity & Performance",
+  "Calls",
+  "Mails",
+]
 
 interface RequestWizardProps {
   mode?: "create" | "edit"
-  requestId?: number | string
-  initialFormData?: RequestFormData
+  agencyId?: number | string
+  requestId?: number | string // alias
 }
 
 export default function RequestWizard({
   mode = "create",
+  agencyId,
   requestId,
-  initialFormData,
 }: RequestWizardProps) {
+  const currentId = agencyId ?? requestId
+  const isEditMode = mode === "edit"
   const [currentStep, setCurrentStep] = useState(0)
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const navigate = useNavigate()
-  const { form, reset, setForm } = useRequestCreationStore()
+
+  const {
+    formData,
+    loading,
+    saving,
+    resetForm,
+    fetchAgencyProfile,
+    submitAgencyProfile,
+    updateAgencyProfile,
+  } = useAgencyStore()
 
   useEffect(() => {
-    if (initialFormData) {
-      setForm(initialFormData)
-    } else {
-      reset()
+    if (isEditMode && currentId) {
+      fetchAgencyProfile(currentId)
+    } else if (!isEditMode) {
+      resetForm()
     }
-  }, [initialFormData, reset, setForm])
+  }, [isEditMode, currentId, fetchAgencyProfile, resetForm])
+
+  const handleSave = async () => {
+    if (!Number.isInteger(formData.person_id) || formData.person_id < 1) {
+      toast.error("Please enter a valid Person ID before saving.")
+      setCurrentStep(0)
+      return
+    }
+
+    // Validate basic requirement: agency legal name
+    if (!formData.company_identity?.agency_legal_name?.trim()) {
+      toast.error("Please enter the Agency Legal Name before saving.")
+      setCurrentStep(0)
+      return
+    }
+
+    if (isEditMode) {
+      if (!currentId) {
+        toast.error("Agency ID is missing for update.")
+        return
+      }
+      const success = await updateAgencyProfile(currentId)
+      if (success) {
+        navigate("/agency/list")
+      }
+    } else {
+      const success = await submitAgencyProfile()
+      if (success) {
+        navigate("/agency/list")
+      }
+    }
+  }
+
+  const handleCancel = () => {
+    navigate("/agency/list")
+  }
 
   const renderStep = () => {
     switch (currentStep) {
@@ -49,69 +109,58 @@ export default function RequestWizard({
         return (
           <IdentityStep
             onSave={handleSave}
-            isSubmitting={isSubmitting}
+            isSubmitting={saving}
             onCancel={handleCancel}
             onNext={() => setCurrentStep(1)}
           />
         )
       case 1:
         return (
-          <InternationalAddressStep
+          <InternationalAddressesStep
             onSave={handleSave}
-            isSubmitting={isSubmitting}
+            isSubmitting={saving}
             onCancel={handleCancel}
+            onNext={() => setCurrentStep(2)}
             onBack={() => setCurrentStep(0)}
           />
         )
       case 2:
         return (
-          <PartnershipAggreementStep
+          <PartnershipAgreementStep
             onSave={handleSave}
-            isSubmitting={isSubmitting}
+            isSubmitting={saving}
             onCancel={handleCancel}
             onNext={() => setCurrentStep(3)}
+            onBack={() => setCurrentStep(1)}
           />
         )
-
-        case 3:
+      case 3:
         return (
-          <CRMAccess
+          <CRMAccessStep
             onSave={handleSave}
-            isSubmitting={isSubmitting}
+            isSubmitting={saving}
             onCancel={handleCancel}
             onNext={() => setCurrentStep(4)}
+            onBack={() => setCurrentStep(2)}
+          />
+        )
+      case 4:
+        return (
+          <CRMAccessRights
+            onSave={handleSave}
+            isSubmitting={saving}
+            onCancel={handleCancel}
+            onBack={() => setCurrentStep(3)}
           />
         )
 
-        case 4:
-        return (
-          <CRMAccessRight
-            onSave={handleSave}
-            isSubmitting={isSubmitting}
-            onCancel={handleCancel}
-          />
-        ) 
-
-        case 5:
-        return (
-          <CallStep
-            onSave={handleSave}
-            isSubmitting={isSubmitting}
-            onCancel={handleCancel}
-            onNext={() => setCurrentStep(4)}
-          />
-        )
-      case 6:
-        return (
-          <MailStep
-            emails={[]}
-          />
-        )
+      case 5:
+        return <MailStep emails={[]} />
       default:
         return (
           <IdentityStep
             onSave={handleSave}
-            isSubmitting={isSubmitting}
+            isSubmitting={saving}
             onCancel={handleCancel}
             onNext={() => setCurrentStep(1)}
           />
@@ -119,81 +168,39 @@ export default function RequestWizard({
     }
   }
 
-  const payload = {
-    first_name: form.first_name,
-    last_name: form.last_name,
-    phones: form.phones,
-    emails: form.emails,
-    language: form.language,
-    memo: form.memo,
-    notes: form.notes,
-    status: form.status,
-    transaction: form.transaction,
-    category: form.category,
-    budget_min: form.budget_min,
-    budget_max: form.budget_max,
-    currency: form.currency,
-    zip: form.zip,
-    city: form.city,
-    country: form.country,
-    radius: form.radius,
-    rooms_min: form.rooms_min,
-    rooms_max: form.rooms_max,
-    livable_space_min: form.livable_space_min,
-    livable_space_max: form.livable_space_max,
-    surface_land_min: form.surface_land_min,
-    surface_land_max: form.surface_land_max,
-  }
+  const title = isEditMode
+    ? formData.company_identity?.agency_legal_name
+      ? `Edit ${formData.company_identity.agency_legal_name}`
+      : "Edit Agency Profile"
+    : "Create Agency Profile"
 
-  const handleSave = async () => {
-    try {
-      setIsSubmitting(true)
-
-      if (mode === "edit") {
-        if (!requestId) {
-          toast.error("Request ID is required to save changes.")
-          return
-        }
-
-        await updateRequest(requestId, payload)
-        toast.success("Request updated successfully")
-      } else {
-        await createRequest(payload)
-        toast.success("Request created successfully")
-      }
-
-      reset()
-      navigate("/requests/list")
-    } catch (error) {
-      console.error(error)
-      toast.error(mode === "edit" ? "Unable to update request" : "Unable to create request")
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const handleCancel = () => {
-    reset()
-    navigate("/requests/list")
-  }
-
-  const isEditMode = mode === "edit"
-  const title = isEditMode ? "Edit Request" : "Create Request"
   const description = isEditMode
-    ? "Update the existing request and save your changes."
-    : "Add a new request listing to the CRM"
-  const actionLabel = isEditMode ? "Save Changes" : "Save Request"
+    ? "Review and update partner agency details, commercial split, and permission scopes."
+    : "Fill out the information below to register and onboard a new partner agency."
+
+  const actionLabel = isEditMode ? "Save Changes (PUT)" : "Create Agency (POST)"
   const steps = isEditMode ? editSteps : createSteps
 
+  if (isEditMode && loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 space-y-3">
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+        <p className="text-sm font-medium text-muted-foreground">Loading agency profile details...</p>
+      </div>
+    )
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-full mx-auto py-2">
       <RequestWizardHeader
         title={title}
         description={description}
         actionLabel={actionLabel}
         onSave={handleSave}
-        isSubmitting={isSubmitting}
+        isSubmitting={saving}
         onCancel={handleCancel}
+        mode={mode}
+        agencyId={currentId}
       />
 
       <RequestWizardNavigation
@@ -202,7 +209,7 @@ export default function RequestWizard({
         onStepChange={setCurrentStep}
       />
 
-      <div className="rounded-xl border bg-card p-6 shadow-sm">
+      <div className="rounded-2xl border border-gray-200/80 dark:border-gray-800 bg-card p-6 sm:p-8 shadow-sm">
         {renderStep()}
       </div>
     </div>

@@ -110,3 +110,36 @@ export interface AgencyPayload {
   portal_access: PortalAccess;
   activity: Activity;
 }
+
+export type AgencyRequestPayload = Omit<AgencyPayload, 'portal_access'> & {
+  portal_access: boolean;
+};
+
+export interface AgencyProfileItem extends AgencyPayload {
+  id: number | string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface AgencyListParams {
+  page?: number;
+  per_page?: number;
+  search?: string;
+  agency_type?: string;
+  status?: string;
+}
+
+export interface AgencyResponse {
+  success?: boolean;
+  message?: string;
+  data: AgencyPayload | AgencyProfileItem;
+}
+
+export interface AgencyListResponse {
+  success?: boolean;
+  message?: string;
+  data: AgencyProfileItem[];
+  total?: number;
+  page?: number;
+  per_page?: number;
+}

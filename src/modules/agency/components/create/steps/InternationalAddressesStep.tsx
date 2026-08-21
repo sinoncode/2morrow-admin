@@ -1,251 +1,356 @@
 "use client"
 
-import React, { useState, useCallback } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { 
-  Card, 
-  CardContent 
-} from "@/components/ui/card"
+import React, { useState } from "react"
+import { motion, type Variants } from "framer-motion"
+import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { 
-  MapPin, 
-  Mail, 
+import {
+  MapPin,
+  Mail,
   User,
-  CheckCircle2,
-  Sparkles
+  Building,
+  Phone,
+  Copy,
+  Check,
+  ShieldAlert,
 } from "lucide-react"
+import { useAgencyStore } from "@/store/useAgencyStore"
 
-/* ─────────────────────────────────────────────────────────────
-   TYPES
-   ───────────────────────────────────────────────────────────── */
-interface OfficeContactForm {
-  registeredAddressLine1: string
-  registeredAddressLine2: string
-  registeredZipCode: string
-  registeredCity: string
-  registeredCountry: string
-  officeAddressDifferent: string
-  generalPhone: string
-  generalEmail: string
-  primaryContactPerson: string
-  secondaryContactPerson: string
-  ownerName: string
-  ownerEmail: string
-  ownerPhone: string
-  emergencyContact: string
+interface AddressStepProps {
+  onSave?: () => void
+  isSubmitting?: boolean
+  onCancel?: () => void
+  onNext?: () => void
+  onBack?: () => void
 }
 
-/* ─────────────────────────────────────────────────────────────
-   ANIMATION VARIANTS
-   ───────────────────────────────────────────────────────────── */
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.05
-    }
-  }
+      staggerChildren: 0.08,
+      delayChildren: 0.05,
+    },
+  },
 }
 
-const cardVariants = {
-  hidden: { opacity: 0, y: 24, scale: 0.98 },
+const cardVariants: Variants = {
+  hidden: { opacity: 0, y: 16 },
   visible: {
     opacity: 1,
     y: 0,
-    scale: 1,
     transition: {
-      duration: 0.55,
-      ease: [0.22, 1, 0.36, 1]
-    }
-  }
+      duration: 0.45,
+      ease: "easeOut",
+    },
+  },
 }
 
-const itemVariants = {
-  hidden: { opacity: 0, x: -12 },
+const itemVariants: Variants = {
+  hidden: { opacity: 0, x: -8 },
   visible: {
     opacity: 1,
     x: 0,
     transition: {
-      duration: 0.4,
-      ease: "easeOut"
-    }
-  }
+      duration: 0.3,
+      ease: "easeOut",
+    },
+  },
 }
 
-/* ─────────────────────────────────────────────────────────────
-   MAIN COMPONENT
-   ───────────────────────────────────────────────────────────── */
-export default function OfficeAddress() {
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [savedSuccess, setSavedSuccess] = useState(false)
+export default function InternationalAddressesStep({
+  onSave,
+  isSubmitting = false,
+  onCancel,
+  onNext,
+  onBack,
+}: AddressStepProps) {
+  const {
+    formData,
+    updateAddressContact,
+    updateAddress,
+  } = useAgencyStore()
 
-  const [form, setForm] = useState<OfficeContactForm>({
-    registeredAddressLine1: "Edyta Graf",
-    registeredAddressLine2: "Home",
-    registeredZipCode: "",
-    registeredCity: "Franchise",
-    registeredCountry: "",
-    officeAddressDifferent: "",
-    generalPhone: "Manuel",
-    generalEmail: "",
-    primaryContactPerson: "",
-    secondaryContactPerson: "Manuel",
-    ownerName: "",
-    ownerEmail: "",
-    ownerPhone: "",
-    emergencyContact: ""
-  })
+  const contact = formData.address_contact
+  const [copiedAddress, setCopiedAddress] = useState(false)
 
-  const updateField = useCallback(<K extends keyof OfficeContactForm>(
-    field: K, 
-    value: OfficeContactForm[K]
-  ) => {
-    setForm(prev => ({ ...prev, [field]: value }))
-    setSavedSuccess(false)
-  }, [])
-
-  /* ── Submit ── */
-  const handleSave = async () => {
-    setIsSubmitting(true)
-    await new Promise(resolve => setTimeout(resolve, 1200))
-    setIsSubmitting(false)
-    setSavedSuccess(true)
-    setTimeout(() => setSavedSuccess(false), 3000)
+  const handleCopyRegisteredToOffice = () => {
+    updateAddressContact("office_address", { ...contact.registered_address })
+    setCopiedAddress(true)
+    setTimeout(() => setCopiedAddress(false), 2000)
   }
 
-  /* ─────────────────────────────────────────────────────────────
-   RENDER
-   ───────────────────────────────────────────────────────────── */
   return (
-    <motion.div 
-      className="min-h-screen bg-gray-50/80 dark:bg-gray-950/80 p-4 sm:p-6 lg:p-8"
+    <motion.div
+      className="space-y-6"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
     >
-      <div className="mx-auto max-w-full space-y-6">
-        
-        {/* Page Header */}
-        <motion.div variants={cardVariants} className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2.5 bg-blue-600 rounded-xl shadow-lg shadow-blue-600/20">
-              <MapPin className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
-                Office Address & Contact
-              </h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                Manage registered office details, communication channels, and owner information.
-              </p>
-            </div>
+      {/* Header Banner */}
+      <motion.div variants={cardVariants}>
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-blue-600 rounded-xl shadow-lg shadow-blue-600/20">
+            <MapPin className="w-6 h-6 text-white" />
           </div>
-        </motion.div>
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+              Addresses & Contact Information
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+              Specify registered and operational headquarters, primary channels, and executive contacts.
+            </p>
+          </div>
+        </div>
+      </motion.div>
 
-        {/* ─── OFFICE ADDRESS ─── */}
+      {/* 2-COL GRID: Registered Address vs Office Address */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Registered Address */}
         <motion.div variants={cardVariants}>
-          <Card className="border-0 shadow-sm dark:shadow-none dark:bg-gray-900/60 dark:border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm bg-white/80">
-            <CardContent className="p-6 sm:p-8">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center shrink-0">
-                  <MapPin className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                    Office Address
+          <Card className="border border-gray-100 dark:border-gray-800 shadow-sm rounded-2xl overflow-hidden bg-card h-full">
+            <CardContent className="p-6 sm:p-7 space-y-5">
+              <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-2.5">
+                  <Building className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-gray-900 dark:text-white">
+                    Registered Headquarters Address
                   </h3>
-                  <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-0.5">
-                    Official Registration Data
-                  </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {/* Registered Address - Line 1 */}
-                <motion.div variants={itemVariants} className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                    Registered Address - Line 1
+              <div className="space-y-4">
+                <motion.div variants={itemVariants} className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Address Line 1 <span className="text-red-500">*</span>
                   </label>
                   <Input
-                    value={form.registeredAddressLine1}
-                    onChange={(e) => updateField("registeredAddressLine1", e.target.value)}
-                    placeholder="Enter address"
-                    className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    value={contact.registered_address.line_1}
+                    onChange={(e) => updateAddress("registered_address", "line_1", e.target.value)}
+                    placeholder="Rue du Rhône 42"
+                    className="h-11 rounded-xl"
                   />
                 </motion.div>
 
-                {/* Registered Address - Line 2 */}
-                <motion.div variants={itemVariants} className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                    Registered Address - Line 2
+                <motion.div variants={itemVariants} className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Address Line 2 (Building / Suite)
                   </label>
                   <Input
-                    value={form.registeredAddressLine2}
-                    onChange={(e) => updateField("registeredAddressLine2", e.target.value)}
-                    placeholder="Home"
-                    className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    value={contact.registered_address.line_2}
+                    onChange={(e) => updateAddress("registered_address", "line_2", e.target.value)}
+                    placeholder="4th Floor, Suite A"
+                    className="h-11 rounded-xl"
                   />
                 </motion.div>
 
-                {/* Registered ZIP code */}
-                <motion.div variants={itemVariants} className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                    Registered ZIP code
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <motion.div variants={itemVariants} className="space-y-1.5">
+                    <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      ZIP Code <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      value={contact.registered_address.zip_code}
+                      onChange={(e) => updateAddress("registered_address", "zip_code", e.target.value)}
+                      placeholder="1204"
+                      className="h-11 rounded-xl"
+                    />
+                  </motion.div>
+
+                  <motion.div variants={itemVariants} className="space-y-1.5">
+                    <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      City <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      value={contact.registered_address.city}
+                      onChange={(e) => updateAddress("registered_address", "city", e.target.value)}
+                      placeholder="Geneva"
+                      className="h-11 rounded-xl"
+                    />
+                  </motion.div>
+
+                  <motion.div variants={itemVariants} className="space-y-1.5">
+                    <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Country
+                    </label>
+                    <Input
+                      value={contact.registered_address.country}
+                      onChange={(e) => updateAddress("registered_address", "country", e.target.value)}
+                      placeholder="Switzerland"
+                      className="h-11 rounded-xl"
+                    />
+                  </motion.div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Office / Physical Address */}
+        <motion.div variants={cardVariants}>
+          <Card className="border border-gray-100 dark:border-gray-800 shadow-sm rounded-2xl overflow-hidden bg-card h-full">
+            <CardContent className="p-6 sm:p-7 space-y-5">
+              <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-2.5">
+                  <MapPin className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-gray-900 dark:text-white">
+                    Operational / Office Address
+                  </h3>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={handleCopyRegisteredToOffice}
+                  className="h-8 text-xs gap-1.5 rounded-lg border-blue-200 text-blue-600 hover:bg-blue-50 dark:border-blue-900 dark:text-blue-400 dark:hover:bg-blue-900/30"
+                >
+                  {copiedAddress ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copiedAddress ? "Copied!" : "Same as Registered"}
+                </Button>
+              </div>
+
+              <div className="space-y-4">
+                <motion.div variants={itemVariants} className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Office Address Line 1
                   </label>
                   <Input
-                    value={form.registeredZipCode}
-                    onChange={(e) => updateField("registeredZipCode", e.target.value)}
-                    placeholder="Enter ZIP"
-                    className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    value={contact.office_address.line_1}
+                    onChange={(e) => updateAddress("office_address", "line_1", e.target.value)}
+                    placeholder="Place de la Fusterie 10"
+                    className="h-11 rounded-xl"
                   />
                 </motion.div>
 
-                {/* Registered City */}
-                <motion.div variants={itemVariants} className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                    Registered City
+                <motion.div variants={itemVariants} className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Office Address Line 2
                   </label>
                   <Input
-                    value={form.registeredCity}
-                    onChange={(e) => updateField("registeredCity", e.target.value)}
-                    placeholder="Enter city"
-                    className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    value={contact.office_address.line_2}
+                    onChange={(e) => updateAddress("office_address", "line_2", e.target.value)}
+                    placeholder="Building B"
+                    className="h-11 rounded-xl"
                   />
                 </motion.div>
 
-                {/* Registered Country */}
-                <motion.div variants={itemVariants} className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                    Registered Country
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <motion.div variants={itemVariants} className="space-y-1.5">
+                    <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      ZIP Code
+                    </label>
+                    <Input
+                      value={contact.office_address.zip_code}
+                      onChange={(e) => updateAddress("office_address", "zip_code", e.target.value)}
+                      placeholder="1204"
+                      className="h-11 rounded-xl"
+                    />
+                  </motion.div>
+
+                  <motion.div variants={itemVariants} className="space-y-1.5">
+                    <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      City
+                    </label>
+                    <Input
+                      value={contact.office_address.city}
+                      onChange={(e) => updateAddress("office_address", "city", e.target.value)}
+                      placeholder="Geneva"
+                      className="h-11 rounded-xl"
+                    />
+                  </motion.div>
+
+                  <motion.div variants={itemVariants} className="space-y-1.5">
+                    <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Country
+                    </label>
+                    <Input
+                      value={contact.office_address.country}
+                      onChange={(e) => updateAddress("office_address", "country", e.target.value)}
+                      placeholder="Switzerland"
+                      className="h-11 rounded-xl"
+                    />
+                  </motion.div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
+      {/* 2-COL GRID: Communication Channels vs Executive Stakeholders */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Communication Channels */}
+        <motion.div variants={cardVariants}>
+          <Card className="border border-gray-100 dark:border-gray-800 shadow-sm rounded-2xl overflow-hidden bg-card h-full">
+            <CardContent className="p-6 sm:p-7 space-y-5">
+              <div className="flex items-center gap-2.5 pb-4 border-b border-gray-100 dark:border-gray-800">
+                <Mail className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <h3 className="text-sm font-bold uppercase tracking-wider text-gray-900 dark:text-white">
+                  Primary Agency Contacts
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <motion.div variants={itemVariants} className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    General Office Phone
+                  </label>
+                  <div className="relative">
+                    <Phone className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <Input
+                      value={contact.general_phone}
+                      onChange={(e) => updateAddressContact("general_phone", e.target.value)}
+                      placeholder="+41 22 123 45 67"
+                      className="h-11 rounded-xl pl-10"
+                    />
+                  </div>
+                </motion.div>
+
+                <motion.div variants={itemVariants} className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    General Office Email
+                  </label>
+                  <div className="relative">
+                    <Mail className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <Input
+                      type="email"
+                      value={contact.general_email}
+                      onChange={(e) => updateAddressContact("general_email", e.target.value)}
+                      placeholder="info@agency-domain.ch"
+                      className="h-11 rounded-xl pl-10"
+                    />
+                  </div>
+                </motion.div>
+
+                <motion.div variants={itemVariants} className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Primary Contact Person ID
                   </label>
                   <Input
-                    value={form.registeredCountry}
-                    onChange={(e) => updateField("registeredCountry", e.target.value)}
-                    placeholder="Enter Company Registration Number"
-                    className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    type="number"
+                    value={contact.primary_contact_person_id || ""}
+                    onChange={(e) =>
+                      updateAddressContact("primary_contact_person_id", parseInt(e.target.value, 10) || 0)
+                    }
+                    placeholder="Contact ID e.g. 101"
+                    className="h-11 rounded-xl"
                   />
                 </motion.div>
 
-                {/* Office Address (if different) */}
-                <motion.div variants={itemVariants} className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                    Office Address (if different)
+                <motion.div variants={itemVariants} className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Secondary Contact Person ID
                   </label>
                   <Input
-                    value={form.officeAddressDifferent}
-                    onChange={(e) => updateField("officeAddressDifferent", e.target.value)}
-                    placeholder="Enter office address"
-                    className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    type="number"
+                    value={contact.secondary_contact_person_id || ""}
+                    onChange={(e) =>
+                      updateAddressContact("secondary_contact_person_id", parseInt(e.target.value, 10) || 0)
+                    }
+                    placeholder="Contact ID e.g. 102"
+                    className="h-11 rounded-xl"
                   />
                 </motion.div>
               </div>
@@ -253,215 +358,107 @@ export default function OfficeAddress() {
           </Card>
         </motion.div>
 
-        {/* ─── CONTACT INFORMATION ─── */}
+        {/* Director / Owner / Emergency Details */}
         <motion.div variants={cardVariants}>
-          <Card className="border-0 shadow-sm dark:shadow-none dark:bg-gray-900/60 dark:border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm bg-white/80">
-            <CardContent className="p-6 sm:p-8">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center shrink-0">
-                  <Mail className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                    Contact Information
-                  </h3>
-                  <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-0.5">
-                    Primary Communication Channels
-                  </p>
-                </div>
+          <Card className="border border-gray-100 dark:border-gray-800 shadow-sm rounded-2xl overflow-hidden bg-card h-full">
+            <CardContent className="p-6 sm:p-7 space-y-5">
+              <div className="flex items-center gap-2.5 pb-4 border-b border-gray-100 dark:border-gray-800">
+                <User className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                <h3 className="text-sm font-bold uppercase tracking-wider text-gray-900 dark:text-white">
+                  Director & Emergency Escalations
+                </h3>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {/* General Phone */}
-                <motion.div variants={itemVariants} className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                    General Phone
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <motion.div variants={itemVariants} className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Director / Managing Partner Name
                   </label>
                   <Input
-                    value={form.generalPhone}
-                    onChange={(e) => updateField("generalPhone", e.target.value)}
-                    placeholder="Enter phone"
-                    className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    value={contact.director_owner_name}
+                    onChange={(e) => updateAddressContact("director_owner_name", e.target.value)}
+                    placeholder="Jean-Marc Blanc"
+                    className="h-11 rounded-xl"
                   />
                 </motion.div>
 
-                {/* General Email */}
-                <motion.div variants={itemVariants} className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                    General Email
-                  </label>
-                  <Select 
-                    value={form.generalEmail} 
-                    onValueChange={(v) => updateField("generalEmail", v)}
-                  >
-                    <SelectTrigger className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent className="rounded-xl">
-                      <SelectItem value="info@agency.com">info@agency.com</SelectItem>
-                      <SelectItem value="contact@agency.com">contact@agency.com</SelectItem>
-                      <SelectItem value="support@agency.com">support@agency.com</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </motion.div>
-
-                {/* Primary Contact Person */}
-                <motion.div variants={itemVariants} className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                    Primary Contact Person
-                  </label>
-                  <Input
-                    value={form.primaryContactPerson}
-                    onChange={(e) => updateField("primaryContactPerson", e.target.value)}
-                    placeholder="Select number office"
-                    className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
-                  />
-                </motion.div>
-
-                {/* Secondary Contact Person */}
-                <motion.div variants={itemVariants} className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                    Secondary Contact Person
-                  </label>
-                  <Input
-                    value={form.secondaryContactPerson}
-                    onChange={(e) => updateField("secondaryContactPerson", e.target.value)}
-                    placeholder="Enter name"
-                    className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
-                  />
-                </motion.div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* ─── OWNER CONTACT DETAILS ─── */}
-        <motion.div variants={cardVariants}>
-          <Card className="border-0 shadow-sm dark:shadow-none dark:bg-gray-900/60 dark:border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm bg-white/80">
-            <CardContent className="p-6 sm:p-8">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center shrink-0">
-                  <User className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                    Owner Contact Details
-                  </h3>
-                  <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-0.5">
-                    Executive & Emergency Stakeholders
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                {/* Owner Name */}
-                <motion.div variants={itemVariants} className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                    Owner Name
-                  </label>
-                  <Input
-                    value={form.ownerName}
-                    onChange={(e) => updateField("ownerName", e.target.value)}
-                    placeholder="Enter owner name"
-                    className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
-                  />
-                </motion.div>
-
-                {/* Owner Email */}
-                <motion.div variants={itemVariants} className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                    Owner Email
+                <motion.div variants={itemVariants} className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Director Email
                   </label>
                   <Input
                     type="email"
-                    value={form.ownerEmail}
-                    onChange={(e) => updateField("ownerEmail", e.target.value)}
-                    placeholder="Enter owner email"
-                    className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    value={contact.director_owner_email}
+                    onChange={(e) => updateAddressContact("director_owner_email", e.target.value)}
+                    placeholder="jm.blanc@agency.ch"
+                    className="h-11 rounded-xl"
                   />
                 </motion.div>
 
-                {/* Owner Phone */}
-                <motion.div variants={itemVariants} className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                    Owner Phone
+                <motion.div variants={itemVariants} className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Director Direct Phone
                   </label>
                   <Input
-                    value={form.ownerPhone}
-                    onChange={(e) => updateField("ownerPhone", e.target.value)}
-                    placeholder="Owner phone number"
-                    className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    value={contact.director_owner_phone}
+                    onChange={(e) => updateAddressContact("director_owner_phone", e.target.value)}
+                    placeholder="+41 79 987 65 43"
+                    className="h-11 rounded-xl"
                   />
                 </motion.div>
 
-                {/* Emergency Contact */}
-                <motion.div variants={itemVariants} className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                    Emergency Contact
+                <motion.div variants={itemVariants} className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1">
+                    <ShieldAlert className="w-3.5 h-3.5 text-amber-500" />
+                    After-Hours Emergency Contact
                   </label>
                   <Input
-                    value={form.emergencyContact}
-                    onChange={(e) => updateField("emergencyContact", e.target.value)}
-                    placeholder="Emergency contact no"
-                    className="h-11 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    value={contact.after_hours_emergency_contact}
+                    onChange={(e) =>
+                      updateAddressContact("after_hours_emergency_contact", e.target.value)
+                    }
+                    placeholder="+41 78 555 01 99 (24/7 Hotline)"
+                    className="h-11 rounded-xl"
                   />
                 </motion.div>
               </div>
             </CardContent>
           </Card>
         </motion.div>
+      </div>
 
-        {/* ─── ACTION BUTTONS ─── */}
-        {/* <motion.div 
-          variants={cardVariants}
-          className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-2 pb-8"
-        >
-          <AnimatePresence>
-            {savedSuccess && (
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                className="flex items-center gap-2 text-sm font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-4 py-2.5 rounded-xl"
-              >
-                <CheckCircle2 className="w-4 h-4" />
-                Contact details saved
-              </motion.div>
-            )}
-          </AnimatePresence>
-          
-          <div className="flex gap-3 w-full sm:w-auto">
+      {/* Navigation Actions */}
+      {/* <motion.div variants={cardVariants} className="flex items-center justify-between pt-4">
+        {onBack ? (
+          <Button type="button" variant="outline" onClick={onBack} className="rounded-xl h-11 px-6">
+            Back: Identity
+          </Button>
+        ) : <div />}
+
+        <div className="flex items-center gap-3">
+          {onSave && (
             <Button
               type="button"
               variant="outline"
-              className="flex-1 sm:flex-none rounded-xl h-11 px-8 font-medium border-gray-300 dark:border-gray-600 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
+              onClick={onSave}
+              disabled={isSubmitting}
+              className="rounded-xl h-11 px-6"
             >
-              Discard
+              {isSubmitting ? "Saving..." : "Save Progress"}
             </Button>
+          )}
+
+          {onNext && (
             <Button
               type="button"
-              onClick={handleSave}
-              disabled={isSubmitting}
-              className="flex-1 sm:flex-none rounded-xl h-11 px-8 font-medium bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 transition-all duration-200 disabled:opacity-70"
+              onClick={onNext}
+              className="rounded-xl h-11 px-8 bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20"
             >
-              {isSubmitting ? (
-                <span className="flex items-center gap-2">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                  >
-                    <Sparkles className="w-4 h-4" />
-                  </motion.div>
-                  Saving...
-                </span>
-              ) : (
-                "Save Details"
-              )}
+              Continue to Partnership
             </Button>
-          </div>
-        </motion.div> */}
-
-      </div>
+          )}
+        </div>
+      </motion.div> */}
     </motion.div>
   )
 }

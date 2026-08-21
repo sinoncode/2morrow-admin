@@ -1,99 +1,106 @@
 import { cn } from "@/lib/utils"
 import {
   Building2,
-  ShieldCheck,
-  CircleDollarSign,
-  ListTodo,
-  Image as ImageIcon,
-  Megaphone,
-  Network,
-  Handshake
+  MapPin,
+  FileText,
+  Key,
+  Handshake,
+  Phone,
+  Mail,
+  CheckCircle2,
 } from "lucide-react"
 
 interface Props {
   steps: string[]
   currentStep: number
   onStepChange: (step: number) => void
+  completedSteps?: number[]
 }
 
-// Map icons dynamically based on the step index
-const getStepIcon = (index: number) => {
-  const icons = [
-    Building2,        // General
-    ShieldCheck,      // Characteristics
-    CircleDollarSign, // Price
-    ListTodo,         // Description
-    ImageIcon,        // Image
-    Megaphone,        // Publication
-    Network,          // Matching
-    Handshake,        // Proposed
-  ]
-  const Icon = icons[index] || Building2
-  return <Icon className="h-4 w-4 shrink-0" />
+const STEP_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  "Company Identity": Building2,
+  "Address & Contact": MapPin,
+  "Partnership": FileText,
+  "CRM Portal Access": Key,
+  "Activity & Performance": Handshake,
+  "Calls": Phone,
+  "Mails": Mail,
 }
 
 export default function RequestWizardNavigation({
   steps,
   currentStep,
   onStepChange,
+  completedSteps = [],
 }: Props) {
   return (
-    <div className="w-fit overflow-x-auto pb-2 scrollbar-hide">
+    <div className="w-full overflow-x-auto pb-2 scrollbar-hide">
       <div
         className="
-          flex min-w-fit justify-start items-center gap-1
-          rounded-full
-          bg-[linear-gradient(90deg,_#1f6ea9_0%,_#155789_40%,_#0a2f4f_70%,_#040404_100%)]
-          shadow-[rgba(18, 26, 133, 0.36)_0px_7px_29px_0px]
+          flex min-w-fit justify-start items-center gap-1.5
+          rounded-2xl
+          bg-slate-900/90 dark:bg-slate-950/90 backdrop-blur-md
           p-1.5
-          
-          shadow-md
+          shadow-lg shadow-slate-950/10 border border-slate-800/80
         "
       >
         {steps.map((step, index) => {
-          const isActive = currentStep === index;
+          const isActive = currentStep === index
+          const isCompleted = completedSteps.includes(index)
+          const IconComponent = STEP_ICONS[step] || Building2
 
           return (
             <button
               key={step}
+              type="button"
               onClick={() => onStepChange(index)}
               className={cn(
                 `
-    group
-    relative
-    flex
-    items-center
-    gap-2
-    rounded-full
-    px-5
-    py-2.5
-    font-medium
-    transition-all
-    duration-500
-    ease-out
-    text-base
-    whitespace-nowrap
-    `,
-                index !== 0 &&
-                index !== steps.length - 1 &&
-                "mx-2", // Apply horizontal margin only to middle buttons
+                group
+                relative
+                flex
+                items-center
+                gap-2.5
+                rounded-xl
+                px-4
+                py-2.5
+                font-medium
+                transition-all
+                duration-300
+                ease-out
+                text-xs sm:text-sm
+                whitespace-nowrap
+                `,
                 isActive
-                  ? "bg-white text-slate-900 shadow-sm scale-[1.02]"
-                  : "text-white/80 hover:bg-white/10 hover:text-white"
+                  ? "bg-white text-slate-900 shadow-md scale-[1.02] font-semibold dark:bg-slate-100 dark:text-slate-950"
+                  : "text-slate-300 hover:bg-white/10 hover:text-white"
               )}
             >
               <span
                 className={cn(
-                  "transition-colors duration-300",
-                  isActive
-                    ? "text-slate-900"
-                    : "text-white/80 group-hover:text-white"
+                  "flex items-center justify-center transition-colors duration-300",
+                  isActive ? "text-blue-600" : "text-slate-400 group-hover:text-white"
                 )}
               >
-                {getStepIcon(index)}
+                {isCompleted && !isActive ? (
+                  <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                ) : (
+                  <IconComponent className="h-4 w-4 shrink-0" />
+                )}
               </span>
 
               <span>{step}</span>
+
+              <span
+                className={cn(
+                  "ml-1 text-[10px] px-1.5 py-0.5 rounded-full font-mono font-bold",
+                  isActive
+                    ? "bg-slate-200/80 text-slate-800"
+                    : "bg-white/10 text-slate-400"
+                )}
+              >
+                0{index + 1}
+              </span>
             </button>
           )
         })}

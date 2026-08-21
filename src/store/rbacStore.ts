@@ -3,14 +3,22 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import { toast } from "react-hot-toast";
 
 import {
-  getRoles,
-  getPermissions,
-  createRole as apiCreateRole,
-  updateRole as apiUpdateRole,
-  deleteRole as apiDeleteRole,
+  getRolesPermissions,
+  updateRolePermissions,
 } from "@/services/rbac.service";
 
-import type { Role, Permission } from "@/types/rbac";
+import type { Role } from "@/types/rbac";
+
+// ============================================
+// We build "Permission" objects for the UI from the
+// availablePermissions string[] the API returns.
+// The PermissionTable and Permission.tsx components
+// consume permissions as objects with a `name` field.
+// ============================================
+
+interface PermissionObject {
+  name: string;
+}
 
 interface RBACState {
   // ============================================
@@ -18,7 +26,7 @@ interface RBACState {
   // ============================================
 
   roles: Role[];
-  permissions: Permission[];
+  permissions: PermissionObject[];
   selectedRole: Role | null;
 
   // Hydration flag (true once persist has rehydrated from localStorage)
@@ -44,6 +52,7 @@ interface RBACState {
   fetchRoles: () => Promise<void>;
   fetchPermissions: () => Promise<void>;
   fetchAllData: () => Promise<void>;
+  fetchRolesPermissions: () => Promise<void>;
 
   // Role selection
   selectRole: (role: Role | null) => void;
@@ -92,19 +101,33 @@ export const useRBACStore = create<RBACState>()(
       // ============================================
 
       /**
-       * Fetch all roles from API and persist to store
+       * Single combined fetch — calls GET /admin/roles-permissions
+       * and populates both roles[] and permissions[] in one shot.
        */
-      fetchRoles: async () => {
+      fetchRolesPermissions: async () => {
         try {
-          set({ isLoadingRoles: true, rolesError: null });
+          set({
+            isLoadingRoles: true,
+            isLoadingPermissions: true,
+            rolesError: null,
+            permissionsError: null,
+          });
 
-          const response = await getRoles();
-          const roles = response.data;
+          const { roles, availablePermissions } = await getRolesPermissions();
+
+          // Convert string permissions to objects with `name` field
+          // so existing UI components (PermissionTable, Permission.tsx) work unchanged
+          const permissionObjects: PermissionObject[] = availablePermissions.map(
+            (p) => ({ name: p })
+          );
 
           set({
             roles,
+            permissions: permissionObjects,
             isLoadingRoles: false,
-            rolesError: null
+            isLoadingPermissions: false,
+            rolesError: null,
+            permissionsError: null,
           });
 
           // Auto-select first role if none selected
@@ -112,56 +135,27 @@ export const useRBACStore = create<RBACState>()(
           if (!selectedRole && roles.length > 0) {
             set({ selectedRole: roles[0] });
           }
-
-          return roles;
+          // If the previously selected role still exists, refresh its data
+          else if (selectedRole) {
+            const refreshed = roles.find((r) => r.role === selectedRole.role);
+            if (refreshed) {
+              set({ selectedRole: refreshed });
+            } else if (roles.length > 0) {
+              set({ selectedRole: roles[0] });
+            }
+          }
         } catch (error: any) {
           const errorMessage =
             error?.response?.data?.message ||
             error.message ||
-            "Failed to fetch roles";
+            "Failed to fetch roles and permissions";
 
           set({
             isLoadingRoles: false,
+            isLoadingPermissions: false,
             roles: [],
-            rolesError: errorMessage,
-          });
-
-          throw error;
-        }
-      },
-
-      /**
-       * Fetch all permissions from API and persist to store
-       */
-      fetchPermissions: async () => {
-        try {
-          set({ isLoadingPermissions: true, permissionsError: null });
-
-          const response = await getPermissions();
-          let permissions = response.data;
-          
-          // Ensure permissions is always an array
-          if (!Array.isArray(permissions)) {
-            console.warn("⚠️ [RBAC Store] Permissions is not an array:", permissions);
-            permissions = [];
-          }
-
-          set({
-            permissions,
-            isLoadingPermissions: false,
-            permissionsError: null
-          });
-
-          return permissions;
-        } catch (error: any) {
-          const errorMessage =
-            error?.response?.data?.message ||
-            error.message ||
-            "Failed to fetch permissions";
-
-          set({
-            isLoadingPermissions: false,
             permissions: [],
+            rolesError: errorMessage,
             permissionsError: errorMessage,
           });
 
@@ -170,10 +164,32 @@ export const useRBACStore = create<RBACState>()(
       },
 
       /**
-       * Fetch both roles and permissions in parallel
+       * @deprecated — kept for backward compatibility.
+       * Now delegates to fetchRolesPermissions().
+       */
+      fetchRoles: async () => {
+        await get().fetchRolesPermissions();
+      },
+
+      /**
+       * @deprecated — kept for backward compatibility.
+       * Now delegates to fetchRolesPermissions().
+       */
+      fetchPermissions: async () => {
+        // No-op when called independently because
+        // fetchRolesPermissions already populates permissions.
+        // Only fetch if permissions are empty (initial load edge case).
+        const { permissions } = get();
+        if (permissions.length === 0) {
+          await get().fetchRolesPermissions();
+        }
+      },
+
+      /**
+       * Fetch both roles and permissions — now a single API call.
        */
       fetchAllData: async () => {
-        await Promise.all([get().fetchRoles(), get().fetchPermissions()]);
+        await get().fetchRolesPermissions();
       },
 
       // ============================================
@@ -192,62 +208,34 @@ export const useRBACStore = create<RBACState>()(
       // ============================================
 
       /**
-       * Create a new role, optimistically add it, then re-fetch for accuracy
+       * Create a new role.
+       * NOTE: The current API does not support role creation.
+       * This is kept as a no-op to avoid breaking the UI.
        */
-      createRole: async (data: { name: string; permissions: string[] }) => {
-        try {
-          set({ isSaving: true });
-
-          const response = await apiCreateRole(data);
-          const newRole = response?.data?.data || response?.data;
-
-          if (newRole) {
-            // Optimistically add new role immediately so UI updates instantly
-            const { roles } = get();
-            // ✅ FIX: Ensure roles is an array before spreading
-            const currentRoles = Array.isArray(roles) ? roles : [];
-            const updatedRoles = [...currentRoles, newRole];
-
-            set({
-              roles: updatedRoles,
-              selectedRole: newRole,
-              isSaving: false,
-            });
-
-            toast.success(`Role "${newRole.name}" created successfully`);
-
-            // Re-fetch to sync with server (ensures persisted data is accurate)
-            get().fetchRoles();
-
-            return newRole;
-          }
-
-          set({ isSaving: false });
-          return null;
-        } catch (error) {
-          console.error("Error creating role:", error);
-          set({ isSaving: false });
-          toast.error("Failed to create role. Please try again.");
-          return null;
-        }
+      createRole: async (_data: { name: string; permissions: string[] }) => {
+        toast.error("Role creation is not supported by the current API.");
+        return null;
       },
 
       /**
-       * Update an existing role's permissions
+       * Update an existing role's permissions.
+       * Uses PATCH /admin/roles-permissions/{role}
        */
-      updateRole: async (roleId: string, data: { name: string; permissions: string[] }) => {
+      updateRole: async (
+        roleId: string,
+        data: { name: string; permissions: string[] }
+      ) => {
         try {
           set({ isSaving: true });
 
-          const response = await apiUpdateRole(roleId, data);
-          const updatedRole = response?.data?.data || response?.data;
+          // roleId is actually the role name string (e.g. "DRIVER")
+          const updatedRole = await updateRolePermissions(roleId, data.permissions);
 
           if (updatedRole) {
             const { roles } = get();
-            // ✅ FIX: Ensure roles is an array before mapping
             const currentRoles = Array.isArray(roles) ? roles : [];
             const updatedRoles = currentRoles.map((role) =>
-              role.id === roleId ? updatedRole : role
+              role.role === roleId ? updatedRole : role
             );
 
             set({
@@ -271,39 +259,13 @@ export const useRBACStore = create<RBACState>()(
       },
 
       /**
-       * Delete a role
+       * Delete a role.
+       * NOTE: The current API does not support role deletion.
+       * This is kept as a no-op to avoid breaking the UI.
        */
-      deleteRole: async (roleId: string) => {
-        try {
-          set({ isSaving: true });
-
-          await apiDeleteRole(roleId);
-
-          const { roles, selectedRole } = get();
-          // ✅ FIX: Ensure roles is an array before filtering
-          const currentRoles = Array.isArray(roles) ? roles : [];
-          const updatedRoles = currentRoles.filter((role) => role.id !== roleId);
-
-          // If deleted role was selected, select first available role
-          let newSelectedRole = selectedRole;
-          if (selectedRole?.id === roleId) {
-            newSelectedRole = updatedRoles.length > 0 ? updatedRoles[0] : null;
-          }
-
-          set({
-            roles: updatedRoles,
-            selectedRole: newSelectedRole,
-            isSaving: false,
-          });
-
-          toast.success("Role deleted successfully");
-          return true;
-        } catch (error) {
-          console.error("Error deleting role:", error);
-          set({ isSaving: false });
-          toast.error("Failed to delete role. Please try again.");
-          return false;
-        }
+      deleteRole: async (_roleId: string) => {
+        toast.error("Role deletion is not supported by the current API.");
+        return false;
       },
 
       // ============================================
@@ -314,7 +276,7 @@ export const useRBACStore = create<RBACState>()(
        * Refresh all data from server
        */
       refreshData: async () => {
-        await get().fetchAllData();
+        await get().fetchRolesPermissions();
         toast.success("Data refreshed successfully");
       },
 
@@ -348,11 +310,11 @@ export const useRBACStore = create<RBACState>()(
       name: "rbac-store", // localStorage key
       storage: createJSONStorage(() => localStorage),
 
-      // ✅ FIX: Add migration/versioning to handle corrupted persisted data
-      version: 1,
+      // Bump version to force re-fetch with new data shape
+      version: 2,
 
-      // ✅ FIX: Sanitize persisted state on rehydration
-      migrate: (persistedState: any, version: number) => {
+      // Sanitize persisted state on rehydration
+      migrate: (persistedState: any, _version: number) => {
         if (persistedState) {
           // Ensure roles is always an array after rehydration
           if (!Array.isArray(persistedState.roles)) {
@@ -376,7 +338,7 @@ export const useRBACStore = create<RBACState>()(
       // Called once localStorage data has been rehydrated into the store
       onRehydrateStorage: () => (state) => {
         if (state) {
-          // ✅ FIX: Double-check roles is array after rehydration
+          // Double-check roles is array after rehydration
           if (!Array.isArray(state.roles)) {
             state.roles = [];
           }

@@ -14,31 +14,46 @@ export interface Permission {
    ROLE TYPES
 ========================================= */
 
+/**
+ * Internal Role type used by the frontend.
+ * The API returns { role: "DRIVER", permissions: [] }.
+ * We map it to { id: "DRIVER", name: "DRIVER", role: "DRIVER", permissions: [] }
+ * so all existing UI components that reference role.id / role.name continue to work.
+ */
 export interface Role {
   id: string;
   name: string;
+  role: string;
   permissions: string[];
   created_at?: string;
   updated_at?: string;
 }
 
 /* =========================================
-   ROLE API PAYLOADS
-========================================= */
-
-export interface CreateRolePayload {
-  name: string;
-  permissions: string[];
-}
-
-export interface UpdateRolePayload {
-  name: string;
-  permissions: string[];
-}
-
-/* =========================================
    API RESPONSE TYPES
 ========================================= */
+
+/**
+ * Shape returned by GET /api/v1/admin/roles-permissions
+ */
+export interface RolesPermissionsApiResponse {
+  success: boolean;
+  data: {
+    availablePermissions: string[];
+    roles: Array<{
+      role: string;
+      permissions: string[];
+    }>;
+  };
+  message: string;
+}
+
+/**
+ * Payload for PATCH /api/v1/admin/roles-permissions/{role}
+ */
+export interface UpdateRolePayload {
+  permissions: string[];
+}
 
 export interface PermissionsResponse {
   success?: boolean;

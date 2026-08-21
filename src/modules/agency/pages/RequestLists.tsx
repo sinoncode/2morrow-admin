@@ -1,239 +1,420 @@
 "use client"
 
-import { useMemo, useState } from "react"
-import { useEffect } from "react";
-import {
-    getRequests,
-    deleteRequest
-} from "@/services/request.service";
-import type { RequestItem } from "@/types/request.types";
-import { Link } from "react-router-dom"
+import { useMemo, useState, useEffect } from "react"
+import { Link, useNavigate } from "react-router-dom"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { MoreVertical, Search, Eye, Pencil, Trash2, Plus, Home, Building2, Landmark } from "lucide-react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Building2,
+  Search,
+  Pencil,
+  Trash2,
+  Plus,
+  MoreVertical,
+  MapPin,
+  Mail,
+  Phone,
+  Globe,
+  ShieldCheck,
+  Users,
+  RefreshCw,
+} from "lucide-react"
+import { useAgencyStore } from "@/store/useAgencyStore"
+import type { AgencyProfileItem } from "@/types/agency.types"
 
-
-
-// const requests: Request[] = [
-//   { id: "RQ-001", client: "Rahul Sharma", phone: "+91 98100 12345", propertyType: "Apartment", transactionType: "Buy", city: "Noida", budget: "₹85 Lakh", bedrooms: "3 BHK", agent: "Aarav Sharma", receivedDate: "24 Jun 2026", status: "Matched" },
-//   { id: "RQ-002", client: "Priya Verma", phone: "+91 91234 56789", propertyType: "Apartment", transactionType: "Rent", city: "Delhi", budget: "₹35,000/mo", bedrooms: "2 BHK", agent: "Neha Kapoor", receivedDate: "22 Jun 2026", status: "Offer Sent" },
-//   { id: "RQ-003", client: "Amit Singh", phone: "+91 99887 65432", propertyType: "Villa", transactionType: "Sell", city: "Gurugram", budget: "₹1.4 Cr", bedrooms: "4 BHK", agent: "Rohit Mehra", receivedDate: "20 Jun 2026", status: "In Review" },
-//   { id: "RQ-004", client: "Sneha Gupta", phone: "+91 87654 32100", propertyType: "Plot", transactionType: "Buy", city: "Greater Noida", budget: "₹65 Lakh", bedrooms: "N/A", agent: "Vikram Singh", receivedDate: "18 Jun 2026", status: "Cancelled" },
-//   { id: "RQ-005", client: "Mohit Jain", phone: "+91 78900 12345", propertyType: "Office", transactionType: "Rent", city: "Noida Extension", budget: "₹55,000/mo", bedrooms: "N/A", agent: "Aditya Jain", receivedDate: "15 Jun 2026", status: "Open" },
-//   { id: "RQ-006", client: "Kavita Patel", phone: "+91 98765 43210", propertyType: "Commercial", transactionType: "Buy", city: "Faridabad", budget: "₹2.3 Cr", bedrooms: "N/A", agent: "Aarav Sharma", receivedDate: "12 Jun 2026", status: "Closed" },
-//   { id: "RQ-007", client: "Ravi Kumar", phone: "+91 93456 78901", propertyType: "Apartment", transactionType: "Sell", city: "Ghaziabad", budget: "₹72 Lakh", bedrooms: "2 BHK", agent: "Neha Kapoor", receivedDate: "10 Jun 2026", status: "Matched" },
-// ]
-
-const statusCls: Record<string, string> = {
-  NEW: "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300",
-  CONTACTED: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300",
-  MATCHED: "bg-cyan-50 text-cyan-700 border-cyan-200 dark:bg-cyan-900/30 dark:text-cyan-300",
-  CLOSED: "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300",
-  CANCELLED: "bg-red-50 text-red-600 border-red-200 dark:bg-red-900/30 dark:text-red-300",
+const statusBadgeStyles: Record<string, string> = {
+  active: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-300",
+  pending: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-300",
+  suspended: "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/30 dark:text-rose-300",
+  terminated: "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-400",
 }
-const txCls: Record<string, string> = {
-  BUY: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  SELL: "bg-rose-50 text-rose-700 border-rose-200",
-  RENT: "bg-sky-50 text-sky-700 border-sky-200",
+
+const typeBadgeStyles: Record<string, string> = {
+  independent: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300",
+  franchise: "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/30 dark:text-purple-300",
+  network: "bg-cyan-50 text-cyan-700 border-cyan-200 dark:bg-cyan-950/30 dark:text-cyan-300",
+  boutique: "bg-pink-50 text-pink-700 border-pink-200 dark:bg-pink-950/30 dark:text-pink-300",
+  corporate: "bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800 dark:text-slate-200",
 }
-const propIcon: Record<string, React.ReactNode> = {
-    HOUSE: <Home className="h-3 w-3"/>,
-    BUILDING: <Building2 className="h-3 w-3"/>,
-    APARTMENT: <Building2 className="h-3 w-3"/>,
-    LAND: <Landmark className="h-3 w-3"/>,
-};
 
-const PAGE_SIZE = 7
+const PAGE_SIZE = 8
 
-export default function RequestListing() {
+export default function AgencyListing() {
+  const navigate = useNavigate()
+  const { agencies, loading, fetchAgencies, deleteAgencyProfile } = useAgencyStore()
+
   const [search, setSearch] = useState("")
-  const [txFilter, setTxFilter] = useState("all")
+  const [typeFilter, setTypeFilter] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")
   const [page, setPage] = useState(1)
-  // const [data, setData] = useState<Request[]>(requests)
 
-  const [data, setData] = useState<RequestItem[]>([]);
-const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    fetchAgencies()
+  }, [fetchAgencies])
 
   const filtered = useMemo(() => {
+    return (agencies || []).filter((agency) => {
+      const legalName = agency.company_identity?.agency_legal_name || (agency as any).agency_legal_name || ""
+      const tradingName = agency.company_identity?.trading_name_brand || (agency as any).trading_name_brand || ""
+      const city = agency.address_contact?.registered_address?.city || (agency as any).city || ""
+      const email = agency.address_contact?.general_email || (agency as any).email || ""
+      const phone = agency.address_contact?.general_phone || (agency as any).phone || ""
+      const type = (agency.company_identity?.agency_type || (agency as any).agency_type || "independent").toLowerCase()
+      const status = (agency.partnership?.status || (agency as any).status || "active").toLowerCase()
 
-    return data.filter((r) => {
+      const query = `${legalName} ${tradingName} ${city} ${email} ${phone}`.toLowerCase()
+      const matchesSearch = !search || query.includes(search.toLowerCase())
+      const matchesType = typeFilter === "all" || type === typeFilter.toLowerCase()
+      const matchesStatus = statusFilter === "all" || status === statusFilter.toLowerCase()
 
-        const q = `
-            ${r.identity.first_name}
-            ${r.identity.last_name}
-            ${r.location.city}
-            ${r.contact.phones}
-        `.toLowerCase();
-
-        return (
-            q.includes(search.toLowerCase()) &&
-            (txFilter === "all" ||
-                r.requirements.transaction === txFilter.toUpperCase()) &&
-            (statusFilter === "all" ||
-                r.status === statusFilter.toUpperCase())
-        );
-
-    });
-
-}, [data, search, txFilter, statusFilter]);
+      return matchesSearch && matchesType && matchesStatus
+    })
+  }, [agencies, search, typeFilter, statusFilter])
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const curPage = Math.min(page, totalPages)
   const paginated = filtered.slice((curPage - 1) * PAGE_SIZE, curPage * PAGE_SIZE)
 
-  useEffect(() => {
-    fetchRequests();
-}, []);
-
-const fetchRequests = async () => {
-    try {
-        setLoading(true);
-
-        const response = await getRequests();
-
-        setData(response.data);
-
-    } catch (error) {
-        console.error(error);
-    } finally {
-        setLoading(false);
+  const handleDelete = async (id: string | number) => {
+    if (window.confirm("Are you sure you want to delete this agency profile?")) {
+      await deleteAgencyProfile(id)
     }
-};
-if (loading) {
-    return (
-        <div className="flex justify-center py-10">
-            Loading Requests...
-        </div>
-    );
-}
-  return (
-    <div className="space-y-5">
-      <style>{`@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}.row-in{animation:fadeUp .25s ease both}`}</style>
+  }
 
-      <div className="flex items-center justify-between">
+  return (
+    <div className="space-y-6 max-w-full mx-auto py-2">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Agency</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Manage all client property search requests.</p>
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 bg-blue-600 rounded-xl shadow-md shadow-blue-600/20">
+              <Building2 className="w-5 h-5 text-white" />
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+              Agencies & Partners
+            </h1>
+          </div>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+            Manage your network of verified real estate partner agencies, portals, and franchise brokers.
+          </p>
         </div>
-        <Link to="/agency/create">
-          <Button size="sm" className="gap-1.5 rounded-lg px-4 h-9"><Plus className="h-4 w-4" />New Agency</Button>
-        </Link>
+
+        <div className="flex items-center gap-2.5">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => fetchAgencies()}
+            disabled={loading}
+            className="h-10 rounded-xl gap-1.5"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+
+          <Link to="/agency/create">
+            <Button size="sm" className="h-10 rounded-xl px-4 gap-2 bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-600/20">
+              <Plus className="h-4 w-4" />
+              New Agency
+            </Button>
+          </Link>
+        </div>
       </div>
 
-      <Card className="shadow-sm">
-        <CardHeader className="flex flex-row flex-wrap items-center gap-3 border-b py-3 px-4">
-          <Select value={txFilter} onValueChange={v => { setTxFilter(v); setPage(1) }}>
-            <SelectTrigger className="w-[130px] h-9 text-sm"><SelectValue placeholder="Transaction" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="BUY">Buy</SelectItem>
-              <SelectItem value="SELL">Sell</SelectItem>
-              <SelectItem value="RENT">Rent</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={statusFilter} onValueChange={v => { setStatusFilter(v); setPage(1) }}>
-            <SelectTrigger className="w-[145px] h-9 text-sm"><SelectValue placeholder="All Statuses" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
-              <SelectItem value="NEW">New</SelectItem>
-              <SelectItem value="CONTACTED">Contacted</SelectItem>
-              <SelectItem value="MATCHED">Matched</SelectItem>
-              <SelectItem value="CLOSED">Closed</SelectItem>
-              <SelectItem value="CANCELLED">Cancelled</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <div className="relative w-[240px]">
-            <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Search client, city, agent…" className="pl-8 h-9 text-sm"
-              value={search} onChange={e => { setSearch(e.target.value); setPage(1) }} />
+      {/* Filter Toolbar */}
+      <Card className="border border-gray-200/80 dark:border-gray-800 shadow-sm rounded-2xl overflow-hidden bg-card">
+        <CardHeader className="flex flex-row flex-wrap items-center gap-3 border-b border-border/50 py-3.5 px-4 sm:px-6">
+          <div className="relative flex-1 min-w-[220px] max-w-md">
+            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search by legal name, brand, city, email..."
+              className="pl-10 h-10 text-sm rounded-xl"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value)
+                setPage(1)
+              }}
+            />
           </div>
-          <div className="ml-auto text-xs text-muted-foreground">{filtered.length} request{filtered.length !== 1 ? "s" : ""}</div>
+
+          <Select
+            value={typeFilter}
+            onValueChange={(v) => {
+              setTypeFilter(v)
+              setPage(1)
+            }}
+          >
+            <SelectTrigger className="w-[150px] h-10 text-sm rounded-xl">
+              <SelectValue placeholder="All Types" />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl">
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="independent">Independent</SelectItem>
+              <SelectItem value="franchise">Franchise</SelectItem>
+              <SelectItem value="network">Network Member</SelectItem>
+              <SelectItem value="boutique">Boutique</SelectItem>
+              <SelectItem value="corporate">Corporate</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={statusFilter}
+            onValueChange={(v) => {
+              setStatusFilter(v)
+              setPage(1)
+            }}
+          >
+            <SelectTrigger className="w-[150px] h-10 text-sm rounded-xl">
+              <SelectValue placeholder="All Statuses" />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl">
+              <SelectItem value="all">All Statuses</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="suspended">Suspended</SelectItem>
+              <SelectItem value="terminated">Terminated</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <div className="ml-auto text-xs font-semibold text-muted-foreground">
+            {filtered.length} {filtered.length === 1 ? "agency" : "agencies"}
+          </div>
         </CardHeader>
 
+        {/* Table Body */}
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table className="min-w-[1040px]">
-              <TableHeader>
-                <TableRow className="bg-muted/40 hover:bg-muted/40">
-                  {["Req. ID", "Client",  "Transaction", "City", "Budget", "Received", "Status", "Action"].map((h, i) => (
-                    <TableHead key={h} className={`text-xs font-semibold uppercase tracking-wide ${i === 0 ? "pl-4" : ""} ${i === 10 ? "text-right pr-4" : ""}`}>{h}</TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paginated.length === 0 ? (
-                  <TableRow><TableCell colSpan={11} className="py-16 text-center text-muted-foreground text-sm">No requests match your filters.</TableCell></TableRow>
-                ) : paginated.map((r, i) => (
-                  <TableRow key={r.id} className="row-in border-b border-border/50 hover:bg-muted/30 transition-colors" style={{ animationDelay: `${i * 35}ms` }}>
-                    <TableCell className="pl-4 font-mono text-xs text-muted-foreground">{r.reference}</TableCell>
-                    <TableCell>
-                      <div className="font-medium text-sm">{r.identity.first_name} {r.identity.last_name}</div>
-                      <div className="text-xs text-muted-foreground">{r.contact.phones}</div>
-                    </TableCell>
-                    {/* <TableCell>
-                      <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">{propIcon[r.requirements.category] ?? <Home className="h-3 w-3" />}</span>
-                    </TableCell> */}
-                    <TableCell>
-                      <Badge variant="outline" className={`text-xs px-2 py-0.5 font-medium ${txCls[r.requirements.transaction]}`}>{r.requirements.transaction}</Badge>
-                    </TableCell>
-                    <TableCell className="text-sm">{r.location.city}</TableCell>
-                    <TableCell className="text-sm font-medium">{r.requirements.currency}
-{" "}
-{Number(r.requirements.budget_min).toLocaleString()}
--
-{" "}
-{Number(r.requirements.budget_max).toLocaleString()}</TableCell>
-                    {/* <TableCell className="text-xs text-muted-foreground">{r.relations.assigned_agent_id ?? "Not Assigned"}</TableCell> */}
-                    {/* <TableCell>
-    {r.relations.assigned_agent_id ?? "Not Assigned"}
-</TableCell> */}
-                    <TableCell className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={`text-xs px-2.5 py-1 font-medium ${statusCls[r.status]}`}>{r.status}</Badge>
-                    </TableCell>
-                    <TableCell className="text-right pr-4">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 rounded-md"><MoreVertical className="h-4 w-4" /></Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-44">
-                          <Link to={`/requests/edit/${r.id}`}>
-                            <DropdownMenuItem className="text-sm gap-2 cursor-pointer"><Pencil className="h-3.5 w-3.5" />View & Edit</DropdownMenuItem>
-                          </Link>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-sm gap-2 text-red-600 cursor-pointer focus:text-red-600"
-                           onClick={async () => {
-    await deleteRequest(r.id);
-    fetchRequests();
-}}>
-                            <Trash2 className="h-3.5 w-3.5" />Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-          <div className="flex items-center justify-between px-4 py-3 border-t border-border/50">
-            <p className="text-xs text-muted-foreground">
-              {filtered.length === 0 ? "No results" : `Showing ${(curPage - 1) * PAGE_SIZE + 1}–${Math.min(curPage * PAGE_SIZE, filtered.length)} of ${filtered.length}`}
-            </p>
-            <div className="flex items-center gap-1.5">
-              <Button variant="outline" size="sm" className="h-8 px-3 text-xs" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={curPage === 1}>Previous</Button>
-              <span className="text-xs text-muted-foreground px-1">{curPage} / {totalPages}</span>
-              <Button variant="outline" size="sm" className="h-8 px-3 text-xs" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={curPage === totalPages}>Next</Button>
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-20 space-y-3">
+              <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+              <p className="text-sm text-muted-foreground font-medium">Loading agency directories...</p>
             </div>
-          </div>
+          ) : paginated.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center px-4">
+              <div className="w-14 h-14 rounded-2xl bg-muted/40 flex items-center justify-center mb-3">
+                <Building2 className="w-7 h-7 text-muted-foreground" />
+              </div>
+              <h3 className="text-base font-semibold text-foreground">No Agencies Found</h3>
+              <p className="text-xs text-muted-foreground max-w-sm mt-1 mb-4">
+                {search || typeFilter !== "all" || statusFilter !== "all"
+                  ? "No agency records match your filter criteria. Try resetting the filters."
+                  : "Get started by adding your first real estate partner agency profile to the CRM."}
+              </p>
+              <Link to="/agency/create">
+                <Button size="sm" className="rounded-xl bg-blue-600 text-white gap-2">
+                  <Plus className="w-4 h-4" />
+                  Create Agency Profile
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table className="min-w-[980px]">
+                <TableHeader>
+                  <TableRow className="bg-muted/40 hover:bg-muted/40">
+                    <TableHead className="text-xs font-bold uppercase tracking-wider pl-6">Agency & Brand</TableHead>
+                    <TableHead className="text-xs font-bold uppercase tracking-wider">Type</TableHead>
+                    <TableHead className="text-xs font-bold uppercase tracking-wider">Location</TableHead>
+                    <TableHead className="text-xs font-bold uppercase tracking-wider">Primary Contact</TableHead>
+                    <TableHead className="text-xs font-bold uppercase tracking-wider">Staff / Offices</TableHead>
+                    <TableHead className="text-xs font-bold uppercase tracking-wider">Status</TableHead>
+                    <TableHead className="text-xs font-bold uppercase tracking-wider text-right pr-6">Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {paginated.map((agency: AgencyProfileItem, index) => {
+                    const id = agency.id ?? index + 1
+                    const identity = agency.company_identity || (agency as any)
+                    const contact = agency.address_contact || (agency as any)
+                    const partnership = agency.partnership || (agency as any)
+                    const legalName = identity.agency_legal_name || "Unnamed Agency"
+                    const brand = identity.trading_name_brand
+                    const type = (identity.agency_type || "independent").toLowerCase()
+                    const status = (partnership.status || "active").toLowerCase()
+                    const city = contact.registered_address?.city || (contact as any)?.city || "Geneva"
+                    const country = contact.registered_address?.country || (contact as any)?.country || "Switzerland"
+                    const phone = contact.general_phone || (contact as any)?.phone || ""
+                    const email = contact.general_email || (contact as any)?.email || ""
+                    const agentsCount = identity.total_agents || identity.staff_size_bracket || "1-10"
+                    const officesCount = identity.offices_count || 1
+
+                    return (
+                      <TableRow
+                        key={id}
+                        className="border-b border-border/50 hover:bg-muted/30 transition-colors"
+                      >
+                        {/* Legal Name & Brand */}
+                        <TableCell className="pl-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-sm">
+                              {legalName.substring(0, 2).toUpperCase()}
+                            </div>
+                            <div className="min-w-0">
+                              <Link
+                                to={`/agency/edit/${id}`}
+                                className="font-semibold text-sm text-foreground hover:text-blue-600 transition-colors block truncate"
+                              >
+                                {legalName}
+                              </Link>
+                              {brand && (
+                                <p className="text-xs text-muted-foreground truncate">{brand}</p>
+                              )}
+                            </div>
+                          </div>
+                        </TableCell>
+
+                        {/* Agency Type */}
+                        <TableCell>
+                          <Badge
+                            variant="outline"
+                            className={`text-xs px-2.5 py-0.5 font-medium capitalize ${
+                              typeBadgeStyles[type] || typeBadgeStyles.independent
+                            }`}
+                          >
+                            {type}
+                          </Badge>
+                        </TableCell>
+
+                        {/* Location */}
+                        <TableCell>
+                          <div className="flex items-center gap-1.5 text-sm text-foreground">
+                            <MapPin className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                            <span>{city}</span>
+                            <span className="text-xs text-muted-foreground">({country})</span>
+                          </div>
+                        </TableCell>
+
+                        {/* Contact details */}
+                        <TableCell>
+                          <div className="space-y-0.5">
+                            {email && (
+                              <div className="flex items-center gap-1.5 text-xs text-foreground truncate max-w-[200px]">
+                                <Mail className="w-3 h-3 text-muted-foreground shrink-0" />
+                                <span className="truncate">{email}</span>
+                              </div>
+                            )}
+                            {phone && (
+                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                <Phone className="w-3 h-3 text-muted-foreground shrink-0" />
+                                <span>{phone}</span>
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+
+                        {/* Staff / Offices */}
+                        <TableCell>
+                          <div className="text-xs text-foreground font-medium flex items-center gap-2">
+                            <span className="flex items-center gap-1">
+                              <Users className="w-3.5 h-3.5 text-muted-foreground" />
+                              {agentsCount} agents
+                            </span>
+                            <span className="text-muted-foreground">•</span>
+                            <span>{officesCount} office{officesCount !== 1 ? "s" : ""}</span>
+                          </div>
+                        </TableCell>
+
+                        {/* Status */}
+                        <TableCell>
+                          <Badge
+                            variant="outline"
+                            className={`text-xs px-2.5 py-0.5 font-medium capitalize ${
+                              statusBadgeStyles[status] || statusBadgeStyles.active
+                            }`}
+                          >
+                            {status}
+                          </Badge>
+                        </TableCell>
+
+                        {/* Actions */}
+                        <TableCell className="text-right pr-6">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-44 rounded-xl">
+                              <DropdownMenuItem
+                                onClick={() => navigate(`/agency/edit/${id}`)}
+                                className="gap-2 cursor-pointer text-sm"
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                                View & Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => handleDelete(id)}
+                                className="gap-2 cursor-pointer text-sm text-red-600 focus:text-red-600"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                                Delete Agency
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+
+          {/* Pagination Footer */}
+          {!loading && filtered.length > 0 && (
+            <div className="flex items-center justify-between px-6 py-3.5 border-t border-border/50">
+              <p className="text-xs text-muted-foreground">
+                Showing {(curPage - 1) * PAGE_SIZE + 1}–{Math.min(curPage * PAGE_SIZE, filtered.length)} of{" "}
+                {filtered.length} agencies
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 px-3 text-xs rounded-lg"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={curPage === 1}
+                >
+                  Previous
+                </Button>
+                <span className="text-xs text-muted-foreground px-1">
+                  {curPage} / {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 px-3 text-xs rounded-lg"
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={curPage === totalPages}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
