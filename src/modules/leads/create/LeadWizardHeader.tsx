@@ -22,6 +22,6 @@ export default function LeadWizardHeader() {
           Update Lead
         </Button>
       </div>
-    </div>
+    </div>  
   )
 }
