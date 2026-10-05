@@ -1,5 +1,22 @@
 import { create } from "zustand"
-import type { ContactFormData, ContactStore } from "@/types/contact.types"
+import type {
+  ContactFormData,
+  ContactStore,
+} from "@/types/contact.types"
+
+import {
+  buildCreateContactPayload,
+  createContact,
+} from "../../services/contact-create.service"
+
+interface ContactCreationStore extends ContactStore {
+  creating: boolean
+  createError: string | null
+  createSuccess: boolean
+
+  submitContact: () => Promise<boolean>
+  clearCreateState: () => void
+}
 
 const initialState: ContactFormData = {
   title: "",
@@ -72,6 +89,7 @@ const initialState: ContactFormData = {
   notaryId: "",
   mortgageBrokerBankId: "",
   notes: "",
+
   budgetCurrency: "",
   budgetFlexibility: "",
   budgetMin: undefined,
@@ -97,6 +115,7 @@ const initialState: ContactFormData = {
   idDocumentType: "",
   idDocumentNumber: "",
   idExpiryDate: "",
+
   transactionTypeSought: "",
   propertyCategories: [],
   propertySubTypes: [],
@@ -133,6 +152,7 @@ const initialState: ContactFormData = {
   matchingAlertActive: false,
   alertFrequency: "",
   alertDeliveryChannels: [],
+
   isOwnerVendor: false,
   linkedPropertyIds: [],
   estimatedValueProperty: undefined,
@@ -148,31 +168,38 @@ const initialState: ContactFormData = {
   minimumNetPriceConfidential: undefined,
   renovationPlannedBeforeSale: false,
   renovationBudget: undefined,
+
   linkedPropertiesBuyerTenant: [],
   linkedPropertiesSellerLandlord: [],
   linkedTransactionsDossierIds: [],
   linkedOfferIds: [],
   linkedViewingIds: [],
   linkedInvoiceCommissionIds: [],
+
   totalEmailsSentReceived: undefined,
   totalAlertsSent: undefined,
   newsletterCampaignsSent: undefined,
   eventsAttended: [],
   socialMediaNotes: "",
+
   clientRoles: [],
   clientSubtype: "private_individual",
   clientCategory: "standard",
   relationshipStage: "prospect",
   priorityLevel: "normal",
+
   isReferred: false,
   referredByContactId: "",
+
   exclusivityWithAgency: false,
   signedAgencyAgreement: false,
   agencyAgreementDate: "",
   agencyAgreementFile: null,
+
   hasPowerOfAttorney: false,
   poaHolderName: "",
   poaDocumentFile: null,
+
   companyName: "",
   companyRegistrationNo: "",
   vatUidNumber: "",
@@ -184,29 +211,91 @@ const initialState: ContactFormData = {
   lexKollerRestriction: false,
 }
 
-export const useLeadCreationStore = create<ContactStore>((set) => ({
-  form: initialState,
+export const useLeadCreationStore =
+  create<ContactCreationStore>((set, get) => ({
+    form: initialState,
 
-  updateField: (key, value) =>
-    set((state) => ({
-      form: {
-        ...state.form,
-        [key]: value,
-      },
-    })),
+    creating: false,
+    createError: null,
+    createSuccess: false,
 
-  setForm: (data) =>
-    set((state) => ({
-      form: {
-        ...state.form,
-        ...data,
-      },
-    })),
+    updateField: (key, value) =>
+      set((state) => ({
+        form: {
+          ...state.form,
+          [key]: value,
+        },
+      })),
 
-  reset: () =>
-    set({
-      form: { ...initialState },
-    }),
-}))
+    setForm: (data) =>
+      set((state) => ({
+        form: {
+          ...state.form,
+          ...data,
+        },
+      })),
 
-export const useContactCreationStore = useLeadCreationStore
+    submitContact: async () => {
+      set({
+        creating: true,
+        createError: null,
+        createSuccess: false,
+      })
+
+      try {
+        const { form } = get()
+
+        // Convert the wizard form data
+        // into the API request payload.
+        const payload = buildCreateContactPayload(form)
+
+        console.log(
+          "Creating contact with payload:",
+          payload
+        )
+
+        await createContact(payload)
+
+        set({
+          creating: false,
+          createError: null,
+          createSuccess: true,
+        })
+
+        return true
+      } catch (error) {
+        console.error(
+          "Failed to create contact:",
+          error
+        )
+
+        set({
+          creating: false,
+          createError:
+            "Failed to create contact. Please try again.",
+          createSuccess: false,
+        })
+
+        return false
+      }
+    },
+
+    clearCreateState: () =>
+      set({
+        createError: null,
+        createSuccess: false,
+      }),
+
+    reset: () =>
+      set({
+        form: {
+          ...initialState,
+        },
+        creating: false,
+        createError: null,
+        createSuccess: false,
+      }),
+  }))
+
+export const useContactCreationStore =
+  useLeadCreationStore

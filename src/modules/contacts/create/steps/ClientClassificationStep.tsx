@@ -28,9 +28,9 @@ export default function ClientClassificationStep() {
   };
 
   return (
-    <div className="space-y-6 text-foreground">
+    <div className="w-full min-w-0 max-w-full space-y-6 text-foreground">
       {/* 1. CLASSIFICATION & PROFILE */}
-      <Card className="border border-border shadow-sm rounded-2xl bg-card text-card-foreground">
+      <Card className="w-full min-w-0 max-w-full border border-border shadow-sm rounded-2xl bg-card text-card-foreground">
         <CardContent className="p-6">
           <div className="flex items-center gap-2 mb-6">
             <UserPlus className="h-5 w-5 text-blue-600 dark:text-blue-400" />
@@ -190,7 +190,7 @@ export default function ClientClassificationStep() {
       </Card>
 
       {/* 2. LEGAL ENTITY / COMPANY DETAILS */}
-      <Card className="border border-border shadow-sm rounded-2xl bg-card text-card-foreground">
+      <Card className="w-full min-w-0 max-w-full border border-border shadow-sm rounded-2xl bg-card text-card-foreground">
         <CardContent className="p-6">
           <div className="flex items-center gap-2 mb-6">
             <Building2 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
@@ -240,7 +240,7 @@ export default function ClientClassificationStep() {
       </Card>
 
       {/* 3. DOMICILE & SWISS RESIDENCE PERMIT */}
-      <Card className="border border-border shadow-sm rounded-2xl bg-card text-card-foreground">
+      <Card className="w-full min-w-0 max-w-full border border-border shadow-sm rounded-2xl bg-card text-card-foreground">
         <CardContent className="p-6">
           <div className="flex items-center gap-2 mb-6">
             <ShieldCheck className="h-5 w-5 text-blue-600 dark:text-blue-400" />
@@ -335,7 +335,7 @@ export default function ClientClassificationStep() {
       </Card>
 
       {/* 4. AGREEMENTS & POWER OF ATTORNEY */}
-      <Card className="border border-border shadow-sm rounded-2xl bg-card text-card-foreground">
+      <Card className="w-full min-w-0 max-w-full border border-border shadow-sm rounded-2xl bg-card text-card-foreground">
         <CardContent className="p-6">
           <div className="flex items-center gap-2 mb-6">
             <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />

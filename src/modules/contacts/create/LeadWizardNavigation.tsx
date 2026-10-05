@@ -14,17 +14,18 @@ interface Props {
   onStepChange: (step: number) => void
 }
 
-// Map Lucide icons dynamically based on step index
 const getStepIcon = (index: number) => {
   const icons = [
-    UserCheck,  // 0. Client Classification
-    Wallet,     // 1. Financial Profile
-    Building2,  // 2. Property Search Criteria
-    Home,       // 3. Property for Sale / Rent
-    History,    // 4. Communication & Activity History
-    Network,    // 5. Relationships & Linked Records
+    UserCheck,
+    Wallet,
+    Building2,
+    Home,
+    History,
+    Network,
   ]
+
   const Icon = icons[index] || Building2
+
   return <Icon className="h-4 w-4 shrink-0" />
 }
 
@@ -34,13 +35,19 @@ export default function LeadWizardNavigation({
   onStepChange,
 }: Props) {
   return (
-    <div className="w-fit overflow-x-auto pb-2 scrollbar-hide">
+    /* ONLY THIS AREA CAN SCROLL */
+    <div className="w-full min-w-0 overflow-x-auto overflow-y-hidden pb-2">   
+      {/* Content is allowed to be wider than the screen */}
       <div
         className="
-          flex min-w-fit justify-start items-center gap-1
+          flex
+          w-[80%]
+          min-w-full
+          items-center
+          justify-start
+          gap-1
           rounded-full
           bg-[linear-gradient(90deg,_#1f6ea9_0%,_#155789_40%,_#0a2f4f_70%,_#040404_100%)]
-          shadow-[rgba(18,26,133,0.36)_0px_7px_29px_0px]
           p-1.5
           shadow-md
         "
@@ -51,12 +58,14 @@ export default function LeadWizardNavigation({
           return (
             <button
               key={step}
+              type="button"
               onClick={() => onStepChange(index)}
               className={cn(
                 `
                 group
                 relative
                 flex
+                shrink-0
                 items-center
                 gap-2
                 rounded-full
@@ -64,12 +73,11 @@ export default function LeadWizardNavigation({
                 py-2.5
                 font-medium
                 transition-all
-                duration-500
+                duration-300
                 ease-out
                 text-base
                 whitespace-nowrap
                 `,
-                index !== 0 && index !== steps.length - 1 && "mx-2", // Apply horizontal margin only to middle buttons
                 isActive
                   ? "bg-white text-slate-900 shadow-sm scale-[1.02]"
                   : "text-white/80 hover:bg-white/10 hover:text-white"
