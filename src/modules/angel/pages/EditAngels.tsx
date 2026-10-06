@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 
-import RequestWizard from "../components/create/RequestWizard"
+import RequestWizard from "../components/create/AngelWizard"
 import { getRequestById } from "@/services/request.service"
-import { useRequestCreationStore, type RequestFormData } from "../components/create/store/requestCreationStore"
+import { useRequestCreationStore, type RequestFormData } from "../components/create/store/angelCreationStore"
 import { toast } from "@/lib/toast"
 
 export default function EditRequestsPage() {

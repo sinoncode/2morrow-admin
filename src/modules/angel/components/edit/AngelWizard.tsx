@@ -1,28 +1,29 @@
 import { useState } from "react"
 
-// ── FIX 1: Correct import paths (adjust based on your actual folder structure) ──
-// If RequestWizard is in: src/app/requests/edit/RequestWizard.tsx
-// Then steps are likely in: src/app/requests/create/steps/ or src/components/requests/steps/
-import  ContactStep  from "../../requests/create/steps/ContactStep"
-import RequestsStep from "../../requests/create/steps/RequestsStep"
-import CallsStep from "../../requests/create/steps/CallStep"
-import MailStep from "../../requests/create/steps/MailStep"
+// The step components live under src/modules/angel/components/steps, so adjust
+// the relative import from this file's directory (`edit`) to the shared steps folder.
+import IdentityStep from "../../steps/IdentityStep"
+import InternationalAddressesStep from "../../steps/InternationalAddressesStep"
+import PartnershipAgreementStep from "../../steps/PartnershipAgreementStep"
+import CRMAccessStep from "../../steps/CRMAccessStep"
+import CRMAccessRigthsStep from "../../steps/CRMAccessRigths"
 
 // ── FIX 2: If the above doesn't work, try these common alternatives ──
 // import { ContactStep } from "@/components/requests/steps/ContactStep"
 // import { ContactStep } from "../steps/ContactStep"
 
-import RequestWizardHeader from "./RequestWizardHeader"
-import RequestWizardNavigation from "./RequestWizardNavigation" // ← FIX 3: Same folder
+import RequestWizardHeader from "./AngelWizardHeader"
+import RequestWizardNavigation from "./AngelWizardNavigation" // ← FIX 3: Same folder
 
 const steps = ["Contacts", "Requests & Search", "Calls", "Mails"]
 
 // ── FIX 4: Shared form state so data persists across steps ──
 interface WizardData {
-  contacts?: any
-  requests?: any
-  calls?: any
-  mails?: any
+  identity?: any
+  internationalAddresses?: any
+  partnershipAgreement?: any
+  crmAccess?: any
+  crmAccessRights?: any
 }
 
 export default function RequestWizard() {
@@ -37,34 +38,46 @@ export default function RequestWizard() {
     switch (currentStep) {
       case 0:
         return (
-          <ContactStep
-            data={wizardData.contacts}
-            onChange={(data) => updateStepData("contacts", data)}
+          <IdentityStep
+            data={wizardData.identity}
+            onChange={(data) => updateStepData("identity", data)}
           />
         )
       case 1:
         return (
-          <RequestsStep
-            data={wizardData.requests}
-            onChange={(data) => updateStepData("requests", data)}
+          <InternationalAddressesStep
+            data={wizardData.internationalAddresses}
+            onChange={(data) => updateStepData("internationalAddresses", data)}
           />
         )
       case 2:
         return (
-          <CallsStep
-            data={wizardData.calls}
-            onChange={(data) => updateStepData("calls", data)}
+          <PartnershipAgreementStep
+            data={wizardData.partnershipAgreement}
+            onChange={(data) => updateStepData("partnershipAgreement", data)}
           />
         )
       case 3:
         return (
-          <MailStep
-            data={wizardData.mails}
-            onChange={(data) => updateStepData("mails", data)}
+          <CRMAccessStep
+            data={wizardData.crmAccess}
+            onChange={(data) => updateStepData("crmAccess", data)}
+          />
+        )
+        case 4:
+        return (
+          <CRMAccessRigthsStep
+            data={wizardData.crmAccessRights}
+            onChange={(data) => updateStepData("crmAccessRights", data)}
           />
         )
       default:
-        return <ContactStep data={wizardData.contacts} onChange={(data) => updateStepData("contacts", data)} />
+        return (
+          <IdentityStep
+            data={wizardData.identity}
+            onChange={(data) => updateStepData("identity", data)}
+          />
+        )
     }
   }
 

@@ -111,9 +111,9 @@ import ContactListing from "@/modules/contacts/pages/ContactList"
 import ContactCreate from "@/modules/contacts/pages/ContactCreate"
 
 // Angels
-import AngelsList from "@/modules/angel/pages/RequestLists"
-import EditAngels from "@/modules/angel/pages/EditRequests"
-import CreateAngels from "@/modules/angel/components/create/RequestWizard"
+import AngelsList from "@/modules/angel/pages/AngelLists"
+import EditAngels from "@/modules/angel/pages/EditAngels"
+import CreateAngels from "@/modules/angel/components/create/AngelWizard"
 
 // Partners
 import PartnersList from "@/modules/partners/pages/RequestLists"

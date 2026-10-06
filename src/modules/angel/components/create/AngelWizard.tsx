@@ -9,9 +9,9 @@ import CRMAccessRight from "./steps/CRMAccessRights"
 import CallStep from "./steps/CallStep"
 import MailStep from "./steps/MailStep"
 
-import RequestWizardHeader from "./RequestWizardHeader"
-import RequestWizardNavigation from "./RequestWizardNavigation"
-import { useRequestCreationStore, type RequestFormData } from "./store/requestCreationStore"
+import RequestWizardHeader from "./AngelWizardHeader"
+import RequestWizardNavigation from "./AngelWizardNavigation"
+import { useRequestCreationStore, type RequestFormData } from "./store/angelCreationStore"
 import { createRequest, updateRequest } from "@/services/request.service"
 import { toast } from "@/lib/toast"
 

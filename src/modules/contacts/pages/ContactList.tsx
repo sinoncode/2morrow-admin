@@ -747,8 +747,8 @@ export default function ContactListing() {
                     <div className="ml-auto text-xs text-muted-foreground">
 
                         {search ||
-                        txFilter !== "all" ||
-                        stageFilter !== "all"
+                            txFilter !== "all" ||
+                            stageFilter !== "all"
                             ? `${filtered.length} on this page`
                             : `${totalRecords} contact${totalRecords !== 1 ? "s" : ""}`
                         }
